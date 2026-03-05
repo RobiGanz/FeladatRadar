@@ -1,7 +1,531 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>FeladatRadar - Kezdőlap</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="hero-section">
+    <div class="hero-background">
+        <div class="hero-gradient"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="badge-icon">🚀</span>
+            <span class="badge-text">Új generációs tanulás</span>
+        </div>
+
+        <h1 class="hero-title">
+            Üdvözöl a <span class="gradient-text">FeladatRadar!</span><br />
+
+        </h1>
+
+        <p class="hero-subtitle">
+            Kezeld a tanulmányaidat könnyedén • Kövesd nyomon a házi feladatokat és határidőket
+        </p>
+
+        <div class="hero-buttons">
+            <a href="/register" class="btn-primary-custom">
+
+                <span>Regisztráció</span>
+                <span class="btn-arrow">→</span>
+            </a>
+            <a href="/login" class="btn-secondary-custom">
+
+                <span>Bejelentkezés</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Miért a FeladatRadar? 💡</h2>
+            <p class="section-subtitle">Minden, amire szükséged van a sikeres tanuláshoz</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon gradient-1">
+                    <span>🎒</span>
+                </div>
+                <h3 class="feature-title">Diákoknak</h3>
+                <p class="feature-description">
+                    Tartsd nyilván az óráidat, feladataidat és vizsgáidat egy helyen.
+                    Soha többé nem maradsz le semmiről!
+                </p>
+                <ul class="feature-list">
+                    <li>📅 Órarend kezelés</li>
+                    <li>📝 Feladat követés</li>
+                    <li>🎯 Vizsga emlékeztetők</li>
+                </ul>
+            </div>
+
+            <div class="feature-card featured">
+                <div class="popular-badge">⭐ Legnépszerűbb</div>
+                <div class="feature-icon gradient-2">
+                    <span>👨‍🏫</span>
+                </div>
+                <h3 class="feature-title">Tanároknak</h3>
+                <p class="feature-description">
+                    Szervezd meg az óráidat, add ki a feladatokat és kövesd nyomon
+                    a diákok előrehaladását egyszerűen.
+                </p>
+                <ul class="feature-list">
+                    <li>📊 Osztály áttekintés</li>
+                    <li>✅ Feladat kiadás</li>
+                    <li>📈 Teljesítmény követés</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number gradient-text">24/7</div>
+                <div class="stat-label">Elérhetőség</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number gradient-text">50+</div>
+                <div class="stat-label">Tantárgy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number gradient-text">100%</div>
+                <div class="stat-label">Ingyenes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number gradient-text">∞</div>
+                <div class="stat-label">Lehetőségek</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Készen állsz a kezdésre? 🚀</h2>
+            <p class="cta-subtitle">Csatlakozz és kezdd el szervezni a tanulmányaidat még ma!</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn-primary-custom">
+                    Ingyenes regisztráció
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 2rem;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: -1;
+    }
+
+    .hero-gradient {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+
+    .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .shape-1 {
+        width: 300px;
+        height: 300px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .shape-2 {
+        width: 200px;
+        height: 200px;
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    .shape-3 {
+        width: 150px;
+        height: 150px;
+        bottom: 10%;
+        left: 30%;
+        animation-delay: 4s;
+    }
+
+    .shape-4 {
+        width: 250px;
+        height: 250px;
+        top: 30%;
+        right: 20%;
+        animation-delay: 6s;
+    }
+
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-30px) rotate(180deg);
+        }
+    }
+
+    .hero-content {
+        text-align: center;
+        color: white;
+        z-index: 1;
+        max-width: 900px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        animation: fadeInDown 1s ease-out;
+    }
+
+    .badge-icon {
+        font-size: 1.2rem;
+    }
+
+    .badge-text {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        font-weight: 300;
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease-out 0.6s both;
+    }
+
+    .btn-primary-custom {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: white;
+        color: #667eea;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+    .btn-secondary-custom {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+        .btn-secondary-custom:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+    .btn-arrow {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-primary-custom:hover .btn-arrow {
+        transform: translateX(5px);
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 6rem 0;
+        background: #f8f9fa;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #2d3748;
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: #718096;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card.featured {
+            border: 2px solid #667eea;
+        }
+
+    .popular-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .gradient-1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .gradient-2 {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 1rem;
+    }
+
+    .feature-description {
+        color: #718096;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+    /* Stats Section */
+    .stats-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 4rem 0;
+        color: white;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .cta-content {
+        text-align: center;
+    }
+
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #2d3748;
+        margin-bottom: 1rem;
+    }
+
+    .cta-subtitle {
+        font-size: 1.3rem;
+        color: #718096;
+        margin-bottom: 2rem;
+    }
+
+    /* Animations */
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+    }
+</style>

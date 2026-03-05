@@ -1,10 +1,17 @@
+using Blazored.LocalStorage;
 using FeladatRadar.frontend.Components;
+using FeladatRadar.frontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:44359/") // Az API portja
+});
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 
