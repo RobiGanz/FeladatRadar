@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FeladatRadar.frontend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47b4a1415062b07d2367750d7dabe318e8a150e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a0f27666122cf6fa17e23809f063287c42b33de4")]
 [assembly: System.Reflection.AssemblyProductAttribute("FeladatRadar.frontend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FeladatRadar.frontend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

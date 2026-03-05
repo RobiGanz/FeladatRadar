@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {}
+    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {}
   },
   "projects": {
-    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {
+    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
+        "projectUniqueName": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
         "projectName": "FeladatRadar.backend",
-        "projectPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
-        "packagesPath": "C:\\Users\\Csongi\\.nuget\\packages\\",
-        "outputPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\obj\\",
+        "projectPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
+        "packagesPath": "C:\\Users\\Robi\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Csongi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Robi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -94,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
