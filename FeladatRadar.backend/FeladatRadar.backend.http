@@ -1,0 +1,6 @@
+@FeladatRadar.backend_HostAddress = http://localhost:5278
+
+GET {{FeladatRadar.backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
