@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj": {}
+    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj": {
+    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj",
+        "projectUniqueName": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj",
         "projectName": "FeladatRadar.frontend",
-        "projectPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj",
-        "packagesPath": "C:\\Users\\Robi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.frontend\\obj\\",
+        "projectPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.frontend\\FeladatRadar.frontend.csproj",
+        "packagesPath": "C:\\Users\\Csongi\\.nuget\\packages\\",
+        "outputPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.frontend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Robi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Csongi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -69,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

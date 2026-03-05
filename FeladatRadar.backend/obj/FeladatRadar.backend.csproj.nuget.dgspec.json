@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {}
+    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {
+    "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
+        "projectUniqueName": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
         "projectName": "FeladatRadar.backend",
-        "projectPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
-        "packagesPath": "C:\\Users\\Robi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Robi\\Desktop\\FeladatRadar\\FeladatRadar\\FeladatRadar.backend\\obj\\",
+        "projectPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\FeladatRadar.backend.csproj",
+        "packagesPath": "C:\\Users\\Csongi\\.nuget\\packages\\",
+        "outputPath": "D:\\Vizsgaremek_FeladatRadar\\FeladatRadar.backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Robi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Csongi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -51,9 +50,29 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.1.4, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             }
           },
           "imports": [
@@ -75,7 +94,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
