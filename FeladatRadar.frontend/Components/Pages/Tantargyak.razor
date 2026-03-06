@@ -1,0 +1,274 @@
+﻿@page "/tantargyak"
+@using FeladatRadar.frontend.Services
+@using FeladatRadar.frontend.Models
+@inject AuthService AuthService
+@inject SubjectService SubjectService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>Tantárgyak — FeladatRadar</PageTitle>
+
+@if (!_hasCheckedAuth)
+{
+    <div class="fr-loading"><div class="fr-spinner"></div></div>
+}
+else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
+{
+    <div class="fr-layout" data-theme="@_theme">
+        <aside class="fr-sidebar">
+            <div class="fr-brand">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>FeladatRadar</span>
+            </div>
+            <nav class="fr-nav">
+                <a href="/dashboard" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
+                <a href="/feladatok" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Feladatok</a>
+                <a href="/fokusz" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+            </nav>
+            <div class="fr-sidebar-footer">
+                <button class="fr-theme-toggle" @onclick="ToggleTheme">
+                    @if (_theme == "dark") { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span>Világos mód</span> }
+                    else { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span> }
+                </button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
+            </div>
+        </aside>
+
+        <main class="fr-main">
+            <header class="fr-topbar">
+                <div class="fr-topbar-left">
+                    <span class="fr-page-title">Tantárgyak</span>
+                    <span class="fr-breadcrumb">/ @_myEnrollments.Count felvett</span>
+                </div>
+                <div class="fr-topbar-right">
+                    <div class="fr-user-chip">
+                        <div class="fr-user-dot"></div>
+                        <span>@AuthService.CurrentUser.FirstName @AuthService.CurrentUser.LastName</span>
+                        <span class="fr-user-role">@AuthService.CurrentUser.UserRole</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="fr-content">
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            @if (_messageIsError) { <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/> }
+                            else { <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/> }
+                        </svg>
+                        @_message
+                        <button class="fr-alert-close" @onclick="() => _message = string.Empty">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                }
+
+                <!-- Tab bar -->
+                <div class="fr-tabs">
+                    <button class="fr-tab @(_activeTab == "enrolled" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "enrolled"'>
+                        Felvett tantárgyaim
+                        <span class="fr-tab-count">@_myEnrollments.Count</span>
+                    </button>
+                    <button class="fr-tab @(_activeTab == "available" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "available"'>
+                        Felvehető
+                        <span class="fr-tab-count">@_availableSubjects.Count</span>
+                    </button>
+                    <button class="fr-tab @(_activeTab == "custom" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "custom"'>
+                        Saját hozzáadása
+                    </button>
+                </div>
+
+                @if (_isLoading)
+                {
+                    <div class="fr-panel-empty"><div class="fr-spinner fr-spinner-sm"></div></div>
+                }
+
+                <!-- Enrolled -->
+                @if (_activeTab == "enrolled" && !_isLoading)
+                {
+                    @if (_myEnrollments.Count == 0)
+                    {
+                        <div class="fr-empty">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <span>Még nincs felvett tantárgyad.</span>
+                            <button class="fr-btn fr-btn-primary" @onclick='() => _activeTab = "available"'>Tantárgyak böngészése</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="fr-subject-grid">
+                            @foreach (var e in _myEnrollments)
+                            {
+                                <div class="fr-subject-card">
+                                    <div class="fr-subject-top">
+                                        <span class="fr-subject-code">@e.SubjectCode</span>
+                                        <span class="fr-badge fr-badge-success">Aktív</span>
+                                    </div>
+                                    <h3 class="fr-subject-name">@e.SubjectName</h3>
+                                    <p class="fr-subject-meta">Felvéve: @e.EnrolledAt.ToString("yyyy.MM.dd")</p>
+                                    <button class="fr-btn-ghost fr-btn-danger-ghost" @onclick="() => DropSubject(e.SubjectID)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                        Leadás
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+
+                <!-- Available -->
+                @if (_activeTab == "available" && !_isLoading)
+                {
+                    @if (_availableSubjects.Count == 0)
+                    {
+                        <div class="fr-empty">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <span>Nincs több felvehető tantárgy.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="fr-subject-grid">
+                            @foreach (var s in _availableSubjects)
+                            {
+                                var fillPct = s.MaxStudents > 0 ? s.CurrentEnrollments * 100 / s.MaxStudents : 0;
+                                <div class="fr-subject-card">
+                                    <div class="fr-subject-top">
+                                        <span class="fr-subject-code">@s.SubjectCode</span>
+                                        <span class="fr-badge @(s.FreeSlots < 5 ? "fr-badge-warn" : "fr-badge-default")">@s.FreeSlots hely</span>
+                                    </div>
+                                    <h3 class="fr-subject-name">@s.SubjectName</h3>
+                                    <p class="fr-subject-meta">
+                                        @if (!string.IsNullOrEmpty(s.TeacherName)) { @s.TeacherName <text> · </text> }
+                                        @s.CurrentEnrollments / @s.MaxStudents hallgató
+                                    </p>
+                                    <div class="fr-cap-bar"><div class="fr-cap-fill" style="width:@fillPct%"></div></div>
+                                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => EnrollSubject(s.SubjectID)">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        Felvétel
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+
+                <!-- Custom -->
+                @if (_activeTab == "custom")
+                {
+                    <div class="fr-form-card">
+                        <h2 class="fr-form-title">Saját tantárgy hozzáadása</h2>
+                        <p class="fr-form-desc">Ha a listában nem szerepel a tantárgyad, add meg manuálisan. Csak te fogod látni.</p>
+
+                        @if (!string.IsNullOrEmpty(_customError))
+                        {
+                            <div class="fr-alert fr-alert-danger">@_customError</div>
+                        }
+
+                        <div class="fr-field">
+                            <label class="fr-label">Tantárgy neve <span class="fr-required">*</span></label>
+                            <input class="fr-input" type="text" placeholder="pl. Kvantumfizika" @bind="_customSubjectName" maxlength="200" />
+                        </div>
+                        <div class="fr-field">
+                            <label class="fr-label">Tantárgykód <span class="fr-optional">— opcionális</span></label>
+                            <input class="fr-input" type="text" placeholder="pl. KF001" @bind="_customSubjectCode" maxlength="20" />
+                        </div>
+                        <button class="fr-btn fr-btn-primary" @onclick="EnrollCustomSubject" disabled="@_customIsLoading">
+                            @(_customIsLoading ? "Hozzáadás..." : "Tantárgy felvétele")
+                        </button>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+}
+else
+{
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
+}
+
+@code {
+    private bool _hasCheckedAuth = false;
+    private bool _isLoading = false;
+    private List<SubjectDto> _availableSubjects = new();
+    private List<EnrollmentDto> _myEnrollments = new();
+    private string _message = "";
+    private bool _messageIsError = false;
+    private string _activeTab = "enrolled";
+    private string _customSubjectName = "";
+    private string _customSubjectCode = "";
+    private string _customError = "";
+    private bool _customIsLoading = false;
+    private string _theme = "light";
+
+    private async Task ToggleTheme()
+    {
+        _theme = _theme == "dark" ? "light" : "dark";
+        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        await AuthService.InitializeAsync();
+        _hasCheckedAuth = true;
+        if (!AuthService.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        _isLoading = true; StateHasChanged();
+        try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { _myEnrollments = new(); }
+        try { _availableSubjects = await SubjectService.GetAvailableSubjectsAsync(); } catch { _availableSubjects = new(); }
+        _isLoading = false;
+    }
+
+    private async Task EnrollSubject(int id)
+    {
+        var r = await SubjectService.EnrollAsync(id);
+        _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+        _message = _messageIsError ? r.Message : "Tantárgy sikeresen felvéve!";
+        if (!_messageIsError) await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task DropSubject(int id)
+    {
+        var r = await SubjectService.DropAsync(id);
+        _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+        _message = _messageIsError ? r.Message : "Tantárgy leadva.";
+        if (!_messageIsError) await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task EnrollCustomSubject()
+    {
+        _customError = "";
+        if (string.IsNullOrWhiteSpace(_customSubjectName)) { _customError = "A tantárgy neve kötelező."; return; }
+        _customIsLoading = true; StateHasChanged();
+        var r = await SubjectService.EnrollCustomAsync(_customSubjectName.Trim(), _customSubjectCode.Trim());
+        _customIsLoading = false;
+        if (r.Status == "OK" || r.Status == "SUCCESS")
+        {
+            _message = $"'{_customSubjectName}' hozzáadva.";
+            _messageIsError = false;
+            _customSubjectName = _customSubjectCode = "";
+            _activeTab = "enrolled";
+            await LoadData();
+        }
+        else { _customError = r.Message; }
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
+}
+
