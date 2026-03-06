@@ -11,6 +11,8 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<SubjectService>();
+builder.Services.AddScoped<ScheduleService>();
 builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
