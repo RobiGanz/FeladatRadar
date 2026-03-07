@@ -49,6 +49,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 
 
