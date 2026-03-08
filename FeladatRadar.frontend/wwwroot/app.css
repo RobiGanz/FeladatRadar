@@ -27,3 +27,13 @@ body {
     text-align: left;
     transition: background .15s, color .15s;
 }
+
+.fr-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: 100vh;
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text-primary);
+    overflow: hidden;
+}
