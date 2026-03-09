@@ -272,3 +272,60 @@ else
     private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }
 
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .fr-layout {
+        --accent: #4f46e5;
+        --accent-hover: #4338ca;
+        --accent-subtle: rgba(79,70,229,.1);
+        --bg: #f4f1eb;
+        --surface: #faf8f4;
+        --surface-2: #ece8de;
+        --border: #e0d9ce;
+        --border-strong: #c4bdb3;
+        --text-primary: #18160f;
+        --text-secondary: #5a5248;
+        --text-muted: #9c9287;
+        --danger: #dc2626;
+        --danger-subtle: rgba(220,38,38,.09);
+        --warning: #d97706;
+        --warning-subtle: rgba(217,119,6,.09);
+        --success: #059669;
+        --success-subtle: rgba(5,150,105,.09);
+        --radius: 12px;
+        --font: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+    }
+
+        .fr-layout[data-theme="dark"] {
+            --bg: #111009;
+            --surface: #1c1a16;
+            --surface-2: #262319;
+            --border: #312e28;
+            --border-strong: #46423a;
+            --text-primary: #f0ebe3;
+            --text-secondary: #8a837a;
+            --text-muted: #5c5650;
+            --accent-subtle: rgba(79,70,229,.18);
+            --danger-subtle: rgba(220,38,38,.14);
+            --warning-subtle: rgba(217,119,6,.14);
+            --success-subtle: rgba(5,150,105,.14);
+        }
+
+        .fr-layout[data-role="Teacher"] {
+            --accent: #059669;
+            --accent-hover: #047857;
+            --accent-subtle: rgba(5,150,105,.1);
+        }
+
+        .fr-layout[data-theme="dark"][data-role="Teacher"] {
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --accent-subtle: rgba(16,185,129,.15);
+        }
+
+</style>
