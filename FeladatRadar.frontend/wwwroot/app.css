@@ -37,3 +37,17 @@ body {
     color: var(--text-primary);
     overflow: hidden;
 }
+.fr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background .15s;
+    font-family: var(--font);
+}
