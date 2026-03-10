@@ -565,5 +565,280 @@ else
         letter-spacing: .04em;
     }
 
+    .fr-subject-name {
+        font-weight: 700;
+        font-size: .95rem;
+        color: var(--text-primary);
+        line-height: 1.35;
+    }
 
+    .fr-subject-meta {
+        font-size: .8rem;
+        color: var(--text-muted);
+    }
+
+    /* Badges */
+    .fr-badge {
+        font-size: .72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .fr-badge-default {
+        background: var(--accent-subtle);
+        color: var(--accent);
+    }
+
+    .fr-badge-success {
+        background: var(--success-subtle);
+        color: var(--success);
+    }
+
+    .fr-badge-warn {
+        background: var(--warning-subtle);
+        color: var(--warning);
+    }
+
+    .fr-badge-danger {
+        background: var(--danger-subtle);
+        color: var(--danger);
+    }
+
+    /* Capacity bar */
+    .fr-cap-bar {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .fr-cap-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+        transition: width .3s;
+    }
+
+    /* Buttons */
+    .fr-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .fr-btn-primary {
+        background: var(--accent);
+        color: #fff;
+    }
+
+        .fr-btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .fr-btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    .fr-btn-sm {
+        padding: 7px 13px;
+        font-size: .82rem;
+        margin-top: auto;
+    }
+
+    .fr-btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 7px;
+        font-size: .82rem;
+        font-weight: 500;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all .15s;
+        margin-top: auto;
+    }
+
+    .fr-btn-danger-ghost:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: var(--danger-subtle);
+    }
+
+    /* Form */
+    .fr-form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 28px;
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .fr-form-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .fr-form-desc {
+        font-size: .875rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .fr-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .fr-label {
+        font-size: .85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .fr-required {
+        color: var(--danger);
+    }
+
+    .fr-optional {
+        font-weight: 400;
+        color: var(--text-muted);
+        font-size: .8rem;
+    }
+
+    .fr-input {
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-size: .9rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color .15s,box-shadow .15s;
+    }
+
+        .fr-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-subtle);
+        }
+
+    /* Empty states */
+    .fr-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 60px 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        font-size: .875rem;
+    }
+
+    .fr-panel-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+    }
+
+    .fr-spinner-sm {
+        width: 18px;
+        height: 18px;
+        border-width: 2px;
+    }
+
+    .fr-main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    .fr-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        height: 56px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .fr-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .fr-topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .fr-page-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .fr-breadcrumb {
+        font-size: .85rem;
+        color: var(--text-muted);
+    }
+
+    .fr-user-chip {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 5px 12px 5px 8px;
+        font-size: .8rem;
+        color: var(--text-secondary);
+    }
+
+    .fr-user-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width:768px) {
+        .fr-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .fr-sidebar {
+            display: none;
+        }
+
+        .fr-subject-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
