@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using FeladatRadar.frontend.Components;
+using FeladatRadar.frontend.Service;
 using FeladatRadar.frontend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SubjectService>();
 builder.Services.AddScoped<ScheduleService>();
+builder.Services.AddScoped<FocusTimerService>();
+builder.Services.AddScoped<GroupService>();
 builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();

@@ -1,67 +1,98 @@
 ﻿using FeladatRadar.frontend.Models;
+using FeladatRadar.frontend.Services;
+using System.Net.Http.Json;
 
-namespace FeladatRadar.frontend.Services
+namespace BlazorClient.Service;
+
+public class TaskService
 {
-    public class TaskService
+    private readonly HttpClient _httpClient;
+    private readonly AuthService _authService;
+
+    public TaskService(HttpClient httpClient, AuthService authService)
     {
-        private readonly HttpClient _httpClient;
-        private readonly AuthService _authService;
+        _httpClient = httpClient;
+        _authService = authService;
+    }
 
-        public TaskService(HttpClient httpClient, AuthService authService)
+    private async Task<SubjectResponse> ParseResponse(HttpResponseMessage response)
+    {
+        try
         {
-            _httpClient = httpClient;
-            _authService = authService;
+            var result = await response.Content.ReadFromJsonAsync<SubjectResponse>();
+            return result ?? new SubjectResponse { Status = "ERROR", Message = "Ismeretlen hiba." };
         }
-
-        public async Task<List<TaskDto>> GetMyTasksAsync()
+        catch
         {
-            await _authService.InitializeAsync();
-            try
-            {
-                var response = await _httpClient.GetAsync("api/Task/my-tasks");
-                if (!response.IsSuccessStatusCode) return new();
-                return await response.Content.ReadFromJsonAsync<List<TaskDto>>() ?? new();
-            }
-            catch { return new(); }
+            return new SubjectResponse { Status = "ERROR", Message = $"Szerver hiba: {response.StatusCode}" };
         }
+    }
 
-        public async Task<SubjectResponse> AddTaskAsync(AddTaskRequest request)
+    public async Task<List<TaskDto>> GetMyTasksAsync()
+    {
+        await _authService.InitializeAsync();
+        try
         {
-            await _authService.InitializeAsync();
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync("api/Task/add", request);
-                return await response.Content.ReadFromJsonAsync<SubjectResponse>()
-                       ?? new SubjectResponse { Status = "ERROR", Message = "Ismeretlen hiba." };
-            }
-            catch (Exception ex)
-            {
-                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
-            }
+            var response = await _httpClient.GetAsync("api/Task/my-tasks");
+            if (!response.IsSuccessStatusCode) return new();
+            return await response.Content.ReadFromJsonAsync<List<TaskDto>>() ?? new();
         }
+        catch { return new(); }
+    }
 
-        public async Task<SubjectResponse> CompleteTaskAsync(int taskId)
+    public async Task<SubjectResponse> AddTaskAsync(AddTaskRequest request)
+    {
+        await _authService.InitializeAsync();
+        try
         {
-            await _authService.InitializeAsync();
+            var response = await _httpClient.PostAsJsonAsync("api/Task/add", request);
+            return await ParseResponse(response);
+        }
+        catch (Exception ex)
+        {
+            return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+        }
+    }
+
+    public async Task<SubjectResponse> CompleteTaskAsync(int taskId)
+    {
+        await _authService.InitializeAsync();
+        try
+        {
             var response = await _httpClient.PutAsync($"api/Task/complete/{taskId}", null);
-            return await response.Content.ReadFromJsonAsync<SubjectResponse>()
-                   ?? new SubjectResponse { Status = "ERROR", Message = "Ismeretlen hiba." };
+            return await ParseResponse(response);
         }
-
-        public async Task<SubjectResponse> UncompleteTaskAsync(int taskId)
+        catch (Exception ex)
         {
-            await _authService.InitializeAsync();
+            return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+        }
+    }
+
+    public async Task<SubjectResponse> UncompleteTaskAsync(int taskId)
+    {
+        await _authService.InitializeAsync();
+        try
+        {
             var response = await _httpClient.PutAsync($"api/Task/uncomplete/{taskId}", null);
-            return await response.Content.ReadFromJsonAsync<SubjectResponse>()
-                   ?? new SubjectResponse { Status = "ERROR", Message = "Ismeretlen hiba." };
+            return await ParseResponse(response);
         }
-
-        public async Task<SubjectResponse> DeleteTaskAsync(int taskId)
+        catch (Exception ex)
         {
-            await _authService.InitializeAsync();
+            return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+        }
+    }
+
+    public async Task<SubjectResponse> DeleteTaskAsync(int taskId)
+    {
+        await _authService.InitializeAsync();
+        try
+        {
             var response = await _httpClient.DeleteAsync($"api/Task/delete/{taskId}");
-            return await response.Content.ReadFromJsonAsync<SubjectResponse>()
-                   ?? new SubjectResponse { Status = "ERROR", Message = "Ismeretlen hiba." };
+            return await ParseResponse(response);
+        }
+        catch (Exception ex)
+        {
+            return new SubjectResponse { Status = "ERROR", Message = ex.Message };
         }
     }
 }
