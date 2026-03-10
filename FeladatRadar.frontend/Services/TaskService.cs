@@ -2,7 +2,7 @@
 using FeladatRadar.frontend.Services;
 using System.Net.Http.Json;
 
-namespace BlazorClient.Service;
+namespace FeladatRadar.frontend.Services;
 
 public class TaskService
 {

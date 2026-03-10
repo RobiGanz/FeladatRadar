@@ -16,6 +16,7 @@ builder.Services.AddScoped<SubjectService>();
 builder.Services.AddScoped<ScheduleService>();
 builder.Services.AddScoped<FocusTimerService>();
 builder.Services.AddScoped<GroupService>();
+builder.Services.AddScoped<TaskService>();
 builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
