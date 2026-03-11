@@ -1,6 +1,7 @@
 ﻿@page "/csoport"
 @using FeladatRadar.frontend.Services
 @using FeladatRadar.frontend.Models
+@inject GroupService GroupService
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -33,19 +34,15 @@ else if (_isAuthenticated)
                     @if (_theme == "dark")
                     {
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /></svg>
-                
                         <span>Világos mód</span>
-                    }
+     }
                     else
                     {
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-                
                         <span>Sötét mód</span>
-                    }
+     }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés
-                </button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés</button>
             </div>
         </aside>
 
@@ -53,8 +50,13 @@ else if (_isAuthenticated)
             <header class="fr-topbar">
                 <div class="fr-topbar-left">
                     <span class="fr-page-title">Csoportok</span>
+                    <span class="fr-breadcrumb">/ @_groups.Count csoport</span>
                 </div>
                 <div class="fr-topbar-right">
+                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => _showCreate = !_showCreate">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Új csoport
+                    </button>
                     <div class="fr-user-chip">
                         <div class="fr-user-dot"></div>
                         <span>@_userEmail</span>
@@ -63,17 +65,70 @@ else if (_isAuthenticated)
             </header>
 
             <div class="fr-content">
-                <p style="color:var(--text-muted);font-size:.875rem;">Csoportok hamarosan...</p>
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
+                        @_message
+                        <button class="fr-alert-close" @onclick="() => _message = string.Empty">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </button>
+                    </div>
+                }
+
+                @if (_invites.Any())
+                {
+                    <div class="fr-panel">
+                        <div class="fr-panel-header">
+                            <span class="fr-panel-title">Függő meghívók</span>
+                            <span class="fr-badge fr-badge-warn">@_invites.Count</span>
+                        </div>
+                        <div class="fr-panel-body">
+                            @foreach (var inv in _invites)
+                            {
+                                <div class="fr-invite-row">
+                                    <div class="fr-invite-info">
+                                        <span class="fr-invite-name">@inv.GroupName</span>
+                                        <span class="fr-invite-from">meghívta: @inv.InvitedByName · @inv.CreatedAt.ToString("MM.dd")</span>
+                                    </div>
+                                    <div style="display:flex;gap:8px;">
+                                        <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => AcceptInvite(inv.InviteID)">Elfogadás</button>
+                                        <button class="fr-btn-ghost fr-btn-sm" @onclick="() => DeclineInvite(inv.InviteID)">Elutasítás</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (_showCreate)
+                {
+                    <div class="fr-form-card">
+                        <h2 class="fr-form-title">Új csoport létrehozása</h2>
+                        <div class="fr-field">
+                            <label class="fr-label">Csoport neve</label>
+                            <input class="fr-input" type="text" placeholder="pl. Vizsgacsoport 2025" @bind="_newGroupName" maxlength="100" />
+                        </div>
+                        @if (!string.IsNullOrEmpty(_createError))
+                        {
+                            <div class="fr-alert fr-alert-danger">@_createError</div>
+                        }
+                        <div style="display:flex;gap:10px;">
+                            <button class="fr-btn fr-btn-primary" @onclick="CreateGroup" disabled="@_isCreating">
+                                @(_isCreating ? "Létrehozás..." : "Csoport létrehozása")
+                            </button>
+                            <button class="fr-btn-ghost" @onclick="() => _showCreate = false">Mégse</button>
+                        </div>
+                    </div>
+                }
+
+                <p style="color:var(--text-muted);font-size:.875rem;">Csoport lista hamarosan...</p>
             </div>
         </main>
     </div>
 }
 else
 {
-    <div class="fr-unauth">
-        <p>Nincs aktív munkamenet.</p>
-        <a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a>
-    </div>
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
 }
 
 <style>
@@ -90,7 +145,10 @@ else
         --text-muted: #9299aa;
         --danger: #dc2626;
         --danger-subtle: rgba(220,38,38,.07);
+        --warning: #d97706;
+        --warning-subtle: rgba(217,119,6,.08);
         --success: #16a34a;
+        --success-subtle: rgba(22,163,74,.08);
         --radius: 10px;
         --font: -apple-system,BlinkMacSystemFont,Inter,Segoe UI,system-ui,sans-serif;
     }
@@ -105,6 +163,8 @@ else
             --text-muted: #4e566a;
             --accent-subtle: rgba(37,99,235,.15);
             --danger-subtle: rgba(220,38,38,.12);
+            --warning-subtle: rgba(217,119,6,.12);
+            --success-subtle: rgba(22,163,74,.12);
         }
 
     .fr-layout {
@@ -223,21 +283,20 @@ else
         flex-shrink: 0;
     }
 
-    .fr-topbar-left {
+    .fr-topbar-left, .fr-topbar-right {
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    .fr-topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
     .fr-page-title {
         font-size: 1rem;
         font-weight: 700;
+    }
+
+    .fr-breadcrumb {
+        font-size: .85rem;
+        color: var(--text-muted);
     }
 
     .fr-user-chip {
@@ -319,8 +378,177 @@ else
         color: #fff;
     }
 
-        .fr-btn-primary:hover {
+        .fr-btn-primary:hover:not(:disabled) {
             background: var(--accent-hover);
+        }
+
+        .fr-btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    .fr-btn-sm {
+        padding: 7px 13px;
+        font-size: .82rem;
+    }
+
+    .fr-btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+        .fr-btn-ghost:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+        }
+
+    .fr-alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 16px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+    }
+
+    .fr-alert-danger {
+        background: var(--danger-subtle);
+        color: var(--danger);
+        border: 1px solid rgba(220,38,38,.2);
+    }
+
+    .fr-alert-success {
+        background: var(--success-subtle);
+        color: var(--success);
+        border: 1px solid rgba(22,163,74,.2);
+    }
+
+    .fr-alert-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: inherit;
+        opacity: .6;
+        display: flex;
+        align-items: center;
+    }
+
+    .fr-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .fr-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .fr-panel-title {
+        font-weight: 700;
+        font-size: .9rem;
+    }
+
+    .fr-invite-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 20px;
+        border-bottom: 1px solid var(--border);
+        gap: 16px;
+    }
+
+        .fr-invite-row:last-child {
+            border-bottom: none;
+        }
+
+    .fr-invite-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .fr-invite-name {
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    .fr-invite-from {
+        font-size: .78rem;
+        color: var(--text-muted);
+    }
+
+    .fr-badge {
+        font-size: .72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .fr-badge-warn {
+        background: var(--warning-subtle);
+        color: var(--warning);
+    }
+
+    .fr-form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .fr-form-title {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .fr-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .fr-label {
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .fr-input {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-size: .875rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color .15s;
+    }
+
+        .fr-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-subtle);
         }
 </style>
 
@@ -329,6 +557,8 @@ else
     private bool _isAuthenticated = false;
     private string _userEmail = "";
     private string _theme = "light";
+    private string _message = "";
+    private bool _messageIsError = false;
 
     private bool _isTeacher = false;
     private int _currentUserId = 0;
@@ -351,9 +581,6 @@ else
     private string _inviteEmail = "";
     private string _inviteError = "";
     private bool _isInviting = false;
-
-    private string _message = "";
-    private bool _messageIsError = false;
 
     private string _pollQuestion = "";
     private string _pollOptionsText = "Igen\nNem\nTalán";
@@ -385,12 +612,61 @@ else
         _isTeacher = AuthService.CurrentUser?.UserRole == "Teacher";
         _currentUserId = AuthService.CurrentUser?.UserID ?? 0;
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        await LoadData();
         StateHasChanged();
     }
 
-    private async Task HandleLogout()
+    private async Task LoadData()
     {
-        await AuthService.Logout();
-        Navigation.NavigateTo("/login");
+        try { _groups = await GroupService.GetMyGroupsAsync(); } catch { _groups = new(); }
+        try { _invites = await GroupService.GetMyInvitesAsync(); } catch { _invites = new(); }
     }
+
+    private async Task CreateGroup()
+    {
+        _createError = "";
+        if (string.IsNullOrWhiteSpace(_newGroupName)) { _createError = "Add meg a csoport nevét."; return; }
+        _isCreating = true; StateHasChanged();
+        try
+        {
+            var r = await GroupService.CreateGroupAsync(_newGroupName.Trim());
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = "Csoport létrehozva."; _messageIsError = false;
+                _newGroupName = ""; _showCreate = false;
+                await LoadData();
+            }
+            else { _createError = r.Message; }
+        }
+        catch (Exception ex) { _createError = ex.Message; }
+        finally { _isCreating = false; StateHasChanged(); }
+    }
+
+    private async Task AcceptInvite(int inviteId)
+    {
+        try
+        {
+            var r = await GroupService.AcceptInviteAsync(inviteId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Meghívó elfogadva.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task DeclineInvite(int inviteId)
+    {
+        try
+        {
+            var r = await GroupService.DeclineInviteAsync(inviteId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Meghívó elutasítva.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }

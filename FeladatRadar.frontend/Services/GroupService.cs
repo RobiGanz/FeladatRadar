@@ -2,7 +2,7 @@
 using FeladatRadar.frontend.Services;
 using System.Net.Http.Json;
 
-namespace FeladatRadar.frontend.Service
+namespace FeladatRadar.frontend.Services
 {
     public class GroupService
     {

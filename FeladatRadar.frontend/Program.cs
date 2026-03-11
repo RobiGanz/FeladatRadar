@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
 using FeladatRadar.frontend.Components;
-using FeladatRadar.frontend.Service;
 using FeladatRadar.frontend.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped(sp => new HttpClient
