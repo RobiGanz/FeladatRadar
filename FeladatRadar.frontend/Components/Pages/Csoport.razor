@@ -1,0 +1,396 @@
+﻿@page "/csoport"
+@using FeladatRadar.frontend.Services
+@using FeladatRadar.frontend.Models
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Csoportok — FeladatRadar</PageTitle>
+
+@if (!_hasCheckedAuth)
+{
+    <div class="fr-loading"><div class="fr-spinner"></div></div>
+}
+else if (_isAuthenticated)
+{
+    <div class="fr-layout" data-theme="@_theme">
+        <aside class="fr-sidebar">
+            <div class="fr-brand">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                <span>FeladatRadar</span>
+            </div>
+            <nav class="fr-nav">
+                <a href="/dashboard" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>Dashboard</a>
+                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
+                <a href="/feladatok" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>Feladatok</a>
+                <a href="/fokusz" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>Csoportok</a>
+            </nav>
+            <div class="fr-sidebar-footer">
+                <button class="fr-theme-toggle" @onclick="ToggleTheme">
+                    @if (_theme == "dark")
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /></svg>
+                
+                        <span>Világos mód</span>
+                    }
+                    else
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                
+                        <span>Sötét mód</span>
+                    }
+                </button>
+                <button class="fr-logout" @onclick="HandleLogout">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés
+                </button>
+            </div>
+        </aside>
+
+        <main class="fr-main">
+            <header class="fr-topbar">
+                <div class="fr-topbar-left">
+                    <span class="fr-page-title">Csoportok</span>
+                </div>
+                <div class="fr-topbar-right">
+                    <div class="fr-user-chip">
+                        <div class="fr-user-dot"></div>
+                        <span>@_userEmail</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="fr-content">
+                <p style="color:var(--text-muted);font-size:.875rem;">Csoportok hamarosan...</p>
+            </div>
+        </main>
+    </div>
+}
+else
+{
+    <div class="fr-unauth">
+        <p>Nincs aktív munkamenet.</p>
+        <a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a>
+    </div>
+}
+
+<style>
+    .fr-layout {
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --accent-subtle: rgba(37,99,235,.08);
+        --bg: #f8f9fb;
+        --surface: #fff;
+        --surface-2: #f1f3f7;
+        --border: #e4e7ed;
+        --text-primary: #0f1117;
+        --text-secondary: #52586a;
+        --text-muted: #9299aa;
+        --danger: #dc2626;
+        --danger-subtle: rgba(220,38,38,.07);
+        --success: #16a34a;
+        --radius: 10px;
+        --font: -apple-system,BlinkMacSystemFont,Inter,Segoe UI,system-ui,sans-serif;
+    }
+
+        .fr-layout[data-theme="dark"] {
+            --bg: #0d0f14;
+            --surface: #161820;
+            --surface-2: #1e2130;
+            --border: #272b3a;
+            --text-primary: #f0f2f8;
+            --text-secondary: #8892a4;
+            --text-muted: #4e566a;
+            --accent-subtle: rgba(37,99,235,.15);
+            --danger-subtle: rgba(220,38,38,.12);
+        }
+
+    .fr-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        height: 100vh;
+        background: var(--bg);
+        font-family: var(--font);
+        color: var(--text-primary);
+    }
+
+    .fr-sidebar {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .fr-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 20px 18px;
+        font-weight: 700;
+        font-size: .95rem;
+        color: var(--accent);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .fr-nav {
+        flex: 1;
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .fr-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: .875rem;
+        font-weight: 500;
+        transition: background .15s,color .15s;
+    }
+
+        .fr-nav-item:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+        }
+
+        .fr-nav-item.fr-active {
+            background: var(--accent-subtle);
+            color: var(--accent);
+        }
+
+    .fr-sidebar-footer {
+        padding: 12px 10px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .fr-theme-toggle, .fr-logout {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 9px 10px;
+        border: none;
+        border-radius: 8px;
+        background: none;
+        color: var(--text-secondary);
+        font-size: .85rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        transition: background .15s,color .15s;
+        font-family: var(--font);
+    }
+
+        .fr-theme-toggle:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+        }
+
+        .fr-logout:hover {
+            background: var(--danger-subtle);
+            color: var(--danger);
+        }
+
+    .fr-main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    .fr-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        height: 56px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .fr-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .fr-topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .fr-page-title {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .fr-user-chip {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 5px 12px 5px 8px;
+        font-size: .8rem;
+        color: var(--text-secondary);
+    }
+
+    .fr-user-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+    }
+
+    .fr-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .fr-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .fr-spinner {
+        width: 28px;
+        height: 28px;
+        border: 2.5px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: fr-spin .7s linear infinite;
+    }
+
+    @@keyframes fr-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .fr-unauth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        gap: 16px;
+    }
+
+    .fr-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background .15s;
+        font-family: var(--font);
+    }
+
+    .fr-btn-primary {
+        background: var(--accent);
+        color: #fff;
+    }
+
+        .fr-btn-primary:hover {
+            background: var(--accent-hover);
+        }
+</style>
+
+@code {
+    private bool _hasCheckedAuth = false;
+    private bool _isAuthenticated = false;
+    private string _userEmail = "";
+    private string _theme = "light";
+
+    private bool _isTeacher = false;
+    private int _currentUserId = 0;
+
+    private List<GroupDto> _groups = new();
+    private List<GroupInviteDto> _invites = new();
+    private GroupDto? _selectedGroup = null;
+    private string _detailTab = "members";
+
+    private List<GroupMemberDto> _members = new();
+    private List<GroupSubjectDto> _groupSubjects = new();
+    private List<GroupTaskDto> _groupTasks = new();
+    private bool _isLoadingDetail = false;
+
+    private bool _showCreate = false;
+    private string _newGroupName = "";
+    private string _createError = "";
+    private bool _isCreating = false;
+
+    private string _inviteEmail = "";
+    private string _inviteError = "";
+    private bool _isInviting = false;
+
+    private string _message = "";
+    private bool _messageIsError = false;
+
+    private string _pollQuestion = "";
+    private string _pollOptionsText = "Igen\nNem\nTalán";
+    private DateTime? _pollExpires = null;
+    private string _pollError = "";
+    private bool _isSavingPoll = false;
+
+    private string _examTitle = "";
+    private string _examSubject = "";
+    private DateTime _examDate = DateTime.Now.AddDays(7);
+    private string _examDesc = "";
+    private string _examError = "";
+    private bool _isSavingExam = false;
+
+    private async Task ToggleTheme()
+    {
+        _theme = _theme == "dark" ? "light" : "dark";
+        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        try { await AuthService.InitializeAsync(); } catch { }
+        _hasCheckedAuth = true;
+        _isAuthenticated = AuthService.IsAuthenticated;
+        _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _isTeacher = AuthService.CurrentUser?.UserRole == "Teacher";
+        _currentUserId = AuthService.CurrentUser?.UserID ?? 0;
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}
