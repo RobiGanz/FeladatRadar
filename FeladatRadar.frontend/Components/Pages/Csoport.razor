@@ -1,8 +1,8 @@
 ﻿@page "/csoport"
 @using FeladatRadar.frontend.Services
 @using FeladatRadar.frontend.Models
-@inject GroupService GroupService
 @inject AuthService AuthService
+@inject GroupService GroupService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
@@ -69,9 +69,7 @@ else if (_isAuthenticated)
                 {
                     <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
                         @_message
-                        <button class="fr-alert-close" @onclick="() => _message = string.Empty">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                        </button>
+                        <button class="fr-alert-close" @onclick="() => _message = string.Empty"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
                     </div>
                 }
 
@@ -121,10 +119,78 @@ else if (_isAuthenticated)
                     </div>
                 }
 
-                <p style="color:var(--text-muted);font-size:.875rem;">Csoport lista hamarosan...</p>
+                <div class="fr-groups-layout">
+                    <div class="fr-group-list">
+                        @if (!_groups.Any())
+                        {
+                            <div class="fr-empty">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                                <span>Még nem vagy egy csoportban sem.</span>
+                                <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => _showCreate = true">Csoport létrehozása</button>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var g in _groups)
+                            {
+                                <div class="fr-group-item @(_selectedGroup?.GroupID == g.GroupID ? "fr-group-item-active" : "")" @onclick="() => SelectGroup(g)">
+                                    <div class="fr-group-item-main">
+                                        <span class="fr-group-item-name">@g.GroupName</span>
+                                        <span class="fr-group-item-meta">@g.MemberCount tag</span>
+                                    </div>
+                                    @if (g.IsOwner)
+                                    {
+                                        <span class="fr-badge fr-badge-accent">Tulajdonos</span>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    @if (_selectedGroup != null)
+                    {
+                        <div class="fr-group-detail">
+                            <div class="fr-group-detail-head">
+                                <h2 class="fr-group-detail-name">@_selectedGroup.GroupName</h2>
+                                <div class="fr-detail-tabs">
+                                    <button class="fr-dtab @(_detailTab == "members" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("members")'>Tagok</button>
+                                    <button class="fr-dtab @(_detailTab == "subjects" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("subjects")'>Tantárgyak</button>
+                                    <button class="fr-dtab @(_detailTab == "tasks" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("tasks")'>Feladatok</button>
+                                </div>
+                            </div>
+
+                            <div class="fr-detail-body">
+                                @if (_isLoadingDetail)
+                                {
+                                    <div class="fr-panel-empty"><div class="fr-spinner fr-spinner-sm"></div></div>
+                                }
+                                else if (_detailTab == "members")
+                                {
+                                    <table class="fr-table">
+                                        <thead><tr><th>Név</th><th>Email</th><th>Csatlakozás</th><th></th></tr></thead>
+                                        <tbody>
+                                            @foreach (var m in _members)
+                                            {
+                                                <tr>
+                                                    <td class="fr-td-name">@m.FirstName @m.LastName</td>
+                                                    <td class="fr-td-meta">@m.Email</td>
+                                                    <td class="fr-td-meta">@m.JoinedAt.ToString("yyyy.MM.dd")</td>
+                                                    <td>@if (m.IsOwner) {
+                                                    <span class="fr-badge fr-badge-accent">Tulajdonos</span>
+                                                }
+            </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
 }
 else
 {
@@ -343,6 +409,12 @@ else
         animation: fr-spin .7s linear infinite;
     }
 
+    .fr-spinner-sm {
+        width: 18px;
+        height: 18px;
+        border-width: 2px;
+    }
+
     @@keyframes fr-spin {
         to {
             transform: rotate(360deg);
@@ -465,6 +537,15 @@ else
         font-size: .9rem;
     }
 
+    .fr-panel-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: .875rem;
+    }
+
     .fr-invite-row {
         display: flex;
         align-items: center;
@@ -499,6 +580,11 @@ else
         font-weight: 600;
         padding: 2px 8px;
         border-radius: 4px;
+    }
+
+    .fr-badge-accent {
+        background: var(--accent-subtle);
+        color: var(--accent);
     }
 
     .fr-badge-warn {
@@ -550,6 +636,193 @@ else
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-subtle);
         }
+
+    .fr-groups-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 16px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .fr-group-list {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        align-self: start;
+    }
+
+    .fr-group-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background .12s;
+        gap: 10px;
+    }
+
+        .fr-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .fr-group-item:hover {
+            background: var(--surface-2);
+        }
+
+        .fr-group-item.fr-group-item-active {
+            background: var(--accent-subtle);
+        }
+
+    .fr-group-item-main {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .fr-group-item-name {
+        font-weight: 600;
+        font-size: .9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fr-group-item-meta {
+        font-size: .75rem;
+        color: var(--text-muted);
+    }
+
+    .fr-group-detail {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fr-group-detail-head {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .fr-group-detail-name {
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .fr-detail-tabs {
+        display: flex;
+        gap: 2px;
+        background: var(--surface-2);
+        border-radius: 8px;
+        padding: 3px;
+    }
+
+    .fr-dtab {
+        padding: 6px 13px;
+        border: none;
+        border-radius: 6px;
+        background: none;
+        color: var(--text-muted);
+        font-size: .82rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+        .fr-dtab:hover {
+            color: var(--text-primary);
+        }
+
+        .fr-dtab.fr-dtab-active {
+            background: var(--surface);
+            color: var(--text-primary);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+
+    .fr-detail-body {
+        flex: 1;
+        overflow: auto;
+    }
+
+    .fr-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .fr-table th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+
+        .fr-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .fr-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .fr-table tr:hover td {
+            background: var(--surface-2);
+        }
+
+    .fr-td-name {
+        font-weight: 600;
+        font-size: .875rem;
+    }
+
+    .fr-td-meta {
+        font-size: .8rem;
+        color: var(--text-muted);
+    }
+
+    .fr-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 60px 24px;
+        color: var(--text-muted);
+        font-size: .875rem;
+    }
+
+    @@media (max-width:900px) {
+        .fr-groups-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width:768px) {
+        .fr-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .fr-sidebar {
+            display: none;
+        }
+    }
 </style>
 
 @code {
@@ -622,6 +895,25 @@ else
         try { _invites = await GroupService.GetMyInvitesAsync(); } catch { _invites = new(); }
     }
 
+    private async Task SelectGroup(GroupDto g)
+    {
+        _selectedGroup = g;
+        _detailTab = "members";
+        await LoadGroupDetail();
+    }
+
+    private async Task LoadGroupDetail()
+    {
+        if (_selectedGroup == null) return;
+        _isLoadingDetail = true; StateHasChanged();
+        try { _members = await GroupService.GetMembersAsync(_selectedGroup.GroupID); } catch { _members = new(); }
+        try { _groupSubjects = await GroupService.GetGroupSubjectsAsync(_selectedGroup.GroupID); } catch { _groupSubjects = new(); }
+        try { _groupTasks = await GroupService.GetGroupTasksAsync(_selectedGroup.GroupID); } catch { _groupTasks = new(); }
+        _isLoadingDetail = false; StateHasChanged();
+    }
+
+    private async Task SwitchTab(string tab) { _detailTab = tab; StateHasChanged(); }
+
     private async Task CreateGroup()
     {
         _createError = "";
@@ -630,12 +922,7 @@ else
         try
         {
             var r = await GroupService.CreateGroupAsync(_newGroupName.Trim());
-            if (r.Status == "OK" || r.Status == "SUCCESS")
-            {
-                _message = "Csoport létrehozva."; _messageIsError = false;
-                _newGroupName = ""; _showCreate = false;
-                await LoadData();
-            }
+            if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Csoport létrehozva."; _messageIsError = false; _newGroupName = ""; _showCreate = false; await LoadData(); }
             else { _createError = r.Message; }
         }
         catch (Exception ex) { _createError = ex.Message; }
@@ -644,26 +931,14 @@ else
 
     private async Task AcceptInvite(int inviteId)
     {
-        try
-        {
-            var r = await GroupService.AcceptInviteAsync(inviteId);
-            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
-            _message = _messageIsError ? r.Message : "Meghívó elfogadva.";
-            if (!_messageIsError) await LoadData();
-        }
+        try { var r = await GroupService.AcceptInviteAsync(inviteId); _messageIsError = r.Status != "OK" && r.Status != "SUCCESS"; _message = _messageIsError ? r.Message : "Meghívó elfogadva."; if (!_messageIsError) await LoadData(); }
         catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
         StateHasChanged();
     }
 
     private async Task DeclineInvite(int inviteId)
     {
-        try
-        {
-            var r = await GroupService.DeclineInviteAsync(inviteId);
-            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
-            _message = _messageIsError ? r.Message : "Meghívó elutasítva.";
-            if (!_messageIsError) await LoadData();
-        }
+        try { var r = await GroupService.DeclineInviteAsync(inviteId); _messageIsError = r.Status != "OK" && r.Status != "SUCCESS"; _message = _messageIsError ? r.Message : "Meghívó elutasítva."; if (!_messageIsError) await LoadData(); }
         catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
         StateHasChanged();
     }
