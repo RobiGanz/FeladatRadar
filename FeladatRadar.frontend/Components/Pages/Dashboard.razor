@@ -1,315 +1,123 @@
 ﻿@page "/dashboard"
-@using FeladatRadar.frontend.Models
 @using FeladatRadar.frontend.Services
+@using FeladatRadar.frontend.Models
 @inject AuthService AuthService
 @inject TaskService TaskService
+@inject SubjectService SubjectService
+@inject GroupService GroupService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@inject ScheduleService ScheduleService
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-@implements IDisposable
 
-<PageTitle>Dashboard - FeladatRadar</PageTitle>
+<PageTitle>Dashboard — FeladatRadar</PageTitle>
 
 @if (!_hasCheckedAuth)
 {
-    <div class="loading-screen">
-        <div class="spinner-large"></div>
-        <p>Betöltés...</p>
-    </div>
+    <div class="fr-loading"><div class="fr-spinner"></div></div>
 }
-else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
+else if (_isAuthenticated)
 {
-    <div class="fr-layout fr-layout-dashboard" data-theme="@_theme">
-        <!-- Sidebar -->
-        <aside class="fr-sidebar">
-            <div class="fr-brand">
+    <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
+        @if (_menuOpen) { <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div> }
+        <aside class="@SidebarClass">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>FeladatRadar</span>
-            </div>
+            </a>
             <nav class="fr-nav">
-                <a href="/dashboard" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
-                <a href="/feladatok" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Feladatok</a>
-                <a href="/fokusz" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
-                <a href="/tantargyak" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
-                <a href="/csoport" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+                <a href="/dashboard"  class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+                <a href="/naptar"     class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
+                <a href="/feladatok"  class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Feladatok</a>
+                <a href="/fokusz"     class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
+                <a href="/csoport"    class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
             </nav>
             <div class="fr-sidebar-footer">
                 <button class="fr-theme-toggle" @onclick="ToggleTheme">
-                    @if (_theme == "dark")
-                    {
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg><span>Világos mód</span>
-                    }
-                    else
-                    {
+                    @if (_theme == "dark") {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg><span>Világos mód</span>
+                    } else {
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span>
                     }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
+                <button class="fr-logout" @onclick="HandleLogout">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés
+                </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Órarend szekció - Robi -->
-            <div class="content-tabs">
-                <div class="tab-section">
-                    <div class="tab-header">
-                        <h2 class="tab-title">Órák</h2>
-                        <button class="fk-day-btn @(_scheduleDay == 0 ? "fk-day-active" : "")" @onclick='() => _scheduleDay = 0'>Ma</button>
-                        <button class="fk-day-btn @(_scheduleDay == 1 ? "fk-day-active" : "")" @onclick='() => _scheduleDay = 1'>Holnap</button>
-                        <button class="fk-day-btn @(_scheduleDay == -1 ? "fk-day-active" : "")" @onclick='() => _scheduleDay = -1'>Tegnap</button>
-                    </div>
-                    <div class="tab-content">
-                        @{
-                            var targetDay = DateTime.Today.AddDays(_scheduleDay);
-                            var csDow = (int)targetDay.DayOfWeek;
-                            var targetDow = csDow == 0 ? 7 : csDow;
-                            var dayEntries = _schedule.Where(s => s.DayOfWeek == targetDow).OrderBy(s => s.StartTime).ToList();
-                        }
-                        @if (_isLoadingSchedule)
-                        {
-                            <div class="empty-state"><div class="spinner-sm"></div></div>
-                        }
-                        else if (!dayEntries.Any())
-                        {
-                            <div class="empty-state">
-                                <span class="empty-icon">📚</span>
-                                <p>@(_scheduleDay == 0 ? "Nincsenek mai órák" : _scheduleDay == 1 ? "Nincsenek holnapi órák" : "Nincsenek tegnapi órák")</p>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="schedule-list">
-                                @foreach (var entry in dayEntries)
-                                {
-                                    var isNow = _scheduleDay == 0 && IsCurrentlyActive(entry);
-                                    <div class="schedule-row @(isNow ? "schedule-now" : "")">
-                                        <div class="schedule-time-col">
-                                            <span class="schedule-time">@entry.StartTime.Substring(0, 5)</span>
-                                            <span class="schedule-time-end">@entry.EndTime.Substring(0, 5)</span>
-                                        </div>
-                                        <div class="schedule-bar @(isNow ? "bar-now" : "")"></div>
-                                        <div class="schedule-info">
-                                            <span class="schedule-name">@entry.SubjectName</span>
-                                            <span class="schedule-code">@entry.SubjectCode@(entry.Location != null ? " · " + entry.Location : "")</span>
-                                        </div>
-                                        @if (isNow)
-                                        {
-                                            <span class="schedule-badge">Folyamatban</span>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
+        <main class="fr-main">
+            <div class="fr-content">
+                <p style="color:var(--text-muted);font-size:.875rem;">Dashboard hamarosan...</p>
             </div>
-        </div>
-
-        <!-- Right Sidebar - Robi -->
-        <div class="right-sidebar">
-            <div class="calendar-widget">
-                <div class="calendar-header">
-                    <h3>@_calendarMonth</h3>
-                </div>
-                <div class="calendar-days">
-                    <div class="day-header">H</div>
-                    <div class="day-header">K</div>
-                    <div class="day-header">Sze</div>
-                    <div class="day-header">Cs</div>
-                    <div class="day-header">P</div>
-                    <div class="day-header">Szo</div>
-                    <div class="day-header">V</div>
-                    @foreach (var d in _calendarDays)
-                    {
-                        @if (d == 0)
-                        {
-                            <div class="day-item day-empty"></div>
-                        }
-                        else
-                        {
-                            <div class="day-item @(d == DateTime.Today.Day && DateTime.Today.Month == _calendarMonthNum ? "current" : "")">@d</div>
-                        }
-                    }
-                </div>
-                <div class="calendar-timeline">
-                    <div class="timeline-label">📅 Holnap</div>
-                    @{
-                        var tomorrowDow = (int)DateTime.Today.AddDays(1).DayOfWeek;
-                        var tomorrowDowConv = tomorrowDow == 0 ? 7 : tomorrowDow;
-                        var tomorrowEntries = _schedule.Where(s => s.DayOfWeek == tomorrowDowConv).OrderBy(s => s.StartTime).ToList();
-                    }
-                    @if (!tomorrowEntries.Any())
-                    {
-                        <div class="hour-slot hour-empty">Nincs holnapi óra</div>
-                    }
-                    else
-                    {
-                        <div class="timeline-hours">
-                            @foreach (var e in tomorrowEntries)
-                            {
-                                <div class="hour-slot">
-                                    <span class="hour-time">@e.StartTime.Substring(0, 5)</span>
-                                    <span class="hour-name">@e.SubjectName</span>
-                                    @if (e.Location != null)
-                                    {
-                                        <span class="hour-loc">@e.Location</span>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 }
 else
 {
-    <div class="not-authenticated">
-        <h2>🔒 Nem vagy bejelentkezve</h2>
-        <p>Jelentkezz be a dashboard eléréséhez!</p>
-        <a href="/login" class="btn-login">Bejelentkezés</a>
-    </div>
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
 }
 
 <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    .fr-layout { --accent:#2563eb; --accent-hover:#1d4ed8; --accent-subtle:rgba(37,99,235,.08); --bg:#f8f9fb; --surface:#fff; --surface-2:#f1f3f7; --border:#e4e7ed; --border-strong:#c9cdd6; --text-primary:#0f1117; --text-secondary:#52586a; --text-muted:#9299aa; --danger:#dc2626; --danger-subtle:rgba(220,38,38,.07); --warning:#d97706; --warning-subtle:rgba(217,119,6,.08); --success:#16a34a; --success-subtle:rgba(22,163,74,.08); --radius:10px; --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif; }
-    .fr-layout[data-theme="dark"] { --bg:#0d0f14; --surface:#161820; --surface-2:#1e2130; --border:#272b3a; --border-strong:#363c50; --text-primary:#f0f2f8; --text-secondary:#8892a4; --text-muted:#4e566a; --accent-subtle:rgba(37,99,235,.15); --danger-subtle:rgba(220,38,38,.12); --warning-subtle:rgba(217,119,6,.12); --success-subtle:rgba(22,163,74,.12); }
-    .fr-layout { display:grid; grid-template-columns:220px 1fr; height:100vh; background:var(--bg); font-family:var(--font); color:var(--text-primary); overflow:hidden; }
-    .fr-layout-dashboard { grid-template-columns:220px 1fr 280px; }
-    .fr-sidebar { display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); height:100vh; }
-    .fr-brand { display:flex; align-items:center; gap:10px; padding:20px 18px; font-weight:700; font-size:.95rem; color:var(--accent); border-bottom:1px solid var(--border); }
-    .fr-nav { flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; scrollbar-width:none; }
-    .fr-nav::-webkit-scrollbar { display:none; }
-    .fr-nav-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; color:var(--text-secondary); text-decoration:none; font-size:.875rem; font-weight:500; transition:background .15s,color .15s; }
-    .fr-nav-item:hover { background:var(--surface-2); color:var(--text-primary); }
-    .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); }
-    .fr-sidebar-footer { padding:12px 10px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:4px; }
-    .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 10px; border:none; border-radius:8px; background:none; color:var(--text-secondary); font-size:.85rem; font-weight:500; cursor:pointer; text-align:left; transition:background .15s,color .15s; font-family:var(--font); }
-    .fr-theme-toggle:hover { background:var(--surface-2); color:var(--text-primary); }
-    .fr-logout:hover { background:var(--danger-subtle); color:var(--danger); }
-    .loading-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:14px; }
-    .spinner-large { width:36px; height:36px; border:3px solid #e4e7ed; border-top-color:#2563eb; border-radius:50%; animation:fr-spin .7s linear infinite; }
-    .spinner-sm { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:fr-spin .7s linear infinite; margin:0 auto; }
-    @@keyframes fr-spin { to { transform:rotate(360deg); } }
-    .not-authenticated { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; text-align:center; }
-    .not-authenticated h2 { font-size:1.4rem; font-weight:700; }
-    .not-authenticated p { color:#52586a; font-size:.875rem; }
-    .btn-login { padding:10px 20px; background:#2563eb; color:#fff; border-radius:8px; text-decoration:none; font-size:.875rem; font-weight:600; }
-    .main-content { display:flex; flex-direction:column; overflow-y:auto; background:var(--bg); }
-    .content-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 20px 20px; align-items:start; }
-    .tab-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
-    .tab-header { display:flex; align-items:center; gap:8px; padding:13px 16px; border-bottom:1px solid var(--border); }
-    .tab-title { font-weight:700; font-size:.88rem; color:var(--text-primary); flex:1; }
-    .fk-day-btn { padding:4px 10px; border:1px solid var(--border); border-radius:6px; background:none; color:var(--text-secondary); font-size:.75rem; font-weight:500; cursor:pointer; font-family:var(--font); }
-    .fk-day-active { background:var(--accent-subtle) !important; color:var(--accent) !important; border-color:rgba(37,99,235,.2) !important; }
-    .tab-content { padding:4px 0; }
-    .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 16px; gap:8px; color:var(--text-muted); }
-    .empty-icon { font-size:1.6rem; opacity:.6; }
-    .empty-state p { font-size:.82rem; }
-    .schedule-list { display:flex; flex-direction:column; }
-    .schedule-row { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); }
-    .schedule-row:last-child { border-bottom:none; }
-    .schedule-now { background:var(--accent-subtle) !important; }
-    .schedule-time-col { display:flex; flex-direction:column; min-width:40px; }
-    .schedule-time { font-size:.8rem; font-weight:700; color:var(--text-primary); }
-    .schedule-time-end { font-size:.7rem; color:var(--text-muted); }
-    .schedule-bar { width:3px; height:28px; background:var(--border-strong); border-radius:4px; flex-shrink:0; }
-    .bar-now { background:var(--accent); }
-    .schedule-info { display:flex; flex-direction:column; flex:1; min-width:0; }
-    .schedule-name { font-size:.83rem; font-weight:600; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .schedule-code { font-size:.72rem; color:var(--text-muted); }
-    .schedule-badge { font-size:.68rem; font-weight:600; padding:2px 7px; background:var(--accent); color:#fff; border-radius:20px; }
-    .right-sidebar { display:flex; flex-direction:column; background:var(--surface); border-left:1px solid var(--border); height:100vh; overflow-y:auto; scrollbar-width:none; }
-    .calendar-widget { padding:16px; display:flex; flex-direction:column; gap:14px; }
-    .calendar-header h3 { font-size:.9rem; font-weight:700; text-transform:capitalize; color:var(--text-primary); }
-    .calendar-days { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
-    .day-header { text-align:center; font-size:.68rem; font-weight:700; color:var(--text-muted); padding:4px 0; }
-    .day-item { text-align:center; font-size:.78rem; padding:5px 2px; border-radius:6px; color:var(--text-secondary); }
-    .day-item.current { background:var(--accent); color:#fff; font-weight:700; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; margin:0 auto; }
-    .day-empty { visibility:hidden; }
-    .calendar-timeline { border-top:1px solid var(--border); padding-top:14px; display:flex; flex-direction:column; gap:8px; }
-    .timeline-label { font-size:.78rem; font-weight:700; color:var(--text-secondary); }
-    .timeline-hours { display:flex; flex-direction:column; gap:6px; }
-    .hour-slot { display:flex; align-items:center; font-size:.78rem; color:var(--text-secondary); gap:4px; }
-    .hour-time { font-weight:600; color:#0ea5e9; flex-shrink:0; }
-    .hour-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .hour-loc { font-size:.72rem; color:var(--text-muted); }
-    .hour-empty { color:var(--text-muted); font-style:italic; }
+    .fr-layout { display:flex;flex-direction:row;width:100vw;height:100vh;overflow:hidden;background:var(--bg,#f4f2f8);font-family:var(--font);color:var(--text-primary);--accent:#667eea;--accent-hover:#5a6fd8;--accent-subtle:rgba(102,126,234,.12);--bg:#f4f2f8;--surface:#fff;--surface-2:#f0eef8;--border:#e2ddf0;--border-strong:#c4bce0;--text-primary:#1a1630;--text-secondary:#4a4470;--text-muted:#8880aa;--danger:#e53935;--danger-subtle:rgba(229,57,53,.09);--warning:#f59e0b;--warning-subtle:rgba(245,158,11,.1);--success:#0e9f6e;--success-subtle:rgba(14,159,110,.1);--radius:12px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
+    .fr-layout[data-theme="dark"] { --bg:#0d0b18;--surface:#16132a;--surface-2:#1e1a38;--border:#2e2850;--border-strong:#4a4270;--text-primary:#f0eeff;--text-secondary:#9890cc;--text-muted:#5a5480;--accent-subtle:rgba(102,126,234,.18);--danger-subtle:rgba(229,57,53,.15);--warning-subtle:rgba(245,158,11,.13);--success-subtle:rgba(14,159,110,.13); }
+    .fr-layout[data-role="Teacher"] { --accent:#f59e0b;--accent-hover:#d97706;--accent-subtle:rgba(245,158,11,.12); }
+    .fr-sidebar { position:fixed;top:0;left:0;width:240px;height:100vh;z-index:200;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-240px);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.10); }
+    .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
+    .fr-sidebar-backdrop { position:fixed;inset:0;z-index:199;background:rgba(0,0,0,.3); }
+    .fr-brand { display:flex;align-items:center;gap:9px;padding:18px 20px 16px;font-size:.95rem;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border);text-decoration:none; }
+    .fr-nav { display:flex;flex-direction:column;gap:2px;padding:12px 10px;flex:1; }
+    .fr-nav-item { display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;text-decoration:none;font-size:.85rem;font-weight:500;color:var(--text-secondary);transition:all .15s; }
+    .fr-nav-item:hover { background:var(--surface-2);color:var(--text-primary); }
+    .fr-nav-item.fr-active { background:var(--accent-subtle);color:var(--accent);font-weight:600; }
+    .fr-sidebar-footer { padding:12px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px; }
+    .fr-theme-toggle,.fr-logout { display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:none;font-size:.83rem;font-weight:500;color:var(--text-secondary);cursor:pointer;width:100%;transition:all .15s;font-family:var(--font); }
+    .fr-theme-toggle:hover { background:var(--surface-2);color:var(--text-primary); }
+    .fr-logout:hover { background:var(--danger-subtle);color:var(--danger); }
+    .fr-main { display:flex;flex-direction:column;width:100vw;height:100vh;min-height:0;overflow:hidden; }
+    .fr-content { flex:1;overflow:hidden;padding:20px 24px;display:flex;flex-direction:column;gap:14px;min-height:0; }
+    .fr-loading { display:flex;align-items:center;justify-content:center;height:100vh; }
+    .fr-spinner { width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite; }
+    @@keyframes spin { to { transform:rotate(360deg); } }
+    .fr-unauth { display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px; }
+    .fr-btn { display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:var(--font); }
+    .fr-btn-primary { background:var(--accent);color:#fff; }
 </style>
 
 @code {
-    private bool _hasCheckedAuth = false;
-    private string _theme = "light";
-    private bool _isLoadingSchedule = false;
-    private List<ScheduleEntryDto> _schedule = new();
-    private int _scheduleDay = 0;
-    private string _calendarMonth = "";
-    private int _calendarMonthNum = 0;
-    private List<int> _calendarDays = new();
+    private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass  => _menuOpen ? "fr-layout fr-menu-open"    : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu()  { _menuOpen = false; StateHasChanged(); }
 
-    private bool IsCurrentlyActive(ScheduleEntryDto entry)
-    {
-        var now = DateTime.Now.TimeOfDay;
-        if (TimeSpan.TryParse(entry.StartTime, out var start) && TimeSpan.TryParse(entry.EndTime, out var end))
-            return now >= start && now <= end;
-        return false;
-    }
-
-    private void BuildCalendar()
-    {
-        var today = DateTime.Today;
-        _calendarMonthNum = today.Month;
-        _calendarMonth = today.ToString("MMMM yyyy", new System.Globalization.CultureInfo("hu-HU"));
-        var firstDay = new DateTime(today.Year, today.Month, 1);
-        var startOffset = ((int)firstDay.DayOfWeek + 6) % 7;
-        var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-        _calendarDays = new List<int>();
-        for (int i = 0; i < startOffset; i++) _calendarDays.Add(0);
-        for (int d = 1; d <= daysInMonth; d++) _calendarDays.Add(d);
-    }
+    private bool   _hasCheckedAuth  = false;
+    private bool   _isAuthenticated = false;
+    private string _userRole  = "";
+    private string _userEmail = "";
+    private string _firstName = "";
+    private string _theme     = "light";
 
     private async Task ToggleTheme()
     {
         _theme = _theme == "dark" ? "light" : "dark";
         await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
-        StateHasChanged();
-    }
-
-    private async Task HandleLogout()
-    {
-        await AuthService.Logout();
-        Navigation.NavigateTo("/login");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
-            BuildCalendar();
-            await AuthService.InitializeAsync();
-            _hasCheckedAuth = true;
-            StateHasChanged();
-
-            if (!AuthService.IsAuthenticated)
-            {
-                await Task.Delay(100);
-                Navigation.NavigateTo("/login");
-                return;
-            }
-
-            _isLoadingSchedule = true;
-            StateHasChanged();
-            try { _schedule = await ScheduleService.GetMyScheduleAsync(); } catch { _schedule = new(); }
-            _isLoadingSchedule = false;
-            StateHasChanged();
-        }
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        try { await AuthService.InitializeAsync(); } catch { }
+        _hasCheckedAuth  = true;
+        _isAuthenticated = AuthService.IsAuthenticated;
+        _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _userRole  = AuthService.CurrentUser?.UserRole ?? "";
+        var p = _userEmail.Split('@')[0].Split('.')[0];
+        _firstName = p.Length > 0 ? char.ToUpper(p[0]) + p.Substring(1) : _userEmail;
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        StateHasChanged();
     }
 
-    public void Dispose() { }
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }
