@@ -306,6 +306,137 @@ body {
     gap: 16px;
 }
 
+.fr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: var(--font);
+}
+
+.fr-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(102,126,234,.35);
+}
+
+    .fr-btn-primary:hover:not(:disabled) {
+        box-shadow: 0 4px 16px rgba(102,126,234,.45);
+        transform: translateY(-1px);
+    }
+
+    .fr-btn-primary:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+.fr-btn-ghost {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--text-secondary);
+}
+
+    .fr-btn-ghost:hover {
+        background: var(--surface-2);
+        color: var(--text-primary);
+    }
+
+.fr-btn-sm {
+    padding: 7px 12px;
+    font-size: .82rem;
+}
+
+.fr-icon-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+}
+
+    .fr-icon-btn:hover {
+        background: var(--surface-2);
+        color: var(--text-primary);
+    }
+
+.fr-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.fr-label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.fr-input {
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: .875rem;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    width: 100%;
+}
+
+    .fr-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-subtle);
+    }
+
+.fr-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-radius: 9px;
+    font-size: .875rem;
+    font-weight: 500;
+}
+
+.fr-alert-danger {
+    background: var(--danger-subtle);
+    color: var(--danger);
+    border: 1px solid rgba(229,57,53,.2);
+}
+
+.fr-alert-success {
+    background: var(--success-subtle);
+    color: var(--success);
+    border: 1px solid rgba(14,159,110,.2);
+}
+
+.fr-alert-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: .6;
+    display: flex;
+    align-items: center;
+}
+
 .fr-panel {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -350,17 +481,74 @@ body {
     font-size: .875rem;
 }
 
-.fr-btn {
+.fr-form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fr-form-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.fr-form-desc {
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+
+.fr-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.fr-required {
+    color: var(--danger);
+}
+
+.fr-optional {
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.fr-badge {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-size: .875rem;
-    font-weight: 600;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: background .15s;
-    font-family: var(--font);
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: .73rem;
+    font-weight: 700;
+}
+
+.fr-badge-warn {
+    background: var(--warning-subtle);
+    color: var(--warning);
+}
+
+.fr-badge-success {
+    background: var(--success-subtle);
+    color: var(--success);
+}
+
+.fr-badge-accent {
+    background: var(--accent-subtle);
+    color: var(--accent);
+}
+
+@media (max-width: 600px) {
+    .fr-topbar {
+        padding: 0 12px;
+    }
+
+    .fr-content {
+        padding: 12px;
+    }
 }
