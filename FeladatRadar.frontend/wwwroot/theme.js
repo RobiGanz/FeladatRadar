@@ -28,3 +28,11 @@ window.timerHelper = {
     }
 };
 
+window.groupHelper = {
+    getLastUsed: function (groupId) {
+        return parseInt(localStorage.getItem('fr-group-lastused-' + groupId) || '0');
+    },
+    setLastUsed: function (groupId, ts) {
+        localStorage.setItem('fr-group-lastused-' + groupId, ts.toString());
+    }
+};
