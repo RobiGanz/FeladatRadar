@@ -60,7 +60,23 @@ else if (_isAuthenticated)
             </header>
 
             <div class="fr-content">
-                <p style="color:var(--text-muted);font-size:.875rem;">Dashboard hamarosan...</p>
+                @if (_isLoading)
+                {
+                    <div class="fr-loading-inline"><div class="fr-spinner"></div><span>Betöltés...</span></div>
+                }
+                else
+                {
+                    <div class="db-welcome-banner">
+                        <div class="db-welcome-left">
+                            <div class="db-welcome-greeting">Üdvözöllek, @_firstName! 👋</div>
+                            <div class="db-welcome-sub">@DateTime.Now.ToString("yyyy. MMMM d., dddd", new System.Globalization.CultureInfo("hu-HU")) — Szép napot!</div>
+                        </div>
+                        <div class="db-welcome-right">
+                            <div class="db-welcome-badge db-welcome-badge-info">📚 Üdv a FeladatRadar-on!</div>
+                        </div>
+                    </div>
+                    <p style="color:var(--text-muted);font-size:.875rem;">Stat kártyák hamarosan...</p>
+                }
             </div>
         </main>
     </div>
@@ -72,7 +88,7 @@ else
 
 <style>
     .fr-layout { display:flex;flex-direction:row;width:100vw;height:100vh;overflow:hidden;background:var(--bg,#f4f2f8);font-family:var(--font);color:var(--text-primary);--accent:#667eea;--accent-hover:#5a6fd8;--accent-subtle:rgba(102,126,234,.12);--bg:#f4f2f8;--surface:#fff;--surface-2:#f0eef8;--border:#e2ddf0;--border-strong:#c4bce0;--text-primary:#1a1630;--text-secondary:#4a4470;--text-muted:#8880aa;--danger:#e53935;--danger-subtle:rgba(229,57,53,.09);--warning:#f59e0b;--warning-subtle:rgba(245,158,11,.1);--success:#0e9f6e;--success-subtle:rgba(14,159,110,.1);--radius:12px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
-    .fr-layout[data-theme="dark"] { --bg:#0d0b18;--surface:#16132a;--surface-2:#1e1a38;--border:#2e2850;--text-primary:#f0eeff;--text-secondary:#9890cc;--text-muted:#5a5480;--accent-subtle:rgba(102,126,234,.18);--danger-subtle:rgba(229,57,53,.15);--warning-subtle:rgba(245,158,11,.13);--success-subtle:rgba(14,159,110,.13); }
+    .fr-layout[data-theme="dark"] { --bg:#0d0b18;--surface:#16132a;--surface-2:#1e1a38;--border:#2e2850;--border-strong:#4a4270;--text-primary:#f0eeff;--text-secondary:#9890cc;--text-muted:#5a5480;--accent-subtle:rgba(102,126,234,.18);--danger-subtle:rgba(229,57,53,.15);--warning-subtle:rgba(245,158,11,.13);--success-subtle:rgba(14,159,110,.13); }
     .fr-layout[data-role="Teacher"] { --accent:#f59e0b;--accent-hover:#d97706;--accent-subtle:rgba(245,158,11,.12); }
     .fr-sidebar { position:fixed;top:0;left:0;width:240px;height:100vh;z-index:200;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-240px);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.10); }
     .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
@@ -90,17 +106,23 @@ else
     .fr-topbar { display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0; }
     .fr-topbar-left,.fr-topbar-right { display:flex;align-items:center;gap:8px; }
     .fr-hamburger { width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s; }
-    .fr-hamburger:hover { background:var(--surface-2); }
     .fr-page-title { font-size:1rem;font-weight:700;color:var(--text-primary); }
     .fr-user-chip { display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;font-size:.8rem;color:var(--text-secondary); }
     .fr-user-dot { width:7px;height:7px;border-radius:50%;background:#22c55e; }
     .fr-content { flex:1;overflow:hidden;padding:20px 24px;display:flex;flex-direction:column;gap:14px;min-height:0; }
     .fr-loading { display:flex;align-items:center;justify-content:center;height:100vh; }
+    .fr-loading-inline { display:flex;align-items:center;gap:10px;padding:40px;color:var(--text-muted);font-size:.875rem; }
     .fr-spinner { width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite; }
     @@keyframes spin { to { transform:rotate(360deg); } }
     .fr-unauth { display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px; }
     .fr-btn { display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:.875rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:var(--font); }
     .fr-btn-primary { background:var(--accent);color:#fff; }
+    .db-welcome-banner { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-radius:var(--radius);background:linear-gradient(120deg,#667eea 0%,#764ba2 100%);color:#fff;flex-shrink:0;box-shadow:0 4px 24px rgba(102,126,234,.3);gap:16px; }
+    .db-welcome-left { display:flex;flex-direction:column;gap:5px; }
+    .db-welcome-greeting { font-size:1.6rem;font-weight:800;letter-spacing:-.01em; }
+    .db-welcome-sub { font-size:.85rem;opacity:.8;text-transform:capitalize; }
+    .db-welcome-badge { padding:8px 18px;border-radius:24px;font-size:.82rem;font-weight:700; }
+    .db-welcome-badge-info { background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3); }
 </style>
 
 @code {
@@ -116,6 +138,7 @@ else
     private string _userEmail = "";
     private string _firstName = "";
     private string _theme     = "light";
+    private bool   _isLoading = true;
 
     private async Task ToggleTheme()
     {
@@ -135,6 +158,7 @@ else
         var p = _userEmail.Split('@')[0].Split('.')[0];
         _firstName = p.Length > 0 ? char.ToUpper(p[0]) + p.Substring(1) : _userEmail;
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        _isLoading = false;
         StateHasChanged();
     }
 
