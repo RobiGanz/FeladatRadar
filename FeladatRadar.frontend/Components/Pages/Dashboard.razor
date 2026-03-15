@@ -107,7 +107,42 @@ else if (_isAuthenticated)
                         </a>
                     </div>
 
-                    <p style="color:var(--text-muted);font-size:.875rem;">Feladatlista hamarosan...</p>
+                    <div class="db-tasks-panel">
+                        <div class="fr-panel-header">
+                            <span class="fr-panel-title">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Közelgő feladatok
+                            </span>
+                            <a href="/feladatok" class="fr-panel-link">Összes →</a>
+                        </div>
+                        @{ var todayTasks = _allTasks.Where(t => !t.IsCompleted && t.DueDate.Date == DateTime.Today).OrderBy(t => t.DueDate).ToList(); }
+                        @if (!todayTasks.Any())
+                        {
+                            <div class="fr-panel-empty">Ma nincs feladat 🎉</div>
+                        }
+                        else
+                        {
+                            <div class="fr-task-list">
+                                @foreach (var t in todayTasks)
+                                {
+                                    var dl = (t.DueDate - DateTime.Now).TotalDays;
+                                    var urg = dl < 0 ? "fr-task-overdue" : dl < 2 ? "fr-task-urgent" : "";
+                                    <div class="fr-task-row @urg">
+                                        <div class="fr-task-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
+                                        <div class="fr-task-info">
+                                            <span class="fr-task-title">@t.Title</span>
+                                            <span class="fr-task-sub">@t.SubjectName</span>
+                                        </div>
+                                        <div class="fr-task-due">
+                                            @if (dl < 0) { <span class="fr-due-badge fr-due-overdue">Lejárt</span> }
+                                            else if (dl < 1) { <span class="fr-due-badge fr-due-today">Ma</span> }
+                                            else { <span class="fr-due-date">@t.DueDate.ToString("MM.dd")</span> }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                 }
             </div>
         </main>
@@ -174,6 +209,25 @@ else
     .db-stat-subjects:hover { border-color:var(--warning); }
     .db-stat-groups:hover { border-color:var(--success); }
     @@media (max-width:768px) { .db-stats-row { grid-template-columns:repeat(2,1fr); } }
+    .db-tasks-panel { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+    .fr-panel-header { display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(102,126,234,.05),rgba(118,75,162,.05)); }
+    .fr-panel-title { font-weight:700;font-size:.875rem;display:flex;align-items:center;color:var(--text-primary); }
+    .fr-panel-link { font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:500; }
+    .fr-panel-empty { display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-muted);font-size:.85rem; }
+    .fr-task-list { max-height:300px;overflow-y:auto; }
+    .fr-task-row { display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;transition:background .12s; }
+    .fr-task-row:last-child { border-bottom:none; }
+    .fr-task-row:hover { background:var(--surface-2); }
+    .fr-task-row.fr-task-overdue { background:var(--danger-subtle); }
+    .fr-task-row.fr-task-urgent  { background:var(--warning-subtle); }
+    .fr-task-check { color:var(--border-strong);flex-shrink:0; }
+    .fr-task-info { flex:1;min-width:0; }
+    .fr-task-title { display:block;font-weight:600;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary); }
+    .fr-task-sub { font-size:.68rem;color:var(--text-muted); }
+    .fr-due-badge { font-size:.66rem;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap; }
+    .fr-due-overdue { background:var(--danger-subtle);color:var(--danger); }
+    .fr-due-today   { background:var(--warning-subtle);color:var(--warning); }
+    .fr-due-date { font-size:.7rem;color:var(--text-muted);font-weight:500; }
 </style>
 
 @code {
