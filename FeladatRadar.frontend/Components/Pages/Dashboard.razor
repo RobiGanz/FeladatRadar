@@ -113,12 +113,24 @@ else if (_isAuthenticated)
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                                 Közelgő feladatok
                             </span>
-                            <a href="/feladatok" class="fr-panel-link">Összes →</a>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <div class="db-day-filter">
+                                    <button class="db-day-btn @(_dayFilter == "today"    ? "db-day-active" : "")" @onclick='() => _dayFilter = "today"'>Ma</button>
+                                    <button class="db-day-btn @(_dayFilter == "tomorrow" ? "db-day-active" : "")" @onclick='() => _dayFilter = "tomorrow"'>Holnap</button>
+                                    <button class="db-day-btn @(_dayFilter == "week"     ? "db-day-active" : "")" @onclick='() => _dayFilter = "week"'>Hét</button>
+                                    <button class="db-day-btn @(_dayFilter == "all"      ? "db-day-active" : "")" @onclick='() => _dayFilter = "all"'>Mind</button>
+                                </div>
+                                <a href="/feladatok" class="fr-panel-link">→</a>
+                            </div>
                         </div>
-                        @{ var todayTasks = _allTasks.Where(t => !t.IsCompleted && t.DueDate.Date == DateTime.Today).OrderBy(t => t.DueDate).ToList(); }
+                        @{ var todayTasks = FilteredTasks.ToList(); }
                         @if (!todayTasks.Any())
                         {
-                            <div class="fr-panel-empty">Ma nincs feladat 🎉</div>
+                            <div class="fr-panel-empty">
+                                @if (_dayFilter == "today") { <span>Ma nincs feladat 🎉</span> }
+                                else if (_dayFilter == "tomorrow") { <span>Holnapra nincs feladat</span> }
+                                else { <span>Nincs feladat</span> }
+                            </div>
                         }
                         else
                         {
@@ -228,6 +240,10 @@ else
     .fr-due-overdue { background:var(--danger-subtle);color:var(--danger); }
     .fr-due-today   { background:var(--warning-subtle);color:var(--warning); }
     .fr-due-date { font-size:.7rem;color:var(--text-muted);font-weight:500; }
+    .db-day-filter { display:flex;gap:2px;background:var(--surface-2);border-radius:7px;padding:2px; }
+    .db-day-btn { padding:3px 8px;border:none;border-radius:5px;background:none;color:var(--text-muted);font-size:.7rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--font); }
+    .db-day-btn:hover { color:var(--text-primary); }
+    .db-day-btn.db-day-active { background:var(--surface);color:var(--text-primary);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08); }
 </style>
 
 @code {
@@ -251,6 +267,15 @@ else
     private int _groupCount   = 0;
     private int _todayEvents  = 0;
     private List<TaskDto> _allTasks = new();
+    private string _dayFilter = "today";
+
+    private IEnumerable<TaskDto> FilteredTasks => _dayFilter switch
+    {
+        "today"    => _allTasks.Where(t => !t.IsCompleted && t.DueDate.Date == DateTime.Today).OrderBy(t => t.DueDate),
+        "tomorrow" => _allTasks.Where(t => !t.IsCompleted && t.DueDate.Date == DateTime.Today.AddDays(1)).OrderBy(t => t.DueDate),
+        "week"     => _allTasks.Where(t => !t.IsCompleted && t.DueDate.Date >= DateTime.Today && t.DueDate.Date <= DateTime.Today.AddDays(7)).OrderBy(t => t.DueDate),
+        _          => _allTasks.Where(t => !t.IsCompleted).OrderBy(t => t.DueDate).Take(10),
+    };
 
     private async Task ToggleTheme()
     {
