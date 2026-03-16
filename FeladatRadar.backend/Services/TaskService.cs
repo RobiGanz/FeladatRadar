@@ -85,7 +85,6 @@ namespace FeladatRadar.backend.Services
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                // Direct UPDATE since stored proc may not exist
                 var sql = "UPDATE Tasks SET IsCompleted = 0, CompletedAt = NULL WHERE TaskID = @TaskID AND StudentID = @StudentID";
                 var rows = await connection.ExecuteAsync(sql, new { TaskID = taskId, StudentID = studentId });
                 return rows > 0

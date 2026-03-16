@@ -43,7 +43,7 @@
 
     public class AddTaskRequest
     {
-        public int SubjectID { get; set; }
+        public int? SubjectID { get; set; }  
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime DueDate { get; set; } = DateTime.Now.AddDays(7);
