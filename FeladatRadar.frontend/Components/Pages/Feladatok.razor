@@ -17,57 +17,44 @@
 }
 else if (_isAuthenticated)
 {
-    <div class="fr-layout" data-theme="@_theme">
-        <!-- Sidebar -->
-        <aside class="fr-sidebar">
-            <div class="fr-brand">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+    <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
+        @if (_menuOpen) { <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div> }
+        <aside class="@SidebarClass">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>FeladatRadar</span>
-            </div>
+            </a>
             <nav class="fr-nav">
-                <a href="/dashboard" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>Dashboard</a>
-                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
-                <a href="/feladatok" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>Feladatok</a>
-                <a href="/fokusz" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
-                <a href="/tantargyak" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
-                <a href="/csoport" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>Csoportok</a>
+                <a href="/dashboard" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></a>
+                <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
+                <a href="/feladatok" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Feladatok</a>
+                <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
+                <a href="/csoport" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+                @if (_userRole == "Admin") { <a href="/admin" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</a> }
             </nav>
             <div class="fr-sidebar-footer">
                 <button class="fr-theme-toggle" @onclick="ToggleTheme">
-                    @if (_theme == "dark")
-                    {
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
-                        <span>Világos mód</span>
-                    }
-                    else
-                    {
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-                        <span>Sötét mód</span>
-                    }
+                    @if (_theme == "dark") { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg><span>Világos mód</span> }
+                    else { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span> }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Kijelentkezés
-                </button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
             </div>
         </aside>
 
-        <!-- Main -->
         <main class="fr-main">
             <header class="fr-topbar">
                 <div class="fr-topbar-left">
+                    <button class="fr-hamburger" @onclick="ToggleMenu" title="Menü">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
                     <span class="fr-page-title">Feladatok</span>
-                    <span class="fr-breadcrumb">/ @FilteredTasks.Count() feladat</span>
+                    <span class="fr-breadcrumb">/ @_tasks.Count feladat</span>
                 </div>
                 <div class="fr-topbar-right">
                     <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => _showAdd = !_showAdd">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Új feladat
                     </button>
-                    <div class="fr-user-chip">
-                        <div class="fr-user-dot"></div>
-                        <span>@_userEmail</span>
-                    </div>
                 </div>
             </header>
 
@@ -77,55 +64,38 @@ else if (_isAuthenticated)
                     <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
                         @_message
                         <button class="fr-alert-close" @onclick='() => _message = ""'>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                     </div>
                 }
 
-                <!-- Add task form -->
                 @if (_showAdd)
                 {
                     <div class="fr-add-card">
-                        <div class="fr-add-card-head">
-                            <span class="fr-add-card-title">Új feladat hozzáadása</span>
+                        <div class="fr-add-head">
+                            <span class="fr-add-title">Új feladat hozzáadása</span>
                             <button class="fr-icon-btn" @onclick='() => _showAdd = false'>
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             </button>
                         </div>
-                        <div class="fr-add-card-body">
+                        <div class="fr-add-body">
                             <div class="fr-form-row">
                                 <div class="fr-field" style="flex:2;min-width:200px">
                                     <label class="fr-label">Feladat neve <span class="fr-required">*</span></label>
-                                    <input class="fr-input" type="text" placeholder="pl. Beadandó dolgozat" @bind="_newTitle" maxlength="200" />
-                                </div>
-                                <div class="fr-field">
-                                    <label class="fr-label">Tantárgy <span class="fr-required">*</span></label>
-                                    <select class="fr-input" value="@_newSubjectId" @onchange="OnSubjectChanged">
-                                        <option value="0">— Válassz —</option>
-                                        @foreach (var e in _enrollments)
-                                        {
-                                            <option value="@e.SubjectID">@e.SubjectCode – @e.SubjectName</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="fr-field fr-field-sm">
-                                    <label class="fr-label">Típus</label>
-                                    <select class="fr-input" @bind="_newType">
-                                        <option value="Assignment">Beadandó</option>
-                                        <option value="Homework">Házi feladat</option>
-                                        <option value="Exam">Dolgozat / ZH</option>
-                                        <option value="Vizsga">Vizsga</option>
-                                        <option value="Project">Projekt</option>
-                                        <option value="Personal">Egyéb</option>
-                                    </select>
+                                    <input class="fr-input" type="text" placeholder="pl. Matematika házi feladat" @bind="_newTitle" maxlength="200" />
                                 </div>
                                 <div class="fr-field fr-field-sm">
                                     <label class="fr-label">Határidő <span class="fr-required">*</span></label>
                                     <input class="fr-input" type="datetime-local" @bind="_newDueDate" />
                                 </div>
-                                <div class="fr-field" style="flex:2;min-width:200px">
-                                    <label class="fr-label">Megjegyzés <span class="fr-optional">— opcionális</span></label>
-                                    <input class="fr-input" type="text" placeholder="Részletek..." @bind="_newDescription" />
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Típus</label>
+                                    <select class="fr-input" @bind="_newType">
+                                        <option value="Homework">Házifeladat</option>
+                                        <option value="Exam">Dolgozat</option>
+                                        <option value="Project">Projekt</option>
+                                        <option value="Other">Egyéb</option>
+                                    </select>
                                 </div>
                                 <button class="fr-btn fr-btn-primary fr-btn-sm" style="align-self:flex-end" @onclick="AddTask" disabled="@_isSaving">
                                     @(_isSaving ? "Mentés..." : "Hozzáadás")
@@ -139,58 +109,16 @@ else if (_isAuthenticated)
                     </div>
                 }
 
-                <!-- Stats row -->
-                <div class="fr-stat-row">
-                    @{
-                        var pending = _tasks.Count(t => !t.IsCompleted && !t.IsOverdue);
-                        var overdue = _tasks.Count(t => t.IsOverdue);
-                        var dueSoon = _tasks.Count(t => t.IsDueSoon);
-                        var done = _tasks.Count(t => t.IsCompleted);
-                    }
-                    <button class="fr-stat-pill @(_filter == "all" ? "fr-pill-active" : "")" @onclick='() => _filter = "all"'>
-                        Összes <span class="fr-pill-num">@_tasks.Count</span>
-                    </button>
-                    <button class="fr-stat-pill @(_filter == "active" ? "fr-pill-active" : "")" @onclick='() => _filter = "active"'>
-                        Aktív <span class="fr-pill-num">@pending</span>
-                    </button>
-                    <button class="fr-stat-pill fr-pill-warn @(_filter == "soon" ? "fr-pill-active" : "")" @onclick='() => _filter = "soon"'>
-                        Hamarosan <span class="fr-pill-num">@dueSoon</span>
-                    </button>
-                    <button class="fr-stat-pill fr-pill-danger @(_filter == "overdue" ? "fr-pill-active" : "")" @onclick='() => _filter = "overdue"'>
-                        Lejárt <span class="fr-pill-num">@overdue</span>
-                    </button>
-                    <button class="fr-stat-pill fr-pill-vizsga @(_filter == "vizsga" ? "fr-pill-active" : "")" @onclick='() => _filter = "vizsga"'>
-                        🎓 Vizsgák <span class="fr-pill-num">@_tasks.Count(t => t.TaskType == "Vizsga" && !t.IsCompleted)</span>
-                    </button>
-                    <button class="fr-stat-pill fr-pill-done @(_filter == "done" ? "fr-pill-active" : "")" @onclick='() => _filter = "done"'>
-                        Befejezett <span class="fr-pill-num">@done</span>
-                    </button>
-                    <div class="fr-spacer"></div>
-                    <!-- Search -->
-                    <div class="fr-search-box">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                        <input class="fr-search-input" type="text" placeholder="Keresés..." @bind="_search" @bind:event="oninput" />
-                    </div>
-                    <!-- Sort -->
-                    <select class="fr-sort-select" @bind="_sort">
-                        <option value="due">Határidő szerint</option>
-                        <option value="subject">Tantárgy szerint</option>
-                        <option value="type">Típus szerint</option>
-                        <option value="name">Név szerint</option>
-                    </select>
-                </div>
-
-                <!-- Task list -->
                 <div class="fr-panel">
                     @if (_isLoading)
                     {
                         <div class="fr-panel-empty"><div class="fr-spinner fr-spinner-sm"></div></div>
                     }
-                    else if (!FilteredTasks.Any())
+                    else if (!_tasks.Any())
                     {
                         <div class="fr-panel-empty">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
-                            <span>Nincs megjeleníthető feladat.</span>
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <span>Még nincs feladat. Adj hozzá egyet!</span>
                         </div>
                     }
                     else
@@ -200,74 +128,34 @@ else if (_isAuthenticated)
                                 <tr>
                                     <th style="width:36px"></th>
                                     <th>Feladat</th>
-                                    <th>Tantárgy</th>
+                                    <th>Kategória</th>
                                     <th>Típus</th>
                                     <th>Határidő</th>
                                     <th>Állapot</th>
-                                    <th style="width:48px"></th>
+                                    <th style="width:36px"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var task in FilteredTasks)
+                                @foreach (var task in _tasks.OrderBy(t => t.IsCompleted).ThenBy(t => t.DueDate))
                                 {
-                                    var isOverdue = task.IsOverdue;
                                     var isDone = task.IsCompleted;
-                                    <tr class="fr-task-tr @(isOverdue ? "fr-tr-danger" : "") @(isDone ? "fr-tr-done" : "")">
+                                    <tr class="fr-task-tr @(isDone ? "fr-tr-done" : "")">
                                         <td>
-                                            <button class="fr-check @(isDone ? "fr-check-done" : "")"
-                                                    @onclick="() => ToggleComplete(task)"
-                                                    title="@(isDone ? "Visszavonás" : "Kész")">
-                                                @if (isDone)
-                                                {
-                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
-                                                }
+                                            <button class="fr-check @(isDone ? "fr-check-done" : "")" @onclick="() => ToggleComplete(task)">
+                                                @if (isDone) { <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }
                                             </button>
                                         </td>
+                                        <td><span class="fr-task-title @(isDone ? "fr-done-text" : "")">@task.Title</span></td>
+                                        <td><span class="fr-td-sub">@(string.IsNullOrEmpty(task.SubjectName) ? "—" : task.SubjectName)</span></td>
+                                        <td><span class="fr-badge fr-badge-default">@task.TaskType</span></td>
+                                        <td><span class="fr-due">@task.DueDate.ToString("MM.dd HH:mm")</span></td>
                                         <td>
-                                            <div class="fr-task-name-cell">
-                                                <span class="fr-task-title @(isDone ? "fr-strikethrough" : "")">@task.Title</span>
-                                                @if (!string.IsNullOrEmpty(task.Description))
-                                                {
-                                                    <span class="fr-task-desc">@task.Description</span>
-                                                }
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="fr-td-code">@task.SubjectCode</span>
-                                            <span class="fr-td-sub">@task.SubjectName</span>
-                                        </td>
-                                        <td>
-                                            <span class="fr-type-badge fr-type-@task.TaskType.ToLower()">@TranslateType(task.TaskType)</span>
-                                        </td>
-                                        <td>
-                                            <span class="fr-due @(isOverdue ? "fr-due-danger" : task.IsDueSoon ? "fr-due-warn" : "")">
-                                                @task.DueDate.ToString("yyyy.MM.dd HH:mm")
-                                            </span>
-                                            <span class="fr-days-left @(isOverdue ? "fr-text-danger" : task.IsDueSoon ? "fr-text-warn" : "fr-text-muted")">
-                                                @task.DaysLeft
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if (isDone)
-                                            {
-                                                <span class="fr-badge fr-badge-success">Kész</span>
-                                            }
-                                            else if (isOverdue)
-                                            {
-                                                <span class="fr-badge fr-badge-danger">Lejárt</span>
-                                            }
-                                            else if (task.IsDueSoon)
-                                            {
-                                                <span class="fr-badge fr-badge-warn">Hamarosan</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="fr-badge fr-badge-default">Folyamatban</span>
-                                            }
+                                            @if (isDone) { <span class="fr-badge fr-badge-done">Kész</span> }
+                                            else { <span class="fr-badge fr-badge-default">Folyamatban</span> }
                                         </td>
                                         <td>
                                             <button class="fr-del-btn" @onclick="() => DeleteTask(task.TaskID)" title="Törlés">
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" /></svg>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                                             </button>
                                         </td>
                                     </tr>
@@ -282,108 +170,21 @@ else if (_isAuthenticated)
 }
 else
 {
-    <div class="fr-unauth">
-        <p>Nincs aktív munkamenet.</p>
-        <a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a>
-    </div>
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
 }
 
-
 @code {
-    private bool _hasCheckedAuth = false;
-    private bool _isAuthenticated = false;
-    private string _userEmail = "";
-    private string _message = "";
-    private bool _messageIsError = false;
-    private bool _isLoading = false;
-    private bool _isSaving = false;
-    private string _formError = "";
-    private string _theme = "light";
-
-    // Automatikus UI-frissítés timer (percenként frissíti a DaysLeft / IsOverdue / IsDueSoon értékeket)
-    private System.Threading.Timer? _uiRefreshTimer;
-    // Automatikus adatlekérési timer (5 percenként kéri le újra az adatokat a szerverről)
-    private System.Threading.Timer? _dataRefreshTimer;
-
+    private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
+    private bool _hasCheckedAuth, _isAuthenticated, _isLoading, _isSaving, _showAdd, _messageIsError;
+    private string _userRole = "", _userEmail = "", _message = "", _formError = "";
+    private string _newTitle = "", _newType = "Homework", _theme = "light";
+    private DateTime _newDueDate = DateTime.Now.AddDays(7);
     private List<TaskDto> _tasks = new();
     private List<EnrollmentDto> _enrollments = new();
-
-    // Filters
-    private string _filter = "all";
-    private string _search = "";
-    private string _sort = "due";
-
-    // New task form
-    private bool _showAdd = false;
-    private string _newTitle = "";
-    private int _newSubjectId = 0;
-    private string _newType = "Assignment";
-    private DateTime _newDueDate = DateTime.Now.AddDays(7);
-    private string _newDescription = "";
-
-    private IEnumerable<TaskDto> FilteredTasks
-    {
-        get
-        {
-            var q = _tasks.AsEnumerable();
-
-            // Filter by status
-            q = _filter switch
-            {
-                "active" => q.Where(t => !t.IsCompleted && !t.IsOverdue),
-                "soon" => q.Where(t => t.IsDueSoon),
-                "overdue" => q.Where(t => t.IsOverdue),
-                "done" => q.Where(t => t.IsCompleted),
-                "vizsga" => q.Where(t => t.TaskType == "Vizsga" && !t.IsCompleted),
-                _ => q
-            };
-
-            // Search
-            if (!string.IsNullOrWhiteSpace(_search))
-            {
-                var s = _search.Trim().ToLower();
-                q = q.Where(t =>
-                    t.Title.ToLower().Contains(s) ||
-                    t.SubjectName.ToLower().Contains(s) ||
-                    t.SubjectCode.ToLower().Contains(s) ||
-                    (t.Description?.ToLower().Contains(s) ?? false));
-            }
-
-            // Sort
-            q = _sort switch
-            {
-                "subject" => q.OrderBy(t => t.SubjectName).ThenBy(t => t.DueDate),
-                "type" => q.OrderBy(t => t.TaskType).ThenBy(t => t.DueDate),
-                "name" => q.OrderBy(t => t.Title),
-                _ => q.OrderBy(t => t.IsCompleted).ThenBy(t => t.DueDate)
-            };
-
-            return q;
-        }
-    }
-
-    private string TranslateType(string t) => t switch
-    {
-        "Assignment" => "Beadandó",
-        "Homework" => "Házi",
-        "Exam" => "Dolgozat",
-        "Vizsga" => "Vizsga",
-        "Project" => "Projekt",
-        "Personal" => "Egyéb",
-        _ => t
-    };
-
-    private async Task ToggleTheme()
-    {
-        _theme = _theme == "dark" ? "light" : "dark";
-        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
-        StateHasChanged();
-    }
-
-    private void OnSubjectChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out var id)) _newSubjectId = id;
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -393,36 +194,13 @@ else
         _hasCheckedAuth = true;
         _isAuthenticated = AuthService.IsAuthenticated;
         _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _userRole  = AuthService.CurrentUser?.UserRole ?? "";
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
         await LoadData();
-
-        // UI-frissítő timer: percenként frissíti a megjelenítést
-        // (DaysLeft, IsOverdue, IsDueSoon értékek élőben változnak)
-        _uiRefreshTimer = new System.Threading.Timer(
-            _ => InvokeAsync(StateHasChanged),
-            null,
-            TimeSpan.FromMinutes(1),
-            TimeSpan.FromMinutes(1));
-
-        // Adat-frissítő timer: 5 percenként újra lekéri a feladatokat a szerverről
-        _dataRefreshTimer = new System.Threading.Timer(
-            async _ =>
-            {
-                if (_isAuthenticated && !_isSaving)
-                    await InvokeAsync(LoadData);
-            },
-            null,
-            TimeSpan.FromMinutes(5),
-            TimeSpan.FromMinutes(5));
-
         StateHasChanged();
     }
 
-    public void Dispose()
-    {
-        _uiRefreshTimer?.Dispose();
-        _dataRefreshTimer?.Dispose();
-    }
+    public void Dispose() { }
 
     private async Task LoadData()
     {
@@ -436,29 +214,19 @@ else
     {
         _formError = "";
         if (string.IsNullOrWhiteSpace(_newTitle)) { _formError = "Add meg a feladat nevét."; return; }
-        if (_newSubjectId == 0) { _formError = "Válassz tantárgyat."; return; }
-
         _isSaving = true; StateHasChanged();
         try
         {
             var r = await TaskService.AddTaskAsync(new AddTaskRequest
             {
-                SubjectID = _newSubjectId,
-                Title = _newTitle.Trim(),
-                Description = string.IsNullOrWhiteSpace(_newDescription) ? null : _newDescription.Trim(),
+                Title   = _newTitle.Trim(),
                 DueDate = _newDueDate,
                 TaskType = _newType
             });
-
             if (r.Status == "OK" || r.Status == "SUCCESS")
             {
-                _message = $"Feladat hozzáadva: {_newTitle}";
-                _messageIsError = false;
-                _newTitle = _newDescription = "";
-                _newSubjectId = 0;
-                _newDueDate = DateTime.Now.AddDays(7);
-                _newType = "Assignment";
-                _showAdd = false;
+                _message = $"Feladat hozzáadva: {_newTitle}"; _messageIsError = false;
+                _newTitle = ""; _newDueDate = DateTime.Now.AddDays(7); _showAdd = false;
                 await LoadData();
             }
             else { _formError = r.Message; }
@@ -471,34 +239,19 @@ else
     {
         try
         {
-            SubjectResponse r;
-            if (task.IsCompleted)
-            {
-                r = await TaskService.UncompleteTaskAsync(task.TaskID);
-            }
-            else
-            {
-                r = await TaskService.CompleteTaskAsync(task.TaskID);
-            }
-            if (r.Status == "OK" || r.Status == "SUCCESS")
-            {
-                await LoadData();
-            }
-            else
-            {
-                _message = r.Message;
-                _messageIsError = true;
-            }
+            var r = task.IsCompleted ? await TaskService.UncompleteTaskAsync(task.TaskID) : await TaskService.CompleteTaskAsync(task.TaskID);
+            if (r.Status == "OK" || r.Status == "SUCCESS") await LoadData();
+            else { _message = r.Message; _messageIsError = true; }
         }
         catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
         StateHasChanged();
     }
 
-    private async Task DeleteTask(int taskId)
+    private async Task DeleteTask(int id)
     {
         try
         {
-            var r = await TaskService.DeleteTaskAsync(taskId);
+            var r = await TaskService.DeleteTaskAsync(id);
             _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
             _message = _messageIsError ? r.Message : "Feladat törölve.";
             if (!_messageIsError) await LoadData();
@@ -507,181 +260,102 @@ else
         StateHasChanged();
     }
 
+    private async Task ToggleTheme() { _theme = _theme == "dark" ? "light" : "dark"; await JS.InvokeVoidAsync("themeHelper.setTheme", _theme); StateHasChanged(); }
     private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }
 
 <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    /* Theme tokens */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     .fr-layout {
-        --accent:#2563eb; --accent-hover:#1d4ed8; --accent-subtle:rgba(37,99,235,.08);
-        --bg:#f8f9fb; --surface:#fff; --surface-2:#f1f3f7;
-        --border:#e4e7ed; --border-strong:#c9cdd6;
-        --text-primary:#0f1117; --text-secondary:#52586a; --text-muted:#9299aa;
-        --danger:#dc2626; --danger-subtle:rgba(220,38,38,.07);
-        --warning:#d97706; --warning-subtle:rgba(217,119,6,.08);
-        --success:#16a34a; --success-subtle:rgba(22,163,74,.08);
-        --radius:10px;
-        --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;
+        display:flex; flex-direction:row; width:100vw; height:100vh; overflow:hidden;
+        background:var(--bg,#f4f2f8); font-family:var(--font); color:var(--text-primary);
+        --accent:#667eea; --accent-2:#764ba2;
+        --accent-subtle:rgba(102,126,234,.12);
+        --bg:#f4f2f8; --surface:#fff; --surface-2:#f0eef8;
+        --border:#e2ddf0; --border-strong:#c4bce0;
+        --text-primary:#1a1630; --text-secondary:#4a4470; --text-muted:#8880aa;
+        --danger:#e53935; --danger-subtle:rgba(229,57,53,.09);
+        --success:#0e9f6e; --success-subtle:rgba(14,159,110,.1);
+        --radius:12px;
     }
+    .fr-layout[data-role="Teacher"] { --accent:#f59e0b; --accent-2:#d97706; --accent-subtle:rgba(245,158,11,.12); }
+    .fr-layout[data-role="Teacher"] .fr-btn-primary { background:linear-gradient(135deg,#b45309,#f59e0b) !important; }
+    .fr-layout[data-role="Teacher"] .fr-topbar { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
+    .fr-layout[data-role="Teacher"] .fr-brand { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
     .fr-layout[data-theme="dark"] {
-        --bg:#0d0f14; --surface:#161820; --surface-2:#1e2130;
-        --border:#272b3a; --border-strong:#363c50;
-        --text-primary:#f0f2f8; --text-secondary:#8892a4; --text-muted:#4e566a;
-        --accent-subtle:rgba(37,99,235,.15);
-        --danger-subtle:rgba(220,38,38,.12);
-        --warning-subtle:rgba(217,119,6,.12);
-        --success-subtle:rgba(22,163,74,.12);
+        --bg:#0d0b18; --surface:#16132a; --surface-2:#1e1a38; --border:#2e2850; --border-strong:#4a4270;
+        --text-primary:#f0eeff; --text-secondary:#9890cc; --text-muted:#5a5480;
+        --danger-subtle:rgba(229,57,53,.15); --success-subtle:rgba(14,159,110,.13);
     }
-
-    /* Layout */
-    .fr-layout { display:grid; grid-template-columns:220px 1fr; height:100vh; background:var(--bg); font-family:var(--font); color:var(--text-primary); }
-
-    /* ── Sidebar ── */
-    .fr-sidebar { display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); height:100vh; overflow:hidden; }
-    .fr-brand { display:flex; align-items:center; gap:10px; padding:20px 18px; font-weight:700; font-size:.95rem; color:var(--accent); border-bottom:1px solid var(--border); flex-shrink:0; }
-    .fr-nav { flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px; overflow-y:auto; scrollbar-width:none; }
-    .fr-nav::-webkit-scrollbar { display:none; }
-    .fr-nav-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; color:var(--text-secondary); text-decoration:none; font-size:.875rem; font-weight:500; transition:background .15s,color .15s; }
+    .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+    .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
+    .fr-sidebar-backdrop { position:fixed; inset:0; z-index:199; background:rgba(26,22,48,.45); backdrop-filter:blur(3px); }
+    .fr-brand { flex-shrink:0; display:flex; align-items:center; gap:9px; padding:18px 18px 16px; font-size:.95rem; font-weight:700; color:#fff; text-decoration:none; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .fr-nav { flex-shrink:0; display:flex; flex-direction:column; gap:2px; padding:10px 8px; border-bottom:1px solid var(--border); }
+    .fr-nav-item { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; text-decoration:none; font-size:.84rem; font-weight:500; color:var(--text-secondary); transition:all .15s; }
     .fr-nav-item:hover { background:var(--surface-2); color:var(--text-primary); }
-    .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); }
-    .fr-sidebar-footer { padding:12px 10px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
-    .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 10px; border:none; border-radius:8px; background:none; color:var(--text-secondary); font-size:.85rem; font-weight:500; cursor:pointer; text-align:left; transition:background .15s,color .15s; font-family:var(--font); }
-    .fr-theme-toggle:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); font-weight:600; }
+    .fr-sidebar-footer { padding:10px 8px; display:flex; flex-direction:column; gap:2px; margin-top:auto; }
+    .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 11px; border:none; border-radius:9px; background:none; color:var(--text-secondary); font-size:.84rem; font-weight:500; cursor:pointer; text-align:left; transition:all .15s; font-family:var(--font); }
+    .fr-theme-toggle:hover { background:var(--surface-2); }
     .fr-logout:hover { background:var(--danger-subtle); color:var(--danger); }
-
-    /* ── Main area ── */
-    .fr-main { display:flex; flex-direction:column; overflow:hidden; height:100vh; }
-    .fr-topbar { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; }
-    .fr-topbar-left { display:flex; align-items:center; gap:8px; }
-    .fr-topbar-right { display:flex; align-items:center; gap:12px; }
-    .fr-page-title { font-size:1rem; font-weight:700; color:var(--text-primary); }
-    .fr-breadcrumb { font-size:.85rem; color:var(--text-muted); }
-    .fr-user-chip { display:flex; align-items:center; gap:7px; background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:5px 12px 5px 8px; font-size:.8rem; color:var(--text-secondary); }
-    .fr-user-dot { width:8px; height:8px; background:var(--success); border-radius:50%; flex-shrink:0; }
-
-    /* Main */
-
-    /* Content */
-    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
-
-    /* Alert */
-    .fr-alert { display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:8px; font-size:.875rem; font-weight:500; }
-    .fr-alert-danger { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(220,38,38,.2); }
-    .fr-alert-success { background:var(--success-subtle); color:var(--success); border:1px solid rgba(22,163,74,.2); }
-    .fr-alert-close { margin-left:auto; background:none; border:none; cursor:pointer; color:inherit; opacity:.6; display:flex; align-items:center; }
-    .fr-alert-close:hover { opacity:1; }
-
-    /* Add card */
-    .fr-add-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-    .fr-add-card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); background:var(--surface-2); }
-    .fr-add-card-title { font-weight:700; font-size:.9rem; }
-    .fr-add-card-body { padding:20px; }
-    .fr-form-row { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; }
-    .fr-form-error { margin-top:10px; font-size:.82rem; color:var(--danger); }
-
-    /* Stat pills / filters */
-    .fr-stat-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-    .fr-stat-pill { display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--border); border-radius:20px; background:none; color:var(--text-secondary); font-size:.82rem; font-weight:500; cursor:pointer; transition:all .15s; }
-    .fr-stat-pill:hover { border-color:var(--border-strong); color:var(--text-primary); }
-    .fr-stat-pill.fr-pill-active { background:var(--accent-subtle); border-color:var(--accent); color:var(--accent); }
-    .fr-stat-pill.fr-pill-warn.fr-pill-active { background:var(--warning-subtle); border-color:var(--warning); color:var(--warning); }
-    .fr-stat-pill.fr-pill-danger.fr-pill-active { background:var(--danger-subtle); border-color:var(--danger); color:var(--danger); }
-    .fr-stat-pill.fr-pill-done.fr-pill-active { background:var(--success-subtle); border-color:var(--success); color:var(--success); }
-    .fr-pill-num { font-variant-numeric:tabular-nums; font-size:.75rem; padding:1px 6px; background:var(--surface-2); border-radius:10px; }
-    .fr-spacer { flex:1; }
-
-    /* Search */
-    .fr-search-box { display:flex; align-items:center; gap:8px; padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-muted); }
-    .fr-search-box svg { flex-shrink:0; }
-    .fr-search-input { border:none; background:none; outline:none; font-size:.85rem; color:var(--text-primary); font-family:inherit; width:160px; }
-    .fr-search-input::placeholder { color:var(--text-muted); }
-
-    /* Sort select */
-    .fr-sort-select { padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-secondary); font-size:.82rem; font-family:inherit; outline:none; cursor:pointer; }
-
-    /* Panel */
-    .fr-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-    .fr-panel-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:60px; color:var(--text-muted); font-size:.875rem; }
-
-    /* Table */
-    .fr-table { width:100%; border-collapse:collapse; }
-    .fr-table th { padding:10px 14px; text-align:left; font-size:.74rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; }
-    .fr-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
-    .fr-task-tr:last-child td { border-bottom:none; }
-    .fr-task-tr:hover td { background:var(--surface-2); }
-    .fr-tr-danger td { background:var(--danger-subtle); }
-    .fr-tr-done td { opacity:.6; }
-
-    /* Check button */
-    .fr-check { width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border-strong); background:none; color:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; }
-    .fr-check:hover { border-color:var(--success); background:var(--success-subtle); color:var(--success); }
-    .fr-check.fr-check-done { border-color:var(--success); background:var(--success-subtle); color:var(--success); }
-
-    /* Task name cell */
-    .fr-task-name-cell { display:flex; flex-direction:column; gap:2px; }
-    .fr-task-title { font-weight:600; font-size:.875rem; color:var(--text-primary); }
-    .fr-task-title.fr-strikethrough { text-decoration:line-through; color:var(--text-muted); }
-    .fr-task-desc { font-size:.76rem; color:var(--text-muted); }
-
-    /* Subject cell */
-    .fr-td-code { display:block; font-size:.75rem; font-family:-apple-system,BlinkMacSystemFont,'JetBrains Mono','Cascadia Code',monospace; color:var(--text-muted); letter-spacing:.04em; }
-    .fr-td-sub { display:block; font-size:.8rem; color:var(--text-secondary); }
-
-    /* Type badges */
-    .fr-type-badge { display:inline-block; font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:4px; }
-    .fr-type-assignment { background:rgba(37,99,235,.1); color:#2563eb; }
-    .fr-type-homework   { background:rgba(124,58,237,.1); color:#7c3aed; }
-    .fr-type-exam       { background:rgba(220,38,38,.1); color:#dc2626; }
-    .fr-type-vizsga     { background:rgba(234,88,12,.1); color:#ea580c; }
-    .fr-type-project    { background:rgba(217,119,6,.1); color:#d97706; }
-    .fr-type-personal   { background:var(--surface-2); color:var(--text-muted); }
-    .fr-stat-pill.fr-pill-vizsga.fr-pill-active { background:rgba(234,88,12,.1); border-color:#ea580c; color:#ea580c; }
-
-    /* Due date cell */
-    .fr-due { display:block; font-size:.82rem; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums; }
-    .fr-due.fr-due-danger { color:var(--danger); }
-    .fr-due.fr-due-warn { color:var(--warning); }
-    .fr-days-left { display:block; font-size:.74rem; }
-    .fr-text-danger { color:var(--danger); }
-    .fr-text-warn { color:var(--warning); }
-    .fr-text-muted { color:var(--text-muted); }
-
-    /* Badges */
-    .fr-badge { font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:4px; white-space:nowrap; }
-    .fr-badge-default { background:var(--accent-subtle); color:var(--accent); }
-    .fr-badge-success { background:var(--success-subtle); color:var(--success); }
-    .fr-badge-warn { background:var(--warning-subtle); color:var(--warning); }
-    .fr-badge-danger { background:var(--danger-subtle); color:var(--danger); }
-
-    /* Delete button */
-    .fr-del-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:none; border-radius:6px; background:none; color:var(--text-muted); cursor:pointer; opacity:0; transition:all .15s; }
-    .fr-task-tr:hover .fr-del-btn { opacity:1; }
-    .fr-del-btn:hover { background:var(--danger-subtle); color:var(--danger); }
-
-    /* Form */
-    .fr-field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px; }
-    .fr-field-sm { flex:0 0 150px; }
-    .fr-label { font-size:.8rem; font-weight:600; color:var(--text-secondary); }
-    .fr-required { color:var(--danger); }
-    .fr-optional { font-weight:400; color:var(--text-muted); font-size:.78rem; }
-    .fr-input { padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-primary); font-size:.875rem; font-family:inherit; outline:none; transition:border-color .15s,box-shadow .15s; }
-    .fr-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
-
-    /* Buttons */
-    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:background .15s; }
-    .fr-btn-primary { background:var(--accent); color:#fff; }
-    .fr-btn-primary:hover:not(:disabled) { background:var(--accent-hover); }
+    .fr-main { display:flex; flex-direction:column; width:100vw; height:100vh; overflow:hidden; transition:width .25s,margin-left .25s; }
+    .fr-menu-open .fr-main { width:calc(100vw - 270px); margin-left:270px; }
+    .fr-topbar { display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:56px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); box-shadow:0 2px 16px rgba(102,126,234,.3); flex-shrink:0; gap:12px; }
+    .fr-topbar-left { display:flex; align-items:center; gap:10px; }
+    .fr-topbar-right { display:flex; align-items:center; gap:8px; }
+    .fr-hamburger { width:34px; height:34px; border:1px solid rgba(255,255,255,.3); border-radius:8px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:all .15s; }
+    .fr-hamburger:hover { background:rgba(255,255,255,.2); }
+    .fr-page-title { font-size:1rem; font-weight:700; color:#fff; }
+    .fr-breadcrumb { font-size:.8rem; color:rgba(255,255,255,.65); }
+    .fr-loading { display:flex; align-items:center; justify-content:center; height:100vh; }
+    .fr-spinner { width:28px; height:28px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:fr-spin .7s linear infinite; }
+    @@keyframes fr-spin { to { transform:rotate(360deg); } }
+    .fr-unauth { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; }
+    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fr-btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 2px 10px rgba(102,126,234,.35); }
+    .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(102,126,234,.45); transform:translateY(-1px); }
     .fr-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
-    .fr-btn-sm { padding:7px 13px; font-size:.82rem; }
-
-    /* Misc */
+    .fr-btn-sm { padding:7px 12px; font-size:.82rem; }
+    .fr-icon-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:7px; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+    .fr-field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px; }
+    .fr-label { font-size:.78rem; font-weight:600; color:var(--text-secondary); }
+    .fr-input { padding:8px 12px; border:1.5px solid var(--border); border-radius:9px; background:var(--surface); color:var(--text-primary); font-size:.875rem; font-family:var(--font); outline:none; transition:border-color .15s; width:100%; }
+    .fr-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
+    .fr-alert { display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:9px; font-size:.875rem; font-weight:500; }
+    .fr-alert-danger { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(229,57,53,.2); }
+    .fr-alert-success { background:var(--success-subtle); color:var(--success); border:1px solid rgba(14,159,110,.2); }
+    .fr-alert-close { margin-left:auto; background:none; border:none; cursor:pointer; color:inherit; opacity:.6; display:flex; align-items:center; }
+    .fr-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .fr-panel-empty { display:flex; align-items:center; justify-content:center; padding:40px; color:var(--text-muted); font-size:.875rem; gap:10px; }
+    .fr-form-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+    .fr-required { color:var(--danger); }
+    .fr-field-sm { max-width:220px; }
+    .fr-form-error { font-size:.8rem; color:var(--danger); font-weight:500; }
+    .fr-badge { display:inline-flex; align-items:center; justify-content:center; padding:2px 8px; border-radius:12px; font-size:.73rem; font-weight:700; }
+    .fr-badge-done { background:var(--success-subtle); color:var(--success); }
+    .fr-badge-default { background:var(--surface-2); color:var(--text-muted); }
+    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+    .fr-add-card { background:var(--surface); border:1px solid var(--accent); border-radius:var(--radius); overflow:hidden; box-shadow:0 0 0 3px var(--accent-subtle); }
+    .fr-add-head { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
+    .fr-add-title { font-weight:700; font-size:.9rem; color:var(--text-primary); }
+    .fr-add-body { padding:18px; display:flex; flex-direction:column; gap:14px; }
+    .fr-table { width:100%; border-collapse:collapse; }
+    .fr-table thead tr { background:linear-gradient(135deg,rgba(102,126,234,.04),rgba(118,75,162,.04)); border-bottom:1.5px solid var(--border); }
+    .fr-table th { padding:10px 14px; text-align:left; font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+    .fr-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .fr-table tbody tr:last-child td { border-bottom:none; }
+    .fr-table tbody tr:hover { background:var(--surface-2); }
+    .fr-task-tr { transition:background .1s; }
+    .fr-tr-done td { opacity:.55; }
+    .fr-check { width:22px; height:22px; border-radius:6px; border:2px solid var(--border); background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; color:transparent; }
+    .fr-check:hover { border-color:var(--success); background:var(--success-subtle); }
+    .fr-check-done { background:var(--success); border-color:var(--success); color:#fff; }
+    .fr-task-title { font-size:.875rem; font-weight:500; color:var(--text-primary); }
+    .fr-done-text { text-decoration:line-through; color:var(--text-muted) !important; }
+    .fr-td-sub { display:block; font-size:.8rem; color:var(--text-secondary); }
+    .fr-due { display:block; font-size:.82rem; font-weight:500; color:var(--text-primary); }
+    .fr-del-btn { width:28px; height:28px; border-radius:7px; border:none; background:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+    .fr-del-btn:hover { background:var(--danger-subtle); color:var(--danger); }
     .fr-spinner-sm { width:18px; height:18px; border-width:2px; }
-
-    @@media (max-width:768px) {
-        .fr-layout { grid-template-columns:1fr; }
-            .fr-stat-row { gap:4px; }
-        .fr-search-box { display:none; }
-    }
 </style>
