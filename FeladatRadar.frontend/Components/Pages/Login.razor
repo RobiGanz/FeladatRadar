@@ -4,66 +4,114 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
-<PageTitle>Bejelentkezés - FeladatRadar</PageTitle>
+<PageTitle>Bejelentkezés — FeladatRadar</PageTitle>
 
-<div class="login-page">
-    <div class="login-container">
-        <div class="login-header">
-            <div class="header-icon">🔐</div>
-            <h1>Bejelentkezés</h1>
-            <p>Jó, hogy újra itt vagy!</p>
-        </div>
-
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-error">
-
-                <span>@errorMessage</span>
+<div class="auth-page">
+    <div class="auth-left">
+        <a href="/" class="auth-brand">
+            <div class="auth-brand-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
             </div>
-        }
-
-        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" class="login-form">
-            <DataAnnotationsValidator />
-
-            <div class="form-group">
-                <label>Felhasználónév</label>
-                <InputText class="form-input" @bind-Value="loginModel.Username" placeholder="kovacs.janos" />
-                <ValidationMessage For="@(() => loginModel.Username)" class="validation-error" />
+            FeladatRadar
+        </a>
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Üdvözölünk vissza!</h1>
+                <p>Jelentkezz be a fiókodba</p>
             </div>
 
-            <div class="form-group">
-                <label>Jelszó</label>
-                <div class="password-wrapper">
-                    <InputText type="@(_showPassword ? "text" : "password")" class="form-input" @bind-Value="loginModel.Password" placeholder="••••••" />
-                    <button type="button" class="eye-btn" @onclick="() => _showPassword = !_showPassword">
-                        @if (_showPassword)
-                        {
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
-                        }
-                        else
-                        {
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                        }
-                    </button>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="auth-alert">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>@errorMessage</span>
                 </div>
-                <ValidationMessage For="@(() => loginModel.Password)" class="validation-error" />
+            }
+
+            <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" class="auth-form">
+                <DataAnnotationsValidator />
+
+                <div class="auth-field">
+                    <label class="auth-label">Felhasználónév</label>
+                    <InputText class="auth-input" @bind-Value="loginModel.Username" placeholder="kovacs.janos" />
+                    <ValidationMessage For="@(() => loginModel.Username)" class="auth-error" />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label">Jelszó</label>
+                    <div class="password-wrapper">
+                        <InputText type="@passwordInputType" class="auth-input" @bind-Value="loginModel.Password" placeholder="••••••••" />
+                        <button type="button" class="toggle-password" @onclick="TogglePassword">
+                            @if (showPassword)
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            }
+                            else
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => loginModel.Password)" class="auth-error" />
+                </div>
+
+                <button type="submit" class="auth-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="auth-spinner"></span>
+                        <span>Bejelentkezés...</span>
+                    }
+                    else
+                    {
+                        <span>Bejelentkezés</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    }
+                </button>
+            </EditForm>
+
+            <div class="auth-footer">
+                Új vagy itt? <a href="/register">Regisztrálj most</a>
             </div>
+        </div>
+    </div>
 
-            <button type="submit" class="btn-submit" disabled="@isLoading">
-                @if (isLoading)
-                {
-                    <span class="spinner"></span>
-                    <span>Bejelentkezés...</span>
-                }
-                else
-                {
-                    <span>Bejelentkezés</span>
-                }
-            </button>
-        </EditForm>
-
-        <div class="login-footer">
-            <p>Új vagy itt? <a href="/register">Regisztrálj most</a></p>
+    <div class="auth-right">
+        <div class="auth-right-bg">
+            <div class="ar-blob ar-blob-1"></div>
+            <div class="ar-blob ar-blob-2"></div>
+            <div class="ar-grid"></div>
+        </div>
+        <div class="auth-right-inner">
+            <div class="ar-badge">
+                <span class="ar-badge-dot"></span>
+                Diákoknak és tanároknak
+            </div>
+            <p class="auth-quote">„Rendszerezd a napjaidat, és a tanulás egyszerűbbé válik."</p>
+            <div class="auth-features">
+                <div class="auth-feat">
+                    <div class="feat-icon-box feat-purple">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    </div>
+                    Feladatok és határidők egy helyen
+                </div>
+                <div class="auth-feat">
+                    <div class="feat-icon-box feat-amber">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    Beépített Pomodoro fókuszidőzítő
+                </div>
+                <div class="auth-feat">
+                    <div class="feat-icon-box feat-green">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    </div>
+                    Csoportmunka és megosztott feladatok
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -73,43 +121,34 @@
     private string errorMessage = string.Empty;
     private bool isLoading = false;
     private bool hasRendered = false;
-    private bool _showPassword = false;
+    private bool showPassword = false;
+    private string passwordInputType = "password";
+
+    private void TogglePassword()
+    {
+        showPassword = !showPassword;
+        passwordInputType = showPassword ? "text" : "password";
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            hasRendered = true;
-        }
-
-        // Save to LocalStorage after render if needed
+        if (firstRender) hasRendered = true;
         if (hasRendered && AuthService.IsAuthenticated)
-        {
             await AuthService.SaveToLocalStorageAsync();
-        }
     }
 
     private async Task HandleLogin()
     {
         errorMessage = string.Empty;
         isLoading = true;
-
         try
         {
             var response = await AuthService.Login(loginModel);
-
             if (response != null && response.Status == "SUCCESS")
             {
-                Console.WriteLine("[Login] Login successful, navigating to dashboard...");
-
-                // Wait for render to complete
                 StateHasChanged();
                 await Task.Delay(100);
-
-                // Save to LocalStorage
                 await AuthService.SaveToLocalStorageAsync();
-
-                // Navigate to dashboard
                 Navigation.NavigateTo("/dashboard", forceLoad: true);
             }
             else
@@ -119,7 +158,6 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Login] Exception: {ex.Message}");
             errorMessage = $"Hiba történt: {ex.Message}";
         }
         finally
@@ -129,202 +167,10 @@
     }
 }
 
+
 <style>
-    .login-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-    }
-
-    .login-container {
-        background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        max-width: 500px;
-        width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .login-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .header-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-
-    .login-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-    }
-
-    .login-header p {
-        color: #718096;
-        font-size: 1.1rem;
-    }
-
-    .alert {
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-error {
-        background: #fee;
-        color: #c53030;
-        border: 1px solid #feb2b2;
-    }
-
-    .alert-icon {
-        font-size: 1.5rem;
-    }
-
-    .login-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-        .form-group label {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 0.95rem;
-        }
-
-    .form-input {
-        padding: 0.875rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background: white;
-    }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-    .validation-error {
-        color: #e53e3e;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-        .btn-submit:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-    .spinner {
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    .password-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.password-wrapper .form-input {
-    width: 100%;
-    padding-right: 2.8rem;
-}
-
-.eye-btn {
-    position: absolute;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #718096;
-    display: flex;
-    align-items: center;
-    padding: 0;
-}
-
-.eye-btn:hover {
-    color: #2d3748;
-}
-
-    @@keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .login-footer {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e2e8f0;
-    }
-
-        .login-footer p {
-            color: #718096;
-        }
-
-        .login-footer a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-            .login-footer a:hover {
-                text-decoration: underline;
-            }
-
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .login-container {
-            padding: 2rem;
-        }
-
-        .login-header h1 {
-            font-size: 2rem;
-        }
-    }
+    
+    .auth-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .auth-left { display: flex; flex-direction: column; padding: 2.5rem 5vw; }
+    .auth-right { display: none; }
 </style>
