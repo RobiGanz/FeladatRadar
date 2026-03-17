@@ -8,6 +8,7 @@
         public DateTime CreatedAt { get; set; }
         public int MemberCount { get; set; }
         public bool IsOwner { get; set; }
+        public string OwnerRole { get; set; } = "Student";
     }
 
     public class GroupMember

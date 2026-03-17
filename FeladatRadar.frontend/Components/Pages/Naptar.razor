@@ -1,0 +1,1055 @@
+﻿@page "/naptar"
+@using FeladatRadar.frontend.Services;
+@using FeladatRadar.frontend.Models
+@inject AuthService AuthService
+@inject ScheduleService ScheduleService
+@inject SubjectService SubjectService
+@inject TaskService TaskService
+@inject GroupService GroupService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Naptár — FeladatRadar</PageTitle>
+
+@if (!_hasCheckedAuth)
+{
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f7f5f0;">
+        <div style="width:32px;height:32px;border:3px solid #ddd8ce;border-top-color:#4f46e5;border-radius:50%;animation:spin .7s linear infinite;"></div>
+    </div>
+    <style>    @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }</style>
+}
+else if (_isAuthenticated)
+{
+    <div class="fr-layout" data-theme="@_theme" data-role="@_userRole">
+        @if (_menuOpen)
+        {
+            <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div>
+        }
+        <aside class="@(_menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar")">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                <span>FeladatRadar</span>
+            </a>
+            <nav class="fr-nav">
+                <a href="/dashboard" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg></a>
+                <a href="/naptar" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
+
+                <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+
+                            @if (_userRole == "Admin") { <a href="/admin" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</a> }
+            </nav>
+            <!-- Közelgő feladatok -->
+            <div class="fr-upcoming">
+                <div class="fr-upcoming-title">Közelgő feladatok</div>
+                @{
+                    var upcoming = _tasks.Where(t => !t.IsCompleted && t.DueDate >= DateTime.Today.AddDays(-7) && t.DueDate <= DateTime.Today.AddDays(7)).OrderBy(t => t.DueDate).Take(5).ToList();
+                }
+                @if (!upcoming.Any())
+                {
+                    <p class="fr-upcoming-empty">Nincs közelgő feladat 🎉</p>
+                }
+                @foreach (var t in upcoming)
+                {
+                    var tid = t.TaskID;
+                    <div class="fr-upcoming-item">
+                        <button class="fr-upcoming-check @(t.IsCompleted ? "fr-check-done" : "")" @onclick="() => QuickComplete(tid)">
+                            @if (t.IsCompleted)
+                            {
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                            }
+                        </button>
+                        <div class="fr-upcoming-info">
+                            <span class="fr-upcoming-name">@t.Title</span>
+                            <span class="fr-upcoming-date @(t.IsOverdue ? "fr-overdue" : t.IsDueSoon ? "fr-soon" : "")">@t.DaysLeft</span>
+                        </div>
+                        <span class="fr-type-badge fr-type-@t.TaskType.ToLower()">@GetTaskTypeLabel(t.TaskType)</span>
+                    </div>
+                }
+            </div>
+
+            <div class="fr-sidebar-footer">
+                <button class="fr-theme-toggle" @onclick="ToggleTheme">
+                    @if (_theme == "dark")
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /></svg>
+                        <span>Világos mód</span>
+     }
+                    else
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                        <span>Sötét mód</span>
+     }
+                </button>
+                <button class="fr-logout" @onclick="HandleLogout">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés
+                </button>
+            </div>
+        </aside>
+
+        <main class="fr-main">
+            <!-- Topbar -->
+            <header class="fr-topbar">
+                <div class="fr-topbar-left">
+                    <button class="fr-hamburger" @onclick="ToggleMenu">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+                    </button>
+                    <span class="fr-page-title">Naptár</span>
+                    <span class="fr-breadcrumb">@GetBreadcrumb()</span>
+                </div>
+                <div class="fr-topbar-right">
+                    @if (_myGroups.Any())
+                    {
+                        <div class="fr-seg">
+                            <button class="fr-seg-btn @(!_groupMode ? "fr-seg-active" : "")" @onclick="() => SetGroupMode(false)">Saját</button>
+                            <button class="fr-seg-btn @(_groupMode ? "fr-seg-active" : "")" @onclick="() => SetGroupMode(true)">Csoport</button>
+                        </div>
+                        @if (_groupMode)
+                        {
+                            <select class="fr-group-pick" value="@_selectedGroupId" @onchange="OnGroupChanged">
+                                @foreach (var g in _myGroups)
+                                {
+                                    <option value="@g.GroupID">@g.GroupName</option>
+                                }
+                            </select>
+                        }
+                    }
+                    <div class="fr-seg">
+                        <button class="fr-seg-btn @(_viewMode == "month" ? "fr-seg-active" : "")" @onclick='() => _viewMode = "month"'>Havi</button>
+                        <button class="fr-seg-btn @(_viewMode == "week" ? "fr-seg-active" : "")" @onclick='() => _viewMode = "week"'>Heti</button>
+                        <button class="fr-seg-btn @(_viewMode == "day" ? "fr-seg-active" : "")" @onclick='() => { _viewMode = "day"; _dayViewOffset = 0; }'>Napi</button>
+                    </div>
+                    <div class="fr-week-nav">
+                        <button class="fr-week-btn" @onclick="NavPrev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg></button>
+                        <button class="fr-week-today @(IsOnToday() ? "fr-today-current" : "")" @onclick="GoToToday">Ma</button>
+                        <button class="fr-week-btn" @onclick="NavNext"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6" /></svg></button>
+                    </div>
+                    <div class="fr-user-chip">
+                        <div class="fr-user-dot"></div>
+                        <span>@_userEmail</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Slim statisztika csík -->
+            @if (_viewMode == "week" && !_groupMode)
+            {
+                var wStart2 = GetWeekStart(); var wEnd2 = wStart2.AddDays(6);
+                var wTasks2 = _tasks.Where(t => t.DueDate.Date >= wStart2 && t.DueDate.Date <= wEnd2).ToList();
+                var wDone2 = wTasks2.Count(t => t.IsCompleted);
+                var wOverdue2 = wTasks2.Count(t => t.IsOverdue);
+                <div class="fr-slim-stats">
+                    <div class="fr-slim-stat">
+                        <span class="fr-slim-icon">📅</span>
+                        <span class="fr-slim-val">@_schedule.Count</span>
+                        <span class="fr-slim-lbl">Órarend</span>
+                    </div>
+                    <div class="fr-slim-divider"></div>
+                    <div class="fr-slim-stat">
+                        <span class="fr-slim-icon">📋</span>
+                        <span class="fr-slim-val">@wTasks2.Count</span>
+                        <span class="fr-slim-lbl">Feladat héten</span>
+                    </div>
+                    <div class="fr-slim-divider"></div>
+                    <div class="fr-slim-stat fr-slim-ok">
+                        <span class="fr-slim-icon">✅</span>
+                        <span class="fr-slim-val">@wDone2</span>
+                        <span class="fr-slim-lbl">Teljesítve</span>
+                    </div>
+                    @if (wOverdue2 > 0)
+                    {
+                        <div class="fr-slim-divider"></div>
+                        <div class="fr-slim-stat fr-slim-bad">
+                            <span class="fr-slim-icon">⚠️</span>
+                            <span class="fr-slim-val">@wOverdue2</span>
+                            <span class="fr-slim-lbl">Lejárt</span>
+                        </div>
+                    }
+                </div>
+            }
+            <div class="fr-content">
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
+                        @_message
+                        <button class="fr-alert-close" @onclick="ClearMessage"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
+                    </div>
+                }
+
+                @* =================== HAVI NÉZET =================== *@
+                @if (_viewMode == "month")
+                {
+                    var mFirst = new DateTime(_monthYear, _monthMonth, 1);
+                    var mLast = mFirst.AddMonths(1).AddDays(-1);
+                    var mDays = GetMonthCalDays(mFirst);
+                    <div class="fr-month-grid">
+                        @foreach (var dow in new[] { "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap" })
+                        {
+                            <div class="fr-month-dow">@dow[..3]</div>
+                        }
+                        @foreach (var d in mDays)
+                        {
+                            var dc = d;
+                            var isThisMonth = dc.Month == mFirst.Month;
+                            var isToday2 = dc.Date == DateTime.Today;
+                            var isPast2 = dc.Date < DateTime.Today;
+                            var dayKey2 = (int)dc.DayOfWeek == 0 ? 7 : (int)dc.DayOfWeek;
+                            var mEntries = _groupMode
+                            ? _groupSchedule.Where(e => e.DayOfWeek == dayKey2).ToList<object>()
+                            : _schedule.Where(e => e.DayOfWeek == dayKey2).ToList<object>();
+                            var mTasks = _groupMode
+                            ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dc.Date).ToList<object>()
+                            : _tasks.Where(t => !t.IsCompleted && t.DueDate.Date == dc.Date).ToList<object>();
+                            var mCls = "fr-mcell" + (isToday2 ? " fr-mcell-today" : "") + (!isThisMonth ? " fr-mcell-other" : "") + (isPast2 ? " fr-mcell-past" : "");
+                            <div class="@mCls" @onclick='() => { _viewMode = "day"; _dayViewOffset = (dc.Date - DateTime.Today).Days; }'>
+                                <span class="fr-mcell-num @(isToday2 ? "fr-mcell-num-today" : "")">@dc.Day</span>
+                                @foreach (var me in mEntries.Take(2))
+                                {
+                                    @if (_groupMode)
+                                    {
+                                        var ge = (GroupScheduleEntryDto)(object)me;
+                                        var mhue = GetSubjectHue(ge.SubjectID);
+                                        <div class="fr-mcell-entry" style="--hue:@mhue">@ge.SubjectName</div>
+                                    }
+                                    else
+                                    {
+                                        var se = (ScheduleEntryDto)(object)me;
+                                        var mhue = GetSubjectHue(se.SubjectID);
+                                        <div class="fr-mcell-entry" style="--hue:@mhue">@se.SubjectName</div>
+                                    }
+                                }
+                                @foreach (var mt in mTasks.Take(2))
+                                {
+                                    @if (_groupMode)
+                                    {
+                                        var gt = (GroupTaskDto)(object)mt;
+                                        <div class="fr-mcell-task">@gt.Title</div>
+                                    }
+                                    else
+                                    {
+                                        var st = (TaskDto)(object)mt;
+                                        <div class="fr-mcell-task fr-mcell-task-@st.TaskType.ToLower()">@st.Title</div>
+                                    }
+                                }
+                                @{
+                                    var mMore = mEntries.Count + mTasks.Count - 4;
+                                }
+                                @if (mMore > 0)
+                                {
+                                    <div class="fr-mcell-more">+@mMore további</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                @* =================== NAPI NÉZET =================== *@
+                else if (_viewMode == "day")
+                {
+                    var dvDate = GetDayViewDate();
+                    var dvDayKey = (int)dvDate.DayOfWeek == 0 ? 7 : (int)dvDate.DayOfWeek;
+                    var dvEntries = _groupMode
+                    ? _groupSchedule.Where(e => e.DayOfWeek == dvDayKey).OrderBy(e => e.StartTime).ToList<object>()
+                    : _schedule.Where(e => e.DayOfWeek == dvDayKey).OrderBy(e => e.StartTime).ToList<object>();
+                    var dvTasks = _groupMode
+                    ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dvDate.Date).ToList<object>()
+                    : _tasks.Where(t => t.DueDate.Date == dvDate.Date).ToList<object>();
+                    var dvIsToday = dvDate.Date == DateTime.Today;
+                    var dvIsPast = dvDate.Date < DateTime.Today;
+                    var dvCanAdd = !dvIsPast && _canManageGroup;
+
+                    <div class="fr-day-view @(dvIsToday ? "fr-day-today" : "") @(dvIsPast ? "fr-day-past" : "")">
+                        <div class="fr-day-view-header">
+                            <div>
+                                <span class="fr-day-view-name">@_days[dvDayKey]</span>
+                                <span class="fr-day-view-date">@dvDate.ToString("yyyy. MM. dd.")</span>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                @if (dvIsToday)
+                                {
+                                    <span class="fr-badge-today">Ma</span>
+                                }
+                                @if (dvCanAdd)
+                                {
+                                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => SelectDay(dvDayKey)">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                        Hozzáadás
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="fr-day-timeline">
+                            @if (!dvEntries.Any() && !dvTasks.Any())
+                            {
+                                <div class="fr-day-empty">
+                                    @if (dvIsPast)
+                                    {
+                                        <span>Ezen a napon nem volt bejegyzés.</span>
+                                    }
+                                    else if (dvCanAdd)
+                                    {
+
+                                        <span>Szabad nap! Kattints a Hozzáadás gombra.</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span>Szabad nap 🎉</span>
+                                    }
+                                </div>
+                            }
+
+                            @if (dvEntries.Any())
+                            {
+                                <div class="fr-timeline-section-title">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                    Órarend
+                                </div>
+                                @if (_groupMode)
+                                {
+                                    @foreach (var eo in dvEntries)
+                                    {
+                                        var entry = (GroupScheduleEntryDto)eo;
+                                        var hue = GetSubjectHue(entry.SubjectID);
+                                        <div class="fr-dv-entry" style="--hue:@hue">
+                                            <div class="fr-dv-time-block" style="background:hsl(@hue,70%,55%);">
+                                                <span>@entry.StartTime</span>
+                                                <span style="opacity:.7;font-size:.65rem;">@entry.EndTime</span>
+                                            </div>
+                                            <div class="fr-dv-info">
+                                                <span class="fr-dv-name">@entry.SubjectName</span>
+                                                @if (!string.IsNullOrEmpty(entry.Location))
+                                                {
+                                                    <span class="fr-dv-loc">📍 @entry.Location</span>
+                                                }
+                                                <span class="fr-dv-owner">@entry.OwnerName</span>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    @foreach (var eo in dvEntries)
+                                    {
+                                        var entry = (ScheduleEntryDto)eo;
+                                        var eid = entry.EntryID;
+                                        var hue = GetSubjectHue(entry.SubjectID);
+                                        <div class="fr-dv-entry" style="--hue:@hue">
+                                            <div class="fr-dv-time-block" style="background:hsl(@hue,70%,55%);">
+                                                <span>@entry.StartTime</span>
+                                                <span style="opacity:.7;font-size:.65rem;">@entry.EndTime</span>
+                                            </div>
+                                            <div class="fr-dv-info">
+                                                <span class="fr-dv-name">@entry.SubjectName</span>
+                                                @if (!string.IsNullOrEmpty(entry.Location))
+                                                {
+                                                    <span class="fr-dv-loc">📍 @entry.Location</span>
+                                                }
+                                                @if (entry.RecurrenceType != "None")
+                                                {
+                                                    <span class="fr-recur-badge">↻ @entry.RecurrenceLabel</span>
+                                                }
+                                            </div>
+                                            <button class="fr-dv-del" @onclick="() => DeleteEntry(eid)" title="Törlés">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+
+                            @if (dvTasks.Any())
+                            {
+                                <div class="fr-timeline-section-title">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                                    Feladatok
+                                </div>
+                                @foreach (var to in dvTasks)
+                                {
+                                    @if (_groupMode)
+                                    {
+                                        var t = (GroupTaskDto)to;
+                                        <div class="fr-dv-task">
+                                            <div class="fr-dv-task-icon">📋</div>
+                                            <div class="fr-dv-task-info">
+                                                <span class="fr-dv-task-title">@t.Title</span>
+                                                <span class="fr-dv-task-meta">@t.DueDate.ToString("HH:mm") · @t.SubjectName · @t.OwnerName</span>
+                                            </div>
+                                            <span class="fr-type-badge fr-type-@t.TaskType.ToLower()">@GetTaskTypeLabel(t.TaskType)</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        var t = (TaskDto)to;
+                                        var tid = t.TaskID;
+                                        <div class="fr-dv-task @(t.IsCompleted ? "fr-dv-task-done" : t.IsOverdue ? "fr-dv-task-overdue" : "")">
+                                            <button class="fr-dv-check @(t.IsCompleted ? "fr-check-done" : "")" @onclick="() => QuickComplete(tid)">
+                                                @if (t.IsCompleted)
+                                                {
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                                                }
+                                            </button>
+                                            <div class="fr-dv-task-info">
+                                                <span class="fr-dv-task-title @(t.IsCompleted ? "fr-strikethrough" : "")">@t.Title</span>
+                                                <span class="fr-dv-task-meta">@t.DueDate.ToString("HH:mm") · @t.SubjectName · @t.DaysLeft</span>
+                                            </div>
+                                            <span class="fr-type-badge fr-type-@t.TaskType.ToLower()">@GetTaskTypeLabel(t.TaskType)</span>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* =================== HETI NÉZET =================== *@
+                else
+                {
+                    <div class="fr-week-grid">
+                        @foreach (var day in _days)
+                        {
+                            var dayKey = day.Key;
+                            var dayDate = GetDayDate(dayKey);
+                            var dayEntries = _groupMode
+                            ? _groupSchedule.Where(e => e.DayOfWeek == dayKey).OrderBy(e => e.StartTime).ToList<object>()
+                            : _schedule.Where(e => e.DayOfWeek == dayKey).OrderBy(e => e.StartTime).ToList<object>();
+                            var dayTasks = _groupMode
+                            ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dayDate.Date).ToList<object>()
+                            : _tasks.Where(t => !t.IsCompleted && t.DueDate.Date == dayDate.Date).ToList<object>();
+                            var isToday = dayDate.Date == DateTime.Today;
+                            var isPast = dayDate.Date < DateTime.Today;
+                            var isSelected = _addingToDay == dayKey;
+                            var canAdd = !isPast && _canManageGroup;
+                            var cls = "fr-day" + (isToday ? " fr-day-today" : "") + (isPast ? " fr-day-past" : "") + (isSelected ? " fr-day-selected" : "") + (!canAdd && !isPast ? " fr-day-readonly" : "");
+
+                            <div class="@cls" @onclick="() => SelectDay(dayKey)">
+                                <div class="fr-day-head">
+                                    <span class="fr-day-name">@day.Value[..3]</span>
+                                    <span class="fr-day-date @(isToday ? "fr-day-date-today" : "")">@dayDate.Day</span>
+                                    @if (canAdd && !isSelected)
+                                    {
+                                        <span class="fr-day-add-hint">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                        </span>
+                                    }
+                                </div>
+                                <div class="fr-day-body">
+                                    @if (_groupMode)
+                                    {
+                                        @foreach (var eo in dayEntries)
+                                        {
+                                            var ge = (GroupScheduleEntryDto)eo;
+                                            var hue = GetSubjectHue(ge.SubjectID);
+                                            <div class="fr-entry" style="--hue:@hue" @onclick:stopPropagation="true">
+                                                <span class="fr-entry-time">@(ge.StartTime.Length >= 5 ? ge.StartTime[..5] : ge.StartTime)</span>
+                                                <span class="fr-entry-name">@ge.SubjectName</span>
+                                                @if (!string.IsNullOrEmpty(ge.Location))
+                                                {
+                                                    <span class="fr-entry-loc">@ge.Location</span>
+                                                }
+                                                <span class="fr-entry-owner">@ge.OwnerName</span>
+                                            </div>
+                                        }
+                                        @foreach (var to in dayTasks)
+                                        {
+                                            var gt = (GroupTaskDto)to;
+                                            <div class="fr-task-chip fr-chip-accent" @onclick:stopPropagation="true">
+                                                <span class="fr-chip-dot"></span>
+                                                <span class="fr-chip-text">@gt.Title</span>
+                                                <span class="fr-chip-owner">@gt.OwnerName</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var eo in dayEntries)
+                                        {
+                                            var entry = (ScheduleEntryDto)eo;
+                                            var entryId = entry.EntryID;
+                                            var hue = GetSubjectHue(entry.SubjectID);
+                                            <div class="fr-entry" style="--hue:@hue" @onclick:stopPropagation="true">
+                                                <span class="fr-entry-time">@(entry.StartTime.Length >= 5 ? entry.StartTime[..5] : entry.StartTime)</span>
+                                                <span class="fr-entry-name">@entry.SubjectName</span>
+                                                @if (!string.IsNullOrEmpty(entry.Location))
+                                                {
+                                                    <span class="fr-entry-loc">@entry.Location</span>
+                                                }
+                                                @if (entry.RecurrenceType != "None")
+                                                {
+                                                    <span class="fr-recur-badge">↻</span>
+                                                }
+                                                <button class="fr-entry-del" @onclick="() => DeleteEntry(entryId)" @onclick:stopPropagation="true">
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                                </button>
+                                            </div>
+                                        }
+                                        @foreach (var to in dayTasks)
+                                        {
+                                            var task = (TaskDto)to;
+                                            var tid2 = task.TaskID;
+                                            var tcls = "fr-task-chip " + (task.IsOverdue ? "fr-chip-danger" : task.IsDueSoon ? "fr-chip-warn" : "fr-chip-accent");
+                                            <div class="@tcls" @onclick:stopPropagation="true">
+                                                <button class="fr-chip-check" @onclick="() => QuickComplete(tid2)" @onclick:stopPropagation="true">
+                                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                                                </button>
+                                                <span class="fr-chip-text">@task.Title</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+               
+
+            </div>
+        </main>
+
+
+
+        @if (_addingToDay > 0 && _viewMode != "month")
+        {
+            <div class="fr-modal-backdrop" @onclick="CancelAdd">
+                <div class="fr-modal" @onclick:stopPropagation="true">
+                    <div class="fr-modal-head">
+                        <span class="fr-modal-title">Új esemény hozzáadása</span>
+                        <button class="fr-modal-close" @onclick="CancelAdd">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </button>
+                    </div>
+
+                    @* Típus tab sor *@
+                    @if (!_groupMode)
+                    {
+                        <div class="fr-modal-tabs">
+                            <button class="fr-modal-tab @(_panelTab == "ora" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "ora"'>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                Órarend bejegyzés
+                            </button>
+                            <button class="fr-modal-tab @(_panelTab == "beadando" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "beadando"'>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /></svg>
+                                Feladat / Esemény
+                            </button>
+                        </div>
+                    }
+
+                    <div class="fr-modal-body">
+                        @if (_myEnrollments.Count == 0 && !_groupMode)
+                        {
+                            <p class="fr-add-notice">Nincs felvett tantárgyad. <a href="/tantargyak" class="fr-link">Tantárgyak felvétele →</a></p>
+                        }
+                        else if (_panelTab == "ora" || _groupMode)
+                        {
+                            <div class="fr-modal-section-label">@_days[_addingToDay] · @GetDayDate(_addingToDay).ToString("yyyy. MM. dd.")</div>
+                            <div class="fr-form-row">
+                                <div class="fr-field">
+                                    <label class="fr-label">Tantárgy</label>
+                                    <select class="fr-input" value="@_selSubjectId" @onchange="OnSubjectChanged">
+                                        <option value="0">— Válassz —</option>
+                                        @foreach (var e in _myEnrollments)
+                                        {
+                                            <option value="@e.SubjectID">@e.SubjectCode – @e.SubjectName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Kezdés</label>
+                                    <input type="time" class="fr-input" value="@_selStart" @onchange="OnStartChanged" />
+                                </div>
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Befejezés</label>
+                                    <input type="time" class="fr-input" value="@_selEnd" @onchange="OnEndChanged" />
+                                </div>
+                                <div class="fr-field">
+                                    <label class="fr-label">Helyszín <span class="fr-optional">— opcionális</span></label>
+                                    <input type="text" class="fr-input" placeholder="pl. B203" @bind="_selLocation" />
+                                </div>
+                                @if (!_groupMode)
+                                {
+                                    <div class="fr-field fr-field-sm">
+                                        <label class="fr-label">Ismétlődés</label>
+                                        <select class="fr-input" @bind="_selRecurrence">
+                                            <option value="Weekly">Heti</option>
+                                            <option value="Biweekly">Kéthetente</option>
+                                            <option value="Monthly">Havonta</option>
+                                            <option value="None">Egyszeri</option>
+                                        </select>
+                                    </div>
+                                    @if (_selRecurrence != "None")
+                                    {
+                                        <div class="fr-field fr-field-sm">
+                                            <label class="fr-label">
+                                                <input type="checkbox" @bind="_selHasEndDate" style="margin-right:5px" />Vége
+                                            </label>
+                                            @if (_selHasEndDate)
+                                            {
+                                                <input type="date" class="fr-input" @bind="_selRecurrenceEnd" />
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(_formError))
+                            {
+                                <p class="fr-form-error">@_formError</p>
+                            }
+                            <div class="fr-modal-footer">
+                                <button class="fr-btn fr-btn-ghost" @onclick="CancelAdd">Mégse</button>
+                                <button class="fr-btn fr-btn-primary" @onclick="@(_groupMode ? AddGroupEntry : AddEntry)" disabled="@_isSaving">
+                                    @(_isSaving ? "Mentés..." : "Hozzáadás")
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            @* ── Típus választó (Feladatok stílus) ── *@
+                            <div class="fr-type-picker">
+                                @foreach (var et in _eventTypes)
+                                {
+                                    var k = et.Key;
+                                    <button class="fr-type-pick-btn @(_taskType == k ? "fr-type-pick-active" : "")"
+                                            style="--tc:@et.Color"
+                                            @onclick="() => _taskType = k">
+                                        <span class="fr-type-pick-emoji">@et.Emoji</span>
+                                        <span>@et.Label</span>
+                                    </button>
+                                }
+                            </div>
+
+                            @* ── Tantárgy / Kategória kártyák ── *@
+                            <div class="fr-subject-section">
+                                <label class="fr-label">Tantárgy / Kategória</label>
+                                <div class="fr-subject-grid">
+                                    <button class="fr-subject-card @(_taskSubjectId == 0 ? "fr-subject-active" : "")"
+                                            @onclick="() => _taskSubjectId = 0">
+                                        <span class="fr-subject-icon">📌</span>
+                                        <span class="fr-subject-name">Általános</span>
+                                    </button>
+                                    @foreach (var e in _myEnrollments)
+                                    {
+                                        var subj = e;
+                                        <button class="fr-subject-card @(_taskSubjectId == subj.SubjectID ? "fr-subject-active" : "")"
+                                                @onclick="() => _taskSubjectId = subj.SubjectID">
+                                            <span class="fr-subject-code">@subj.SubjectCode</span>
+                                            <span class="fr-subject-name">@subj.SubjectName</span>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            @* ── Űrlap mezők ── *@
+                            <div class="fr-form-row">
+                                <div class="fr-field" style="flex:3;min-width:220px">
+                                    <label class="fr-label">Esemény neve <span style="color:var(--danger)">*</span></label>
+                                    <input type="text" class="fr-input" placeholder="@GetTaskPlaceholder(_taskType)" @bind="_taskTitle" maxlength="200" />
+                                </div>
+                                <div class="fr-field" style="flex:0 0 200px">
+                                    <label class="fr-label">Határidő / Dátum <span style="color:var(--danger)">*</span></label>
+                                    <input type="datetime-local" class="fr-input" @bind="_taskDueDate" />
+                                </div>
+                                <div class="fr-field" style="flex:2;min-width:180px">
+                                    <label class="fr-label">Megjegyzés <span class="fr-optional">— opcionális</span></label>
+                                    <input type="text" class="fr-input" placeholder="Részletek, helyszín..." @bind="_taskDescription" />
+                                </div>
+                                <button class="fr-btn fr-btn-primary fr-btn-inline" @onclick="AddTask" disabled="@_isSaving">
+                                    @(_isSaving ? "Mentés..." : "Hozzáadás")
+                                </button>
+                            </div>
+                            <div class="fr-form-row-secondary">
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Ismétlődés</label>
+                                    <select class="fr-input" @bind="_taskRecurrence">
+                                        <option value="None">Egyszeri</option>
+                                        <option value="Weekly">Heti</option>
+                                        <option value="Biweekly">Kéthetente</option>
+                                        <option value="Monthly">Havonta</option>
+                                    </select>
+                                </div>
+                                @if (_taskRecurrence != "None")
+                                {
+                                    <div class="fr-field fr-field-sm">
+                                        <label class="fr-label">
+                                            <input type="checkbox" @bind="_taskHasEndDate" style="margin-right:5px" />Vége dátum
+                                        </label>
+                                        @if (_taskHasEndDate)
+                                        {
+                                            <input type="date" class="fr-input" @bind="_taskRecurrenceEnd" />
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(_formError))
+                            {
+                                <p class="fr-form-error">@_formError</p>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;">
+        <p>Nincs aktív munkamenet.</p>
+        <a href="/login" style="padding:9px 16px;background:#4f46e5;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Bejelentkezés</a>
+    </div>
+}
+
+@code {
+    private bool _menuOpen = false;
+    private void ToggleMenu() { _menuOpen = !_menuOpen; }
+    private void CloseMenu() { _menuOpen = false; }
+
+    private bool _hasCheckedAuth = false;
+    private bool _isAuthenticated = false;
+    private string _userEmail = "";
+    private string _userRole = "";
+    private string _theme = "light";
+    private string _message = "";
+    private bool _messageIsError = false;
+    private bool _isSaving = false;
+    private string _formError = "";
+
+    private List<ScheduleEntryDto> _schedule = new();
+    private List<EnrollmentDto> _myEnrollments = new();
+    private List<TaskDto> _tasks = new();
+    private bool _groupMode = false;
+    private List<GroupDto> _myGroups = new();
+    private int _selectedGroupId = 0;
+    private bool _canManageGroup
+    {
+        get
+        {
+            if (!_groupMode) return true;
+            var grp = _myGroups.FirstOrDefault(g => g.GroupID == _selectedGroupId);
+            if (grp == null) return false;
+            // Tanári csoport: csak tanár adhat hozzá
+            if (grp.OwnerRole == "Teacher") return _userRole == "Teacher";
+            // Diák csoport: mindenki adhat hozzá
+            return true;
+        }
+    }
+    private List<GroupScheduleEntryDto> _groupSchedule = new();
+    private List<GroupTaskDto> _groupTasks = new();
+
+    // Nézet
+    private string _viewMode = "week";  // week | day | month
+    private int _weekOffset = 0;
+    private int _dayViewOffset = 0;
+    private int _monthMonth = DateTime.Today.Month;
+    private int _monthYear = DateTime.Today.Year;
+
+    // Add panel
+    private int _addingToDay = 0;
+    private string _panelTab = "ora";
+    private int _selSubjectId = 0;
+    private string _selStart = "08:00";
+    private string _selEnd = "09:30";
+    private string _selLocation = "";
+    private string _selRecurrence = "Weekly";
+    private DateTime? _selRecurrenceEnd = null;
+    private bool _selHasEndDate = false;
+
+    private int _taskSubjectId = 0;
+    private string _taskTitle = "";
+    private string _taskDescription = "";
+    private DateTime _taskDueDate = DateTime.Now.AddDays(7);
+    private string _taskType = "Assignment";
+    private string _taskRecurrence = "None";
+    private DateTime? _taskRecurrenceEnd = null;
+    private bool _taskHasEndDate = false;
+
+    private readonly Dictionary<int, string> _days = new()
+    {
+        {1,"Hétfő"},{2,"Kedd"},{3,"Szerda"},{4,"Csütörtök"},{5,"Péntek"},{6,"Szombat"},{7,"Vasárnap"}
+    };
+
+    private readonly int[] _hues = { 214, 262, 162, 38, 0, 326, 186 };
+    private int GetSubjectHue(int id) => _hues[Math.Abs(id) % _hues.Length];
+
+    private string GetTaskTypeLabel(string t) => _eventTypes.FirstOrDefault(e => e.Key == t)?.Label ?? t;
+
+    private record EventTypeInfo(string Key, string Emoji, string Label, string Color);
+    private readonly List<EventTypeInfo> _eventTypes = new()
+    {
+        new("Assignment", "📝", "Beadandó",   "#4f46e5"),
+        new("Homework",   "📚", "Házi",        "#7c3aed"),
+        new("Exam",       "✍️", "Dolgozat",    "#e53935"),
+        new("Vizsga",     "🎓", "Vizsga",      "#ea580c"),
+        new("Project",    "💡", "Projekt",     "#d97706"),
+        new("Verseny",    "🏆", "Verseny",     "#0891b2"),
+        new("Sport",      "🏋️", "Sport",       "#0e9f6e"),
+        new("Olvasas",    "📖", "Olvasás",     "#8b5cf6"),
+        new("Kulturalis", "🎭", "Kulturális",  "#db2777"),
+        new("Personal",   "⭐", "Személyes",   "#9b948c"),
+        new("Other",      "⚡", "Egyéb",       "#64748b"),
+    };
+
+    private string GetTaskPlaceholder(string t) => t switch
+    {
+        "Assignment" => "pl. Irodalom esszé beadandó",
+        "Exam"       => "pl. Matematika ZH – deriválás",
+        "Vizsga"     => "pl. Fizika záróvizsga",
+        "Verseny"    => "pl. Országos matematikaverseny",
+        "Sport"      => "pl. Edzés – konditerem",
+        "Kulturalis" => "pl. Színházi előadás – Hamlet",
+        "Personal"   => "pl. Fogorvos",
+        _            => "pl. Megnevezés..."
+    };
+
+    private string GetBreadcrumb()
+    {
+        var hu = new System.Globalization.CultureInfo("hu-HU");
+        return _viewMode switch
+        {
+            "day" => GetDayViewDate().ToString("yyyy. MMMM dd., dddd", hu),
+            "month" => new DateTime(_monthYear, _monthMonth, 1).ToString("yyyy. MMMM", hu),
+            _ => GetWeekStart().ToString("yyyy. MMM dd.", hu) + " – " + GetWeekEnd().ToString("MMM dd.", hu)
+        };
+    }
+
+    private bool IsOnToday()
+    {
+        return _viewMode switch
+        {
+            "day" => _dayViewOffset == 0,
+            "month" => _monthMonth == DateTime.Today.Month && _monthYear == DateTime.Today.Year,
+            _ => _weekOffset == 0
+        };
+    }
+
+    private async Task ToggleTheme()
+    {
+        _theme = _theme == "dark" ? "light" : "dark";
+        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
+        StateHasChanged();
+    }
+
+    private void ClearMessage() => _message = "";
+
+    private void NavPrev()
+    {
+        if (_viewMode == "day") _dayViewOffset--;
+        else if (_viewMode == "month") { _monthMonth--; if (_monthMonth < 1) { _monthMonth = 12; _monthYear--; } }
+        else { _weekOffset--; _addingToDay = 0; }
+    }
+
+    private void NavNext()
+    {
+        if (_viewMode == "day") _dayViewOffset++;
+        else if (_viewMode == "month") { _monthMonth++; if (_monthMonth > 12) { _monthMonth = 1; _monthYear++; } }
+        else { _weekOffset++; _addingToDay = 0; }
+    }
+
+    private void GoToToday()
+    {
+        _weekOffset = 0; _dayViewOffset = 0; _addingToDay = 0;
+        _monthMonth = DateTime.Today.Month; _monthYear = DateTime.Today.Year;
+    }
+
+    private DateTime GetDayViewDate() => DateTime.Today.AddDays(_dayViewOffset);
+    private DateTime GetWeekStart()
+    {
+        var today = DateTime.Today;
+        var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return today.AddDays(-diff + _weekOffset * 7);
+    }
+    private DateTime GetWeekEnd() => GetWeekStart().AddDays(6);
+    private DateTime GetDayDate(int dayKey) => GetWeekStart().AddDays(dayKey - 1);
+
+
+    private List<DateTime> GetMonthCalDays(DateTime first)
+    {
+        var startDow = (int)first.DayOfWeek;
+        var offset = startDow == 0 ? 6 : startDow - 1;
+        var result = new List<DateTime>();
+        for (var i = -offset; i < 42 - offset; i++) result.Add(first.AddDays(i));
+        return result;
+    }
+
+    private void SelectDay(int day)
+    {
+        if (GetDayDate(day).Date < DateTime.Today) return;
+        if (!_canManageGroup) return;
+        if (_addingToDay == day) { _addingToDay = 0; return; }
+        _addingToDay = day; _panelTab = "ora"; _formError = "";
+        _selSubjectId = 0; _selStart = "08:00"; _selEnd = "09:30"; _selLocation = "";
+        _taskSubjectId = 0; _taskTitle = ""; _taskDescription = "";
+        _taskDueDate = GetDayDate(day).Date.AddHours(23).AddMinutes(59);
+        _taskType = "Assignment";
+    }
+
+    private void CancelAdd() { _addingToDay = 0; _formError = ""; }
+    private void OnSubjectChanged(ChangeEventArgs e) { if (int.TryParse(e.Value?.ToString(), out var id)) _selSubjectId = id; }
+    private void OnStartChanged(ChangeEventArgs e) => _selStart = e.Value?.ToString() ?? "08:00";
+    private void OnEndChanged(ChangeEventArgs e) => _selEnd = e.Value?.ToString() ?? "09:30";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        try { await AuthService.InitializeAsync(); } catch { }
+        _hasCheckedAuth = true;
+        _isAuthenticated = AuthService.IsAuthenticated;
+        _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _userRole = AuthService.CurrentUser?.UserRole ?? "";
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        try { _schedule = await ScheduleService.GetMyScheduleAsync(); } catch { _schedule = new(); }
+        try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { _myEnrollments = new(); }
+        try { _tasks = await TaskService.GetMyTasksAsync(); } catch { _tasks = new(); }
+        try { _myGroups = await GroupService.GetMyGroupsAsync(); } catch { _myGroups = new(); }
+        if (_myGroups.Any() && _selectedGroupId == 0) _selectedGroupId = _myGroups[0].GroupID;
+        if (_groupMode && _selectedGroupId > 0) await LoadGroupData();
+    }
+
+    private async Task LoadGroupData()
+    {
+        try { _groupSchedule = await GroupService.GetGroupScheduleAsync(_selectedGroupId); } catch { _groupSchedule = new(); }
+        try { _groupTasks = await GroupService.GetGroupTasksAsync(_selectedGroupId); } catch { _groupTasks = new(); }
+    }
+
+    private async Task SetGroupMode(bool gm)
+    {
+        _groupMode = gm; _addingToDay = 0;
+        if (_groupMode && _selectedGroupId > 0) await LoadGroupData();
+        StateHasChanged();
+    }
+
+    private async Task OnGroupChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id)) _selectedGroupId = id;
+        if (_groupMode) await LoadGroupData();
+        StateHasChanged();
+    }
+
+    private async Task QuickComplete(int taskId)
+    {
+        try
+        {
+            var task = _tasks.FirstOrDefault(t => t.TaskID == taskId);
+            SubjectResponse r;
+            if (task?.IsCompleted == true)
+                r = await TaskService.UncompleteTaskAsync(taskId);
+            else
+                r = await TaskService.CompleteTaskAsync(taskId);
+            if (r.Status == "OK" || r.Status == "SUCCESS") await LoadData();
+            else { _message = r.Message; _messageIsError = true; }
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task AddEntry()
+    {
+        _formError = "";
+        if (_selSubjectId == 0) { _formError = "Válassz tantárgyat."; return; }
+        _isSaving = true; StateHasChanged();
+        try
+        {
+            var r = await ScheduleService.AddEntryAsync(new AddScheduleRequest
+            {
+                SubjectID = _selSubjectId,
+                DayOfWeek = _addingToDay,
+                StartTime = _selStart,
+                EndTime = _selEnd,
+                Location = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
+                RecurrenceType = _selRecurrence,
+                RecurrenceEndDate = (_selRecurrence != "None" && _selHasEndDate) ? _selRecurrenceEnd : null
+            });
+            if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadData(); }
+            else _formError = r.Message;
+        }
+        catch (Exception ex) { _formError = ex.Message; }
+        finally { _isSaving = false; StateHasChanged(); }
+    }
+
+    private async Task AddGroupEntry()
+    {
+        _formError = "";
+        if (_selSubjectId == 0) { _formError = "Válassz tantárgyat."; return; }
+        _isSaving = true; StateHasChanged();
+        try
+        {
+            var r = await GroupService.AddGroupScheduleEntryAsync(_selectedGroupId, new AddScheduleRequest
+            {
+                SubjectID = _selSubjectId,
+                DayOfWeek = _addingToDay,
+                StartTime = _selStart,
+                EndTime = _selEnd,
+                Location = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
+                RecurrenceType = "None"
+            });
+            if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Csoport bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadGroupData(); }
+            else _formError = r.Message;
+        }
+        catch (Exception ex) { _formError = ex.Message; }
+        finally { _isSaving = false; StateHasChanged(); }
+    }
+
+    private async Task AddTask()
+    {
+        _formError = "";
+        if (_taskSubjectId == 0) { _formError = "Válassz tantárgyat."; return; }
+        if (string.IsNullOrWhiteSpace(_taskTitle)) { _formError = "Add meg a feladat nevét."; return; }
+        _isSaving = true; StateHasChanged();
+        try
+        {
+            var r = await TaskService.AddTaskAsync(new AddTaskRequest
+            {
+                SubjectID = _taskSubjectId,
+                Title = _taskTitle.Trim(),
+                Description = _taskDescription.Trim(),
+                DueDate = _taskDueDate,
+                TaskType = _taskType,
+                RecurrenceType = _taskRecurrence,
+                RecurrenceEndDate = (_taskRecurrence != "None" && _taskHasEndDate) ? _taskRecurrenceEnd : null
+            });
+            if (r.Status == "OK" || r.Status == "SUCCESS") { _message = $"Feladat hozzáadva: {_taskTitle}"; _messageIsError = false; _addingToDay = 0; await LoadData(); }
+            else _formError = r.Message;
+        }
+        catch (Exception ex) { _formError = ex.Message; }
+        finally { _isSaving = false; StateHasChanged(); }
+    }
+
+    private async Task DeleteEntry(int entryId)
+    {
+        try
+        {
+            var r = await ScheduleService.DeleteEntryAsync(entryId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Bejegyzés törölve.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
+}
+
+
+
+<style>
+    /* Naptár oldal stílusok - következő commitban */
+    .fr-layout { display:flex; width:100vw; height:100vh; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
+    .fr-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; }
+</style>
