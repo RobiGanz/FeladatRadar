@@ -4,161 +4,212 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
-<PageTitle>Regisztráció - FeladatRadar</PageTitle>
+<PageTitle>Regisztráció — FeladatRadar</PageTitle>
 
 <div class="register-page">
-    <div class="register-container">
-        <div class="register-header">
-            <div class="header-icon">✨</div>
-            <h1>Regisztráció</h1>
-            <p>Hozd létre a fiókodat és kezdj el tanulni!</p>
-        </div>
-
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-error">
-                <span class="alert-icon">❌</span>
-                <span>@errorMessage</span>
+    <div class="register-left">
+        <a href="/" class="register-brand">
+            <div class="register-brand-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
             </div>
-        }
-
-        @if (!string.IsNullOrEmpty(successMessage))
-        {
-            <div class="alert alert-success">
-                <span class="alert-icon">✅</span>
-                <span>@successMessage</span>
+            FeladatRadar
+        </a>
+        <div class="register-card">
+            <div class="register-header">
+                <h1>Hozz létre fiókot</h1>
+                <p>30 másodperc és máris kezdhetsz</p>
             </div>
-        }
 
-        <EditForm Model="@registerModel" OnValidSubmit="@HandleRegister" class="register-form">
-            <DataAnnotationsValidator />
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Keresztnév <span class="required">*</span></label>
-                    <InputText class="form-input" @bind-Value="registerModel.FirstName" placeholder="János" />
-                    <ValidationMessage For="@(() => registerModel.FirstName)" class="validation-error" />
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="reg-alert reg-alert-error">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>@errorMessage</span>
                 </div>
+            }
 
-                <div class="form-group">
-                    <label>Vezetéknév <span class="required">*</span></label>
-                    <InputText class="form-input" @bind-Value="registerModel.LastName" placeholder="Kovács" />
-                    <ValidationMessage For="@(() => registerModel.LastName)" class="validation-error" />
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="reg-alert reg-alert-success">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>@successMessage</span>
                 </div>
-            </div>
+            }
 
-            <div class="form-group">
-                <label>Felhasználónév <span class="required">*</span></label>
-                <InputText class="form-input" @bind-Value="registerModel.Username" placeholder="kovacs.janos" />
-                <ValidationMessage For="@(() => registerModel.Username)" class="validation-error" />
-            </div>
+            <EditForm Model="@registerModel" OnValidSubmit="@HandleRegister" class="register-form">
+                <DataAnnotationsValidator />
 
-            <div class="form-group">
-                <label>Email cím <span class="required">*</span></label>
-                <InputText type="email" class="form-input" @bind-Value="registerModel.Email" placeholder="pelda@email.com" />
-                <ValidationMessage For="@(() => registerModel.Email)" class="validation-error" />
-            </div>
-
-            <div class="form-group">
-                <label>Szerepkör <span class="required">*</span></label>
-                <InputSelect class="form-input" @bind-Value="registerModel.UserRole">
-                    <option value="Student">🎒 Diák</option>
-                    <option value="Teacher">👨‍🏫 Tanár</option>
-                </InputSelect>
-                <ValidationMessage For="@(() => registerModel.UserRole)" class="validation-error" />
-            </div>
-
-            <div class="form-group">
-                <label>Jelszó <span class="required">*</span></label>
-                <div class="password-wrapper">
-                    <InputText type="@passwordInputType" class="form-input" @bind-Value="registerModel.Password" placeholder="Min. 8 karakter" @oninput="CheckPassword" />
-                    <button type="button" class="toggle-password" @onclick="TogglePassword">
-                        @if (showPassword)
-                        {
-                            <span>🙈</span>
-                        }
-                        else
-                        {
-
-                            <span>👁️</span>
-                        }
-                    </button>
-                </div>
-                <ValidationMessage For="@(() => registerModel.Password)" class="validation-error" />
-
-                <!-- Password Strength Indicator -->
-                @if (!string.IsNullOrEmpty(registerModel.Password))
-                {
-                    <div class="password-strength">
-                        <div class="strength-bar">
-                            <div class="strength-fill strength-@passwordStrength"></div>
-                        </div>
-                        <div class="strength-checks">
-                            <span class="check @(registerModel.Password.Length >= 8 ? "check-ok" : "check-fail")">
-                                @(registerModel.Password.Length >= 8 ? "✅" : "❌") Min. 8 karakter
-                            </span>
-                            <span class="check @(registerModel.Password.Any(char.IsUpper) ? "check-ok" : "check-fail")">
-                                @(registerModel.Password.Any(char.IsUpper) ? "✅" : "❌") Nagybetű
-                            </span>
-                            <span class="check @(registerModel.Password.Any(char.IsDigit) ? "check-ok" : "check-fail")">
-                                @(registerModel.Password.Any(char.IsDigit) ? "✅" : "❌") Szám
-                            </span>
-                        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Keresztnév <span class="required">*</span></label>
+                        <InputText class="form-input" @bind-Value="registerModel.FirstName" placeholder="János" />
+                        <ValidationMessage For="@(() => registerModel.FirstName)" class="validation-error" />
                     </div>
-                }
-            </div>
+                    <div class="form-group">
+                        <label>Vezetéknév <span class="required">*</span></label>
+                        <InputText class="form-input" @bind-Value="registerModel.LastName" placeholder="Kovács" />
+                        <ValidationMessage For="@(() => registerModel.LastName)" class="validation-error" />
+                    </div>
+                </div>
 
-            <!-- ÚJ: Jelszó megerősítése -->
-            <div class="form-group">
-                <label>Jelszó megerősítése <span class="required">*</span></label>
-                <div class="password-wrapper">
-                    <InputText type="@confirmPasswordInputType" class="form-input" @bind-Value="registerModel.ConfirmPassword" placeholder="Jelszó újra" />
-                    <button type="button" class="toggle-password" @onclick="ToggleConfirmPassword">
-                        @if (showConfirmPassword)
+                <div class="form-group">
+                    <label>Felhasználónév <span class="required">*</span></label>
+                    <InputText class="form-input" @bind-Value="registerModel.Username" placeholder="kovacs.janos" />
+                    <ValidationMessage For="@(() => registerModel.Username)" class="validation-error" />
+                </div>
+
+                <div class="form-group">
+                    <label>Email cím <span class="required">*</span></label>
+                    <InputText type="email" class="form-input" @bind-Value="registerModel.Email" placeholder="pelda@email.com" />
+                    <ValidationMessage For="@(() => registerModel.Email)" class="validation-error" />
+                </div>
+
+                <div class="form-group">
+                    <label>Szerepkör <span class="required">*</span></label>
+                    <div class="role-selector">
+                        <button type="button" class="role-card @(registerModel.UserRole == "Student" ? "role-active" : "")"
+                                @onclick='() => registerModel.UserRole = "Student"'>
+                            <span class="role-icon">🎒</span>
+                            <span class="role-name">Diák</span>
+                            <span class="role-desc">Feladatok, naptár, fókusz időzítő</span>
+                        </button>
+                        <button type="button" class="role-card @(registerModel.UserRole == "Teacher" ? "role-active" : "")"
+                                @onclick='() => registerModel.UserRole = "Teacher"'>
+                            <span class="role-icon">👨‍🏫</span>
+                            <span class="role-name">Tanár</span>
+                            <span class="role-desc">Feladatkiadás, csoportkezelés</span>
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => registerModel.UserRole)" class="validation-error" />
+                </div>
+
+                <div class="form-group">
+                    <label>Jelszó <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <InputText type="@passwordInputType" class="form-input" @bind-Value="registerModel.Password" placeholder="Min. 8 karakter" @oninput="CheckPassword" />
+                        <button type="button" class="toggle-password" @onclick="TogglePassword">
+                            @if (showPassword)
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            }
+                            else
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => registerModel.Password)" class="validation-error" />
+                    @if (!string.IsNullOrEmpty(registerModel.Password))
+                    {
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill strength-@passwordStrength"></div>
+                            </div>
+                            <div class="strength-checks">
+                                <span class="check @(registerModel.Password.Length >= 8 ? "check-ok" : "check-fail")">
+                                    @(registerModel.Password.Length >= 8 ? "✅" : "❌") Min. 8 kar.
+                                </span>
+                                <span class="check @(registerModel.Password.Any(char.IsUpper) ? "check-ok" : "check-fail")">
+                                    @(registerModel.Password.Any(char.IsUpper) ? "✅" : "❌") Nagybetű
+                                </span>
+                                <span class="check @(registerModel.Password.Any(char.IsDigit) ? "check-ok" : "check-fail")">
+                                    @(registerModel.Password.Any(char.IsDigit) ? "✅" : "❌") Szám
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label>Jelszó megerősítése <span class="required">*</span></label>
+                    <div class="password-wrapper">
+                        <InputText type="@confirmPasswordInputType" class="form-input" @bind-Value="registerModel.ConfirmPassword" placeholder="Jelszó újra" />
+                        <button type="button" class="toggle-password" @onclick="ToggleConfirmPassword">
+                            @if (showConfirmPassword)
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            }
+                            else
+                            {
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="validation-error" />
+                    @if (!string.IsNullOrEmpty(registerModel.ConfirmPassword))
+                    {
+                        @if (registerModel.Password == registerModel.ConfirmPassword)
                         {
-                            <span>🙈</span>
+                            <div class="password-match success">✅ A jelszavak egyeznek</div>
                         }
                         else
                         {
-
-                            <span>👁️</span>
+                            <div class="password-match error">❌ A jelszavak nem egyeznek</div>
                         }
-                    </button>
+                    }
                 </div>
-                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="validation-error" />
 
-                @if (!string.IsNullOrEmpty(registerModel.ConfirmPassword))
-                {
-                    @if (registerModel.Password == registerModel.ConfirmPassword)
+                <button type="submit" class="register-submit" disabled="@isLoading">
+                    @if (isLoading)
                     {
-                        <div class="password-match success">
-                            ✅ A jelszavak egyeznek
-                        </div>
+                        <span class="register-spinner"></span>
+                        <span>Regisztráció...</span>
                     }
                     else
                     {
-                        <div class="password-match error">
-                            ❌ A jelszavak nem egyeznek
-                        </div>
+                        <span>Fiók létrehozása</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                     }
-                }
+                </button>
+            </EditForm>
+
+            <div class="register-footer">
+                Már van fiókod? <a href="/login">Jelentkezz be</a>
             </div>
+        </div>
+    </div>
 
-            <button type="submit" class="btn-submit" disabled="@isLoading">
-                @if (isLoading)
-                {
-                    <span class="spinner"></span>
-                    <span>Regisztráció...</span>
-                }
-                else
-                {
-                    <span>Regisztráció</span>
-                }
-            </button>
-        </EditForm>
-
-        <div class="register-footer">
-            <p>Már van fiókod? <a href="/login">Jelentkezz be itt</a></p>
+    <div class="register-right">
+        <div class="register-right-bg">
+            <div class="rr-blob rr-blob-1"></div>
+            <div class="rr-blob rr-blob-2"></div>
+            <div class="rr-grid"></div>
+        </div>
+        <div class="register-right-inner">
+            <div class="rr-badge">
+                <span class="rr-badge-dot"></span>
+                Diákoknak és tanároknak
+            </div>
+            <p class="register-quote">„Rendszerezd a napjaidat, és a tanulás egyszerűbbé válik."</p>
+            <div class="register-features">
+                <div class="register-feat">
+                    <div class="feat-icon-box feat-purple">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    </div>
+                    Feladatok és határidők egy helyen
+                </div>
+                <div class="register-feat">
+                    <div class="feat-icon-box feat-amber">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    Beépített Pomodoro fókuszidőzítő
+                </div>
+                <div class="register-feat">
+                    <div class="feat-icon-box feat-green">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    </div>
+                    Csoportmunka és megosztott feladatok
+                </div>
+                <div class="register-feat">
+                    <div class="feat-icon-box feat-blue">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    Heti és havi naptárnézet
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -190,12 +241,10 @@
     {
         var pwd = e.Value?.ToString() ?? "";
         int strength = 0;
-
         if (pwd.Length >= 8) strength++;
         if (pwd.Any(char.IsUpper)) strength++;
         if (pwd.Any(char.IsDigit)) strength++;
         if (pwd.Any(char.IsSymbol) || pwd.Any(char.IsPunctuation)) strength++;
-
         passwordStrength = strength switch
         {
             0 or 1 => "weak",
@@ -211,11 +260,9 @@
         errorMessage = string.Empty;
         successMessage = string.Empty;
         isLoading = true;
-
         try
         {
             var response = await AuthService.Register(registerModel);
-
             if (response != null && response.Status == "SUCCESS")
             {
                 successMessage = "Sikeres regisztráció! Átirányítás a bejelentkezési oldalra...";
@@ -238,307 +285,10 @@
     }
 }
 
+
 <style>
-    .register-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-    }
-
-    .register-container {
-        background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        max-width: 600px;
-        width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    .register-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .header-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-
-    .register-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-    }
-
-    .register-header p {
-        color: #718096;
-        font-size: 1.1rem;
-    }
-
-    .required {
-        color: #e53e3e;
-    }
-
-    .alert {
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .alert-error {
-        background: #fee;
-        color: #c53030;
-        border: 1px solid #feb2b2;
-    }
-
-    .alert-success {
-        background: #f0fff4;
-        color: #276749;
-        border: 1px solid #9ae6b4;
-    }
-
-    .alert-icon {
-        font-size: 1.5rem;
-    }
-
-    .register-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-        .form-group label {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 0.95rem;
-        }
-
-    .form-input {
-        padding: 0.875rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background: white;
-        width: 100%;
-    }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-    /* Validation Error Styling */
-    .validation-error {
-        color: #e53e3e;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-        .validation-error::before {
-            content: "⚠️";
-            font-size: 0.8rem;
-        }
-
-    /* Password Wrapper */
-    .password-wrapper {
-        position: relative;
-    }
-
-    .toggle-password {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.2rem;
-        padding: 0;
-    }
-
-    /* Password Strength */
-    .password-strength {
-        margin-top: 0.5rem;
-    }
-
-    .strength-bar {
-        height: 6px;
-        background: #e2e8f0;
-        border-radius: 3px;
-        margin-bottom: 0.5rem;
-        overflow: hidden;
-    }
-
-    .strength-fill {
-        height: 100%;
-        border-radius: 3px;
-        transition: all 0.3s ease;
-    }
-
-    .strength-weak {
-        width: 25%;
-        background: #e53e3e;
-    }
-
-    .strength-medium {
-        width: 50%;
-        background: #f6ad55;
-    }
-
-    .strength-good {
-        width: 75%;
-        background: #68d391;
-    }
-
-    .strength-strong {
-        width: 100%;
-        background: #38a169;
-    }
-
-    .strength-checks {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .check {
-        font-size: 0.8rem;
-    }
-
-    .check-ok {
-        color: #38a169;
-    }
-
-    .check-fail {
-        color: #e53e3e;
-    }
-
-    /* Password Match Indicator */
-    .password-match {
-        margin-top: 0.5rem;
-        padding: 0.5rem;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-        .password-match.success {
-            background: #f0fff4;
-            color: #38a169;
-            border: 1px solid #9ae6b4;
-        }
-
-        .password-match.error {
-            background: #fee;
-            color: #e53e3e;
-            border: 1px solid #feb2b2;
-        }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-        .btn-submit:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-    .spinner {
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @@keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .register-footer {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e2e8f0;
-    }
-
-        .register-footer p {
-            color: #718096;
-        }
-
-        .register-footer a {
-            color: #667eea;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-            .register-footer a:hover {
-                text-decoration: underline;
-            }
-
-    @@media (max-width: 768px) {
-        .register-container {
-            padding: 2rem;
-        }
-
-        .register-header h1 {
-            font-size: 2rem;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .strength-checks {
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-    }
+    /* Regisztrációs oldal stílusok - következő commitban */
+    .register-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .register-left { display: flex; flex-direction: column; padding: 2.5rem 5vw; }
+    .register-right { display: none; }
 </style>
