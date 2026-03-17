@@ -178,4 +178,15 @@ public class FocusTimerService : IDisposable
     }
 
     public record SessionEntry(string Mode, int Minutes, DateTime FinishedAt);
+
+    public string CurrentSessionType { get; set; } = "study";
+
+    public void SwitchModeReset(string mode)
+    {
+        _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+        IsRunning = false;
+        Mode = mode;
+        SecondsLeft = TotalSeconds;
+        OnTick?.Invoke();
+    }
 }

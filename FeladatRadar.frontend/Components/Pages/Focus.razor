@@ -15,78 +15,77 @@
 }
 else if (_isAuthenticated)
 {
-    <div class="fr-layout" data-theme="@_theme">
-        <!-- Sidebar -->
-        <aside class="fr-sidebar">
-            <div class="fr-brand">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+    <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
+        @if (_menuOpen) { <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div> }
+        <aside class="@SidebarClass">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>FeladatRadar</span>
-            </div>
+            </a>
             <nav class="fr-nav">
-                <a href="/dashboard" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>Dashboard</a>
-                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
-                <a href="/feladatok" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>Feladatok</a>
-                <a href="/fokusz" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
-                <a href="/tantargyak" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
-                <a href="/csoport" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>Csoportok</a>
+                <a href="/dashboard" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></a>
+                <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
+                <a href="/fokusz" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+                @if (_userRole == "Admin") { <a href="/admin" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</a> }
             </nav>
             <div class="fr-sidebar-footer">
                 <button class="fr-theme-toggle" @onclick="ToggleTheme">
-                    @if (_theme == "dark")
-                    {
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
-                        <span>Világos mód</span>
-                    }
-                    else
-                    {
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-                        <span>Sötét mód</span>
-                    }
+                    @if (_theme == "dark") { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg><span>Világos mód</span> }
+                    else { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span> }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Kijelentkezés
-                </button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
             </div>
         </aside>
 
-        <!-- Main -->
         <main class="fr-main">
             <header class="fr-topbar">
                 <div class="fr-topbar-left">
+                    <button class="fr-hamburger" @onclick="ToggleMenu" title="Menü">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
                     <span class="fr-page-title">Fókusz Időzítő</span>
                     <span class="fr-breadcrumb">/ @Timer.CompletedSessions befejezett munkamenet</span>
-                </div>
-                <div class="fr-topbar-right">
-                    <div class="fr-user-chip">
-                        <div class="fr-user-dot"></div>
-                        <span>@_userEmail</span>
-                    </div>
                 </div>
             </header>
 
             <div class="fr-content">
 
                 <!-- Mode selector -->
-                <div class="fk-mode-row">
-                    <button class="fk-mode-btn @(Timer.Mode == "focus" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchMode("focus")'>
-                        🎯 Fókusz
-                    </button>
-                    <button class="fk-mode-btn @(Timer.Mode == "short" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchMode("short")'>
-                        ☕ Rövid szünet
-                    </button>
-                    <button class="fk-mode-btn @(Timer.Mode == "long" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchMode("long")'>
-                        🛋️ Hosszú szünet
-                    </button>
+                <div class="fk-panel fk-mode-panel">
+                    <div class="fk-mode-row">
+                        <button class="fk-mode-btn @(Timer.Mode == "focus" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchMode("focus")'>
+                            🎯 Fókusz
+                        </button>
+                        <button class="fk-mode-btn @(Timer.Mode == "short" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchModeReset("short")'>
+                            ☕ Rövid szünet
+                        </button>
+                        <button class="fk-mode-btn @(Timer.Mode == "long" ? "fk-mode-active" : "")" @onclick='() => Timer.SwitchModeReset("long")'>
+                            🛋️ Hosszú szünet
+                        </button>
+                    </div>
+
+                    <!-- Session type selector -->
+                    <div class="fk-type-row">
+                        <span class="fk-type-label">Típus:</span>
+                        @foreach (var t in _sessionTypes)
+                        {
+                            <button class="fk-type-btn @(_sessionType == t.Key ? "fk-type-active" : "")"
+                                    @onclick="() => _sessionType = t.Key">
+                                @t.Emoji @t.Label
+                            </button>
+                        }
+                    </div>
                 </div>
 
                 <!-- Timer card -->
-                <div class="fk-timer-card">
+                <div class="fk-panel fk-timer-card">
                     <div class="fk-ring-wrap">
-                        <svg class="fk-ring-svg" viewBox="0 0 220 220">
-                            <circle cx="110" cy="110" r="96" class="fk-ring-bg" />
-                            <circle cx="110" cy="110" r="96" class="fk-ring-fg"
-                                    style="stroke-dasharray: 603; stroke-dashoffset: @Timer.DashOffset; stroke: @Timer.RingColor;" />
+                        <svg class="fk-ring-svg" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="88" class="fk-ring-bg" />
+                            <circle cx="100" cy="100" r="88" class="fk-ring-fg"
+                                    style="stroke-dasharray: 553; stroke-dashoffset: @Timer.DashOffset; stroke: @Timer.RingColor;" />
                         </svg>
                         <div class="fk-ring-inner">
                             <span class="fk-mode-label">@Timer.ModeLabel</span>
@@ -95,83 +94,24 @@ else if (_isAuthenticated)
                         </div>
                     </div>
 
-                    <!-- Controls -->
                     <div class="fk-controls">
                         <button class="fk-btn-icon" @onclick="Timer.ResetTimer" title="Visszaállítás">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3.5" /></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
                         </button>
                         <button class="fk-btn-play @(Timer.IsRunning ? "fk-btn-pause" : "")" @onclick="Timer.ToggleTimer">
                             @if (Timer.IsRunning)
                             {
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                             }
                             else
                             {
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             }
                         </button>
                         <button class="fk-btn-icon" @onclick="Timer.SkipSession" title="Következő">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" /></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
                         </button>
                     </div>
-                </div>
-
-                <!-- Settings card -->
-                <div class="fk-settings-card">
-                    <div class="fk-settings-title">⚙️ Beállítások</div>
-                    <div class="fk-settings-row">
-                        <div class="fk-setting-item">
-                            <label class="fk-setting-label">Fókusz (perc)</label>
-                            <input class="fk-setting-input" type="number" min="1" max="90"
-                                   value="@Timer.FocusMinutes"
-                                   @oninput="SaveFocusMinutes"
-                                   disabled="@Timer.IsRunning" />
-                        </div>
-                        <div class="fk-setting-item">
-                            <label class="fk-setting-label">Rövid szünet (perc)</label>
-                            <input class="fk-setting-input" type="number" min="1" max="30"
-                                   value="@Timer.ShortBreakMinutes"
-                                   @oninput="SaveBreakMinutes"
-                                   disabled="@Timer.IsRunning" />
-                        </div>
-                        <div class="fk-setting-item">
-                            <label class="fk-setting-label">Hosszú szünet (perc)</label>
-                            <input class="fk-setting-input" type="number" min="1" max="60"
-                                   value="@Timer.LongBreakMinutes"
-                                   @oninput="SaveLongBreakMinutes"
-                                   disabled="@Timer.IsRunning" />
-                        </div>
-                        <div class="fk-setting-item">
-                            <label class="fk-setting-label">Auto-váltás</label>
-                            <label class="fk-toggle">
-                                <input type="checkbox" @bind="Timer.AutoSwitch" />
-                                <span class="fk-toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Session history -->
-                <div class="fk-history-card">
-                    <div class="fk-settings-title">📋 Mai munkamenetek</div>
-                    @if (!Timer.SessionLog.Any())
-                    {
-                        <div class="fk-empty">Még nincs befejezett munkamenet ma.</div>
-                    }
-                    else
-                    {
-                        <div class="fk-log-list">
-                            @foreach (var s in Timer.SessionLog.AsEnumerable().Reverse())
-                            {
-                                <div class="fk-log-item">
-                                    <span class="fk-log-icon">@(s.Mode == "focus" ? "🎯" : "☕")</span>
-                                    <span class="fk-log-label">@(s.Mode == "focus" ? "Fókusz" : "Szünet")</span>
-                                    <span class="fk-log-duration">@s.Minutes perc</span>
-                                    <span class="fk-log-time">@s.FinishedAt.ToString("HH:mm")</span>
-                                </div>
-                            }
-                        </div>
-                    }
                 </div>
 
             </div>
@@ -180,17 +120,37 @@ else if (_isAuthenticated)
 }
 else
 {
-    <div class="fr-unauth">
-        <p>Nincs aktív munkamenet.</p>
-        <a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a>
-    </div>
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
 }
 
 @code {
+    private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
     private bool _hasCheckedAuth = false;
     private bool _isAuthenticated = false;
+    private string _userRole = "";
     private string _userEmail = "";
     private string _theme = "light";
+    private string _sessionType
+    {
+        get => Timer.CurrentSessionType;
+        set => Timer.CurrentSessionType = value;
+    }
+
+    private record SessionTypeInfo(string Key, string Emoji, string Label);
+
+    private readonly List<SessionTypeInfo> _sessionTypes = new()
+    {
+        new("tanulas",  "📚", "Tanulás"),
+        new("verseny",  "🏆", "Verseny"),
+        new("olvases",  "📖", "Olvasás"),
+        new("projekt",  "💡", "Projekt"),
+        new("edzes",    "🏋️", "Edzés"),
+        new("egyeb",    "⚡", "Egyéb"),
+    };
 
     private string SubLabel => Timer.IsRunning
         ? "Koncentrálj! 💪"
@@ -199,638 +159,107 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-
         try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
-
-        // Beállítások betöltése JS-ből (csak ha a service még alapértelmezett)
-        try
-        {
-            var fm = await JS.InvokeAsync<int>("timerHelper.getFocusMinutes");
-            if (fm > 0) Timer.ApplyFocusMinutes(fm);
-        }
-        catch { }
-        try
-        {
-            var bm = await JS.InvokeAsync<int>("timerHelper.getBreakMinutes");
-            if (bm > 0) Timer.ApplyShortBreakMinutes(bm);
-        }
-        catch { }
-        try
-        {
-            var lm = await JS.InvokeAsync<int>("timerHelper.getLongBreakMinutes");
-            if (lm > 0) Timer.ApplyLongBreakMinutes(lm);
-        }
-        catch { }
-
         await AuthService.InitializeAsync();
         _hasCheckedAuth = true;
         _isAuthenticated = AuthService.IsAuthenticated;
         _userEmail = AuthService.CurrentUser?.Email ?? "";
-
-        if (!_isAuthenticated)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
-
-        // Feliratkozás az OnTick eseményre → UI frissítés
+        _userRole = AuthService.CurrentUser?.UserRole ?? "";
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
         Timer.OnTick += HandleTick;
-
         StateHasChanged();
     }
 
-    private async void HandleTick()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
+    private async void HandleTick() { await InvokeAsync(StateHasChanged); }
 
-    private async Task ToggleTheme()
-    {
-        _theme = _theme == "dark" ? "light" : "dark";
-        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
-        StateHasChanged();
-    }
-
-    private async Task SaveFocusMinutes(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int val) && val >= 1 && val <= 90)
-        {
-            Timer.ApplyFocusMinutes(val);
-            await JS.InvokeVoidAsync("timerHelper.setFocusMinutes", val);
-        }
-    }
-
-    private async Task SaveBreakMinutes(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int val) && val >= 1 && val <= 30)
-        {
-            Timer.ApplyShortBreakMinutes(val);
-            await JS.InvokeVoidAsync("timerHelper.setBreakMinutes", val);
-        }
-    }
-
-    private async Task SaveLongBreakMinutes(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out int val) && val >= 1 && val <= 60)
-        {
-            Timer.ApplyLongBreakMinutes(val);
-            await JS.InvokeVoidAsync("timerHelper.setLongBreakMinutes", val);
-        }
-    }
-
-    private async Task HandleLogout()
-    {
-        await AuthService.Logout();
-        Navigation.NavigateTo("/login");
-    }
-
-    public void Dispose()
-    {
-        Timer.OnTick -= HandleTick;
-    }
+    private async Task ToggleTheme() { _theme = _theme == "dark" ? "light" : "dark"; await JS.InvokeVoidAsync("themeHelper.setTheme", _theme); StateHasChanged(); }
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
+    public void Dispose() { Timer.OnTick -= HandleTick; }
 }
 
 <style>
-    *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     .fr-layout {
-        --accent: #2563eb;
-        --accent-hover: #1d4ed8;
-        --accent-subtle: rgba(37,99,235,.08);
-        --bg: #f8f9fb;
-        --surface: #fff;
-        --surface-2: #f1f3f7;
-        --border: #e4e7ed;
-        --border-strong: #c9cdd6;
-        --text-primary: #0f1117;
-        --text-secondary: #52586a;
-        --text-muted: #9299aa;
-        --danger: #dc2626;
-        --danger-subtle: rgba(220,38,38,.07);
-        --success: #16a34a;
-        --success-subtle: rgba(22,163,74,.08);
-        --purple: #7c3aed;
-        --purple-subtle: rgba(124,58,237,.08);
-        --radius: 12px;
-        --font: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;
+        display:flex; flex-direction:row; width:100vw; height:100vh; overflow:hidden;
+        background:var(--bg,#f4f2f8); font-family:var(--font); color:var(--text-primary);
+        --accent:#667eea; --accent-2:#764ba2; --accent-hover:#5a6fd8;
+        --accent-subtle:rgba(102,126,234,.12);
+        --bg:#f4f2f8; --surface:#fff; --surface-2:#f0eef8;
+        --border:#e2ddf0; --border-strong:#c4bce0;
+        --text-primary:#1a1630; --text-secondary:#4a4470; --text-muted:#8880aa;
+        --danger:#e53935; --danger-subtle:rgba(229,57,53,.09);
+        --success:#0e9f6e; --success-subtle:rgba(14,159,110,.1);
+        --radius:12px;
     }
-
-        .fr-layout[data-theme="dark"] {
-            --bg: #0d0f14;
-            --surface: #161820;
-            --surface-2: #1e2130;
-            --border: #272b3a;
-            --border-strong: #363c50;
-            --text-primary: #f0f2f8;
-            --text-secondary: #8892a4;
-            --text-muted: #4e566a;
-            --accent-subtle: rgba(37,99,235,.15);
-            --success-subtle: rgba(22,163,74,.12);
-            --purple-subtle: rgba(124,58,237,.12);
-        }
-
-    .fr-layout {
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        height: 100vh;
-        background: var(--bg);
-        font-family: var(--font);
-        color: var(--text-primary);
+    .fr-layout[data-role="Teacher"] { --accent:#f59e0b; --accent-2:#d97706; --accent-subtle:rgba(245,158,11,.12); }
+    .fr-layout[data-role="Teacher"] .fr-btn-primary { background:linear-gradient(135deg,#b45309,#f59e0b) !important; }
+    .fr-layout[data-role="Teacher"] .fr-topbar { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
+    .fr-layout[data-role="Teacher"] .fr-brand { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
+    .fr-layout[data-role="Teacher"] .fk-btn-play { background:linear-gradient(135deg,#b45309,#f59e0b); box-shadow:0 4px 20px rgba(245,158,11,.4); }
+    .fr-layout[data-theme="dark"] {
+        --bg:#0d0b18; --surface:#16132a; --surface-2:#1e1a38; --border:#2e2850; --border-strong:#4a4270;
+        --text-primary:#f0eeff; --text-secondary:#9890cc; --text-muted:#5a5480;
+        --accent-subtle:rgba(102,126,234,.18);
+        --danger-subtle:rgba(229,57,53,.15);
     }
-
-    /* ── Sidebar ── */
-    .fr-sidebar {
-        display: flex;
-        flex-direction: column;
-        background: var(--surface);
-        border-right: 1px solid var(--border);
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    .fr-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 20px 18px;
-        font-weight: 700;
-        font-size: .95rem;
-        color: var(--accent);
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-    }
-
-    .fr-nav {
-        flex: 1;
-        padding: 12px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        overflow-y: auto;
-        scrollbar-width: none;
-    }
-
-        .fr-nav::-webkit-scrollbar {
-            display: none;
-        }
-
-    .fr-nav-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 10px;
-        border-radius: 8px;
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: .875rem;
-        font-weight: 500;
-        transition: background .15s,color .15s;
-    }
-
-        .fr-nav-item:hover {
-            background: var(--surface-2);
-            color: var(--text-primary);
-        }
-
-        .fr-nav-item.fr-active {
-            background: var(--accent-subtle);
-            color: var(--accent);
-        }
-
-    .fr-sidebar-footer {
-        padding: 12px 10px;
-        border-top: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        flex-shrink: 0;
-    }
-
-    .fr-theme-toggle, .fr-logout {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        width: 100%;
-        padding: 9px 10px;
-        border: none;
-        border-radius: 8px;
-        background: none;
-        color: var(--text-secondary);
-        font-size: .85rem;
-        font-weight: 500;
-        cursor: pointer;
-        text-align: left;
-        transition: background .15s,color .15s;
-        font-family: var(--font);
-    }
-
-        .fr-theme-toggle:hover {
-            background: var(--surface-2);
-            color: var(--text-primary);
-        }
-
-        .fr-logout:hover {
-            background: var(--danger-subtle);
-            color: var(--danger);
-        }
-
-    /* ── Main area ── */
-    .fr-main {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        height: 100vh;
-    }
-
-    .fr-topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 24px;
-        height: 56px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-    }
-
-    .fr-topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .fr-topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .fr-page-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .fr-user-chip {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        background: var(--surface-2);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 5px 12px 5px 8px;
-        font-size: .8rem;
-        color: var(--text-secondary);
-    }
-
-    .fr-user-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--success);
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .fr-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 28px 32px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .fk-mode-row {
-        display: flex;
-        gap: 8px;
-    }
-
-    .fk-mode-btn {
-        padding: 8px 20px;
-        border: 1.5px solid var(--border);
-        border-radius: 20px;
-        background: none;
-        color: var(--text-secondary);
-        font-size: .85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all .15s;
-        font-family: var(--font);
-    }
-
-        .fk-mode-btn:hover {
-            border-color: var(--border-strong);
-            color: var(--text-primary);
-        }
-
-        .fk-mode-btn.fk-mode-active {
-            background: var(--accent-subtle);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-    .fk-timer-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 40px 60px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 32px;
-        width: 100%;
-        max-width: 480px;
-    }
-
-    .fk-ring-wrap {
-        position: relative;
-        width: 220px;
-        height: 220px;
-    }
-
-    .fk-ring-svg {
-        transform: rotate(-90deg);
-        width: 220px;
-        height: 220px;
-    }
-
-    .fk-ring-bg {
-        fill: none;
-        stroke: var(--surface-2);
-        stroke-width: 10;
-    }
-
-    .fk-ring-fg {
-        fill: none;
-        stroke-width: 10;
-        stroke-linecap: round;
-        transition: stroke-dashoffset .8s linear, stroke .4s;
-    }
-
-    .fk-ring-inner {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-    }
-
-    .fk-mode-label {
-        font-size: .78rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: .08em;
-    }
-
-    .fk-time {
-        font-size: 3rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        font-variant-numeric: tabular-nums;
-        letter-spacing: -.02em;
-    }
-
-    .fk-sub {
-        font-size: .78rem;
-        color: var(--text-muted);
-    }
-
-    .fk-controls {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .fk-btn-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 1.5px solid var(--border);
-        background: var(--surface-2);
-        color: var(--text-secondary);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all .15s;
-    }
-
-        .fk-btn-icon:hover {
-            border-color: var(--border-strong);
-            color: var(--text-primary);
-            background: var(--surface);
-        }
-
-    .fk-btn-play {
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
-        border: none;
-        background: var(--accent);
-        color: #fff;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background .15s, transform .1s;
-        box-shadow: 0 4px 16px rgba(37,99,235,.3);
-    }
-
-        .fk-btn-play:hover {
-            background: var(--accent-hover);
-            transform: scale(1.05);
-        }
-
-    .fk-btn-pause {
-        background: #dc2626;
-        box-shadow: 0 4px 16px rgba(220,38,38,.3);
-    }
-
-        .fk-btn-pause:hover {
-            background: #b91c1c;
-        }
-
-    .fk-settings-card, .fk-history-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px 24px;
-        width: 100%;
-        max-width: 480px;
-    }
-
-    .fk-settings-title {
-        font-weight: 700;
-        font-size: .9rem;
-        margin-bottom: 16px;
-        color: var(--text-primary);
-    }
-
-    .fk-settings-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-
-    .fk-setting-item {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        min-width: 100px;
-    }
-
-    .fk-setting-label {
-        font-size: .78rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-    }
-
-    .fk-setting-input {
-        padding: 7px 10px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--surface-2);
-        color: var(--text-primary);
-        font-size: .9rem;
-        font-family: var(--font);
-        outline: none;
-        width: 100%;
-        transition: border-color .15s;
-    }
-
-        .fk-setting-input:focus {
-            border-color: var(--accent);
-        }
-
-        .fk-setting-input:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-
-    .fk-toggle {
-        position: relative;
-        display: inline-block;
-        width: 42px;
-        height: 24px;
-        margin-top: 4px;
-    }
-
-        .fk-toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-    .fk-toggle-slider {
-        position: absolute;
-        inset: 0;
-        background: var(--border-strong);
-        border-radius: 24px;
-        cursor: pointer;
-        transition: .3s;
-    }
-
-    .fk-toggle input:checked + .fk-toggle-slider {
-        background: var(--accent);
-    }
-
-    .fk-toggle-slider::before {
-        content: "";
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        left: 3px;
-        bottom: 3px;
-        background: #fff;
-        border-radius: 50%;
-        transition: .3s;
-    }
-
-    .fk-toggle input:checked + .fk-toggle-slider::before {
-        transform: translateX(18px);
-    }
-
-    .fk-empty {
-        font-size: .85rem;
-        color: var(--text-muted);
-        padding: 12px 0;
-    }
-
-    .fk-log-list {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .fk-log-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 12px;
-        background: var(--surface-2);
-        border-radius: 8px;
-        font-size: .85rem;
-    }
-
-    .fk-log-icon {
-        font-size: 1rem;
-    }
-
-    .fk-log-label {
-        font-weight: 600;
-        color: var(--text-primary);
-        flex: 1;
-    }
-
-    .fk-log-duration {
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-
-    .fk-log-time {
-        color: var(--text-muted);
-        font-size: .78rem;
-        margin-left: auto;
-    }
-
-    .fr-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 9px 16px;
-        border-radius: 8px;
-        font-size: .875rem;
-        font-weight: 600;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-    }
-
-    .fr-btn-primary {
-        background: var(--accent);
-        color: #fff;
-    }
-
-    @@media (max-width:768px) {
-        .fr-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .fk-timer-card {
-            padding: 28px 20px;
-        }
-
-        .fk-settings-row {
-            flex-direction: column;
-        }
+    .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+    .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
+    .fr-sidebar-backdrop { position:fixed; inset:0; z-index:199; background:rgba(26,22,48,.45); backdrop-filter:blur(3px); }
+    .fr-brand { flex-shrink:0; display:flex; align-items:center; gap:9px; padding:18px 18px 16px; font-size:.95rem; font-weight:700; color:#fff; text-decoration:none; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .fr-nav { flex-shrink:0; display:flex; flex-direction:column; gap:2px; padding:10px 8px; border-bottom:1px solid var(--border); }
+    .fr-nav-item { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; text-decoration:none; font-size:.84rem; font-weight:500; color:var(--text-secondary); transition:all .15s; }
+    .fr-nav-item:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); font-weight:600; }
+    .fr-sidebar-footer { padding:10px 8px; display:flex; flex-direction:column; gap:2px; margin-top:auto; }
+    .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 11px; border:none; border-radius:9px; background:none; color:var(--text-secondary); font-size:.84rem; font-weight:500; cursor:pointer; text-align:left; transition:all .15s; font-family:var(--font); }
+    .fr-theme-toggle:hover { background:var(--surface-2); }
+    .fr-logout:hover { background:var(--danger-subtle); color:var(--danger); }
+    .fr-main { display:flex; flex-direction:column; width:100vw; height:100vh; overflow:hidden; transition:width .25s,margin-left .25s; }
+    .fr-menu-open .fr-main { width:calc(100vw - 270px); margin-left:270px; }
+    .fr-topbar { display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:56px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); box-shadow:0 2px 16px rgba(102,126,234,.3); flex-shrink:0; gap:12px; }
+    .fr-topbar-left { display:flex; align-items:center; gap:10px; }
+    .fr-hamburger { width:34px; height:34px; border:1px solid rgba(255,255,255,.3); border-radius:8px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:all .15s; }
+    .fr-hamburger:hover { background:rgba(255,255,255,.2); }
+    .fr-page-title { font-size:1rem; font-weight:700; color:#fff; }
+    .fr-breadcrumb { font-size:.8rem; color:rgba(255,255,255,.65); }
+    .fr-loading { display:flex; align-items:center; justify-content:center; height:100vh; }
+    .fr-spinner { width:28px; height:28px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:fr-spin .7s linear infinite; }
+    @@keyframes fr-spin { to { transform:rotate(360deg); } }
+    .fr-unauth { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; }
+    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fr-btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 2px 10px rgba(102,126,234,.35); }
+    .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(102,126,234,.45); transform:translateY(-1px); }
+    .fr-input { padding:8px 12px; border:1.5px solid var(--border); border-radius:9px; background:var(--surface); color:var(--text-primary); font-size:.875rem; font-family:var(--font); outline:none; transition:border-color .15s; width:100%; }
+    .fr-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
+    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+    .fk-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .fk-mode-panel { padding:16px 20px; display:flex; flex-direction:column; gap:10px; }
+    .fk-mode-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .fk-mode-btn { flex:1; min-width:120px; padding:10px 16px; border-radius:10px; border:1.5px solid var(--border); background:none; color:var(--text-secondary); font-size:.875rem; font-weight:600; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fk-mode-btn:hover { background:var(--surface-2); color:var(--text-primary); border-color:var(--border-strong); }
+    .fk-mode-active { background:var(--accent-subtle); color:var(--accent); border-color:var(--accent) !important; }
+    .fk-type-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .fk-type-label { font-size:.78rem; font-weight:600; color:var(--text-muted); white-space:nowrap; }
+    .fk-type-btn { padding:5px 12px; border-radius:20px; border:1.5px solid var(--border); background:none; color:var(--text-secondary); font-size:.8rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fk-type-btn:hover { background:var(--surface-2); }
+    .fk-type-active { background:var(--accent-subtle); color:var(--accent); border-color:var(--accent); }
+    .fk-timer-card { padding:24px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+    .fk-ring-wrap { position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center; }
+    .fk-ring-svg { position:absolute; top:0; left:0; width:200px; height:200px; transform:rotate(-90deg); }
+    .fk-ring-bg { fill:none; stroke:var(--border); stroke-width:10; }
+    .fk-ring-fg { fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset .5s ease, stroke .4s ease; }
+    .fk-ring-inner { display:flex; flex-direction:column; align-items:center; gap:4px; z-index:1; }
+    .fk-mode-label { font-size:.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+    .fk-time { font-size:3.2rem; font-weight:800; color:var(--text-primary); letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; }
+    .fk-sub { font-size:.8rem; color:var(--text-muted); font-weight:500; }
+    .fk-controls { display:flex; align-items:center; gap:16px; }
+    .fk-btn-icon { width:42px; height:42px; border-radius:50%; border:1.5px solid var(--border); background:none; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+    .fk-btn-icon:hover { background:var(--surface-2); color:var(--text-primary); border-color:var(--border-strong); }
+    .fk-btn-play { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(102,126,234,.4); transition:all .2s; }
+    .fk-btn-play:hover { transform:scale(1.06); box-shadow:0 6px 28px rgba(102,126,234,.5); }
+    .fk-btn-pause { background:linear-gradient(135deg,#6366f1,#8b5cf6); box-shadow:0 4px 20px rgba(99,102,241,.35); }
+@@media (max-width: 700px) {
+        .fk-time { font-size:2.4rem; }
+        .fk-ring-wrap, .fk-ring-svg { width:180px; height:180px; }
     }
 </style>
