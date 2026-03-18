@@ -3,9 +3,11 @@
 @using FeladatRadar.frontend.Models
 @inject AuthService AuthService
 @inject SubjectService SubjectService
+@inject TaskService TaskService
+@inject ScheduleService ScheduleService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>Tantárgyak — FeladatRadar</PageTitle>
 
@@ -15,41 +17,62 @@
 }
 else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
 {
-    <div class="fr-layout" data-theme="@_theme">
-        <aside class="fr-sidebar">
-            <div class="fr-brand">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
+        @if (_menuOpen)
+        {
+            <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div>
+        }
+        <aside class="@SidebarClass">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
                 <span>FeladatRadar</span>
-            </div>
+            </a>
             <nav class="fr-nav">
-                <a href="/dashboard" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-                <a href="/naptar" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
-                <a href="/feladatok" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Feladatok</a>
-                <a href="/fokusz" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
-                <a href="/tantargyak" class="fr-nav-item fr-active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
-                <a href="/csoport" class="fr-nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+                <a href="/dashboard" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg></a>
+                <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
+                <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>Csoportok</a>
+                @if (_userRole == "Admin")
+                {
+                    <a href="/admin" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>Admin</a>
+                }
             </nav>
             <div class="fr-sidebar-footer">
                 <button class="fr-theme-toggle" @onclick="ToggleTheme">
-                    @if (_theme == "dark") { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span>Világos mód</span> }
-                    else { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span> }
+                    @if (_theme == "dark")
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
+                        <span>Világos mód</span>
+                    }
+                    else
+                    {
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                        <span>Sötét mód</span>
+                    }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés</button>
             </div>
         </aside>
 
         <main class="fr-main">
             <header class="fr-topbar">
                 <div class="fr-topbar-left">
+                    <button class="fr-hamburger" @onclick="ToggleMenu" title="Menü">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+                    </button>
                     <span class="fr-page-title">Tantárgyak</span>
-                    <span class="fr-breadcrumb">/ @_myEnrollments.Count felvett</span>
+                    <span class="fr-breadcrumb">/ @_myEnrollments.Count aktív</span>
                 </div>
                 <div class="fr-topbar-right">
-                    <div class="fr-user-chip">
-                        <div class="fr-user-dot"></div>
-                        <span>@AuthService.CurrentUser.FirstName @AuthService.CurrentUser.LastName</span>
-                        <span class="fr-user-role">@AuthService.CurrentUser.UserRole</span>
-                    </div>
+                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick='() => _showCustomForm = !_showCustomForm'>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        Egyéni tantárgy
+                    </button>
+                    <button class="fr-btn fr-btn-sm fr-btn-ghost" @onclick="RefreshSubjects">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                        Frissítés
+                    </button>
                 </div>
             </header>
 
@@ -57,130 +80,102 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                 @if (!string.IsNullOrEmpty(_message))
                 {
                     <div class="fr-alert @(_messageIsError ? "fr-alert-danger" : "fr-alert-success")">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            @if (_messageIsError) { <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/> }
-                            else { <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/> }
-                        </svg>
                         @_message
                         <button class="fr-alert-close" @onclick="() => _message = string.Empty">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                         </button>
                     </div>
                 }
 
-                <!-- Tab bar -->
-                <div class="fr-tabs">
-                    <button class="fr-tab @(_activeTab == "enrolled" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "enrolled"'>
-                        Felvett tantárgyaim
-                        <span class="fr-tab-count">@_myEnrollments.Count</span>
-                    </button>
-                    <button class="fr-tab @(_activeTab == "available" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "available"'>
-                        Felvehető
-                        <span class="fr-tab-count">@_availableSubjects.Count</span>
-                    </button>
-                    <button class="fr-tab @(_activeTab == "custom" ? "fr-tab-active" : "")" @onclick='() => _activeTab = "custom"'>
-                        Saját hozzáadása
-                    </button>
-                </div>
-
-                @if (_isLoading)
-                {
-                    <div class="fr-panel-empty"><div class="fr-spinner fr-spinner-sm"></div></div>
-                }
-
-                <!-- Enrolled -->
-                @if (_activeTab == "enrolled" && !_isLoading)
-                {
-                    @if (_myEnrollments.Count == 0)
-                    {
-                        <div class="fr-empty">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                            <span>Még nincs felvett tantárgyad.</span>
-                            <button class="fr-btn fr-btn-primary" @onclick='() => _activeTab = "available"'>Tantárgyak böngészése</button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="fr-subject-grid">
-                            @foreach (var e in _myEnrollments)
-                            {
-                                <div class="fr-subject-card">
-                                    <div class="fr-subject-top">
-                                        <span class="fr-subject-code">@e.SubjectCode</span>
-                                        <span class="fr-badge fr-badge-success">Aktív</span>
-                                    </div>
-                                    <h3 class="fr-subject-name">@e.SubjectName</h3>
-                                    <p class="fr-subject-meta">Felvéve: @e.EnrolledAt.ToString("yyyy.MM.dd")</p>
-                                    <button class="fr-btn-ghost fr-btn-danger-ghost" @onclick="() => DropSubject(e.SubjectID)">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                                        Leadás
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    }
-                }
-
-                <!-- Available -->
-                @if (_activeTab == "available" && !_isLoading)
-                {
-                    @if (_availableSubjects.Count == 0)
-                    {
-                        <div class="fr-empty">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            <span>Nincs több felvehető tantárgy.</span>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="fr-subject-grid">
-                            @foreach (var s in _availableSubjects)
-                            {
-                                var fillPct = s.MaxStudents > 0 ? s.CurrentEnrollments * 100 / s.MaxStudents : 0;
-                                <div class="fr-subject-card">
-                                    <div class="fr-subject-top">
-                                        <span class="fr-subject-code">@s.SubjectCode</span>
-                                        <span class="fr-badge @(s.FreeSlots < 5 ? "fr-badge-warn" : "fr-badge-default")">@s.FreeSlots hely</span>
-                                    </div>
-                                    <h3 class="fr-subject-name">@s.SubjectName</h3>
-                                    <p class="fr-subject-meta">
-                                        @if (!string.IsNullOrEmpty(s.TeacherName)) { @s.TeacherName <text> · </text> }
-                                        @s.CurrentEnrollments / @s.MaxStudents hallgató
-                                    </p>
-                                    <div class="fr-cap-bar"><div class="fr-cap-fill" style="width:@fillPct%"></div></div>
-                                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => EnrollSubject(s.SubjectID)">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                        Felvétel
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    }
-                }
-
-                <!-- Custom -->
-                @if (_activeTab == "custom")
+                @if (_showCustomForm)
                 {
                     <div class="fr-form-card">
-                        <h2 class="fr-form-title">Saját tantárgy hozzáadása</h2>
-                        <p class="fr-form-desc">Ha a listában nem szerepel a tantárgyad, add meg manuálisan. Csak te fogod látni.</p>
-
+                        <div class="fr-form-card-head">
+                            <div>
+                                <h2 class="fr-form-title">Saját tantárgy hozzáadása</h2>
+                                <p class="fr-form-desc">Nem szerepel a listában? Add hozzá manuálisan — csak te látod.</p>
+                            </div>
+                            <button class="fr-icon-btn" @onclick='() => _showCustomForm = false'>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
                         @if (!string.IsNullOrEmpty(_customError))
                         {
                             <div class="fr-alert fr-alert-danger">@_customError</div>
                         }
+                        <div class="fr-form-row">
+                            <div class="fr-field" style="flex:2">
+                                <label class="fr-label">Tantárgy neve <span class="fr-required">*</span></label>
+                                <input class="fr-input" type="text" placeholder="pl. Kvantumfizika" @bind="_customSubjectName" maxlength="200" />
+                            </div>
+                            <div class="fr-field">
+                                <label class="fr-label">Kód <span class="fr-optional">— opcionális</span></label>
+                                <input class="fr-input" type="text" placeholder="pl. KF001" @bind="_customSubjectCode" maxlength="20" />
+                            </div>
+                            <button class="fr-btn fr-btn-primary" style="align-self:flex-end" @onclick="EnrollCustomSubject" disabled="@_customIsLoading">
+                                @(_customIsLoading ? "Hozzáadás..." : "Felvétel")
+                            </button>
+                        </div>
+                    </div>
+                }
 
-                        <div class="fr-field">
-                            <label class="fr-label">Tantárgy neve <span class="fr-required">*</span></label>
-                            <input class="fr-input" type="text" placeholder="pl. Kvantumfizika" @bind="_customSubjectName" maxlength="200" />
+                @if (_isLoading)
+                {
+                    <div class="fr-empty-state"><div class="fr-spinner fr-spinner-sm"></div></div>
+                }
+                else
+                {
+                    <!-- Felvett tantárgyak -->
+                    <div class="fr-section">
+                        <div class="fr-section-head">
+                            <span class="fr-section-title">Felvett tantárgyaim</span>
+                            <span class="fr-section-count">@_myEnrollments.Count</span>
                         </div>
-                        <div class="fr-field">
-                            <label class="fr-label">Tantárgykód <span class="fr-optional">— opcionális</span></label>
-                            <input class="fr-input" type="text" placeholder="pl. KF001" @bind="_customSubjectCode" maxlength="20" />
-                        </div>
-                        <button class="fr-btn fr-btn-primary" @onclick="EnrollCustomSubject" disabled="@_customIsLoading">
-                            @(_customIsLoading ? "Hozzáadás..." : "Tantárgy felvétele")
-                        </button>
+                        <p class="fr-auto-note">Az összes elérhető tantárgy automatikusan fel lett véve. Egyéni tantárgyat a jobb felső gombbal adhatsz hozzá.</p>
+                        @if (_myEnrollments.Count == 0)
+                        {
+                            <div class="fr-empty-state">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+                                <span>Még nincs felvett tantárgyad.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="fr-subject-grid">
+                                @foreach (var e in _myEnrollments)
+                                {
+                                    var color = SubjectColor(e.SubjectName);
+                                    var taskCount = _tasks.Count(t => t.SubjectID == e.SubjectID && !t.IsCompleted);
+                                    var doneCount = _tasks.Count(t => t.SubjectID == e.SubjectID && t.IsCompleted);
+                                    var classCount = _schedule.Count(s => s.SubjectID == e.SubjectID);
+                                    <div class="fr-subject-card" style="--sc:@color">
+                                        <div class="fr-sc-stripe"></div>
+                                        <div class="fr-sc-body">
+                                            <div class="fr-sc-top">
+                                                <span class="fr-sc-code">@(string.IsNullOrEmpty(e.SubjectCode) ? "—" : e.SubjectCode)</span>
+                                                <span class="fr-badge fr-badge-active">Aktív</span>
+                                            </div>
+                                            <h3 class="fr-sc-name">@e.SubjectName</h3>
+                                            <p class="fr-sc-meta">Felvéve: @e.EnrolledAt.ToString("yyyy. MM. dd.")</p>
+                                            <div class="fr-sc-stats">
+                                                <span class="fr-sc-stat">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                                    <span class="fr-sc-stat-n">@classCount</span> óra/hét
+                                                </span>
+                                                <span class="fr-sc-stat">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /></svg>
+                                                    <span class="fr-sc-stat-n">@taskCount</span> aktív
+                                                </span>
+                                                <span class="fr-sc-stat">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M9 12l2 2 4-4" /></svg>
+                                                    <span class="fr-sc-stat-n">@doneCount</span> kész
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -193,25 +188,20 @@ else
 }
 
 @code {
-    private bool _hasCheckedAuth = false;
-    private bool _isLoading = false;
+    private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
+    private bool _hasCheckedAuth, _isLoading, _messageIsError, _showCustomForm, _customIsLoading;
+    private string _message = "", _customSubjectName = "", _customSubjectCode = "", _customError = "", _theme = "light", _userRole = "";
     private List<SubjectDto> _availableSubjects = new();
     private List<EnrollmentDto> _myEnrollments = new();
-    private string _message = "";
-    private bool _messageIsError = false;
-    private string _activeTab = "enrolled";
-    private string _customSubjectName = "";
-    private string _customSubjectCode = "";
-    private string _customError = "";
-    private bool _customIsLoading = false;
-    private string _theme = "light";
+    private List<TaskDto> _tasks = new();
+    private List<ScheduleEntryDto> _schedule = new();
 
-    private async Task ToggleTheme()
-    {
-        _theme = _theme == "dark" ? "light" : "dark";
-        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
-        StateHasChanged();
-    }
+    private static readonly string[] _palette = { "#4f46e5", "#0891b2", "#0e9f6e", "#d97706", "#db2777", "#7c3aed", "#ea580c", "#65a30d" };
+    private string SubjectColor(string name) => _palette[Math.Abs(name?.GetHashCode() ?? 0) % _palette.Length];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -219,6 +209,7 @@ else
         try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
         await AuthService.InitializeAsync();
         _hasCheckedAuth = true;
+        _userRole = AuthService.CurrentUser?.UserRole ?? "";
         if (!AuthService.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
         await LoadData();
         StateHasChanged();
@@ -229,7 +220,27 @@ else
         _isLoading = true; StateHasChanged();
         try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { _myEnrollments = new(); }
         try { _availableSubjects = await SubjectService.GetAvailableSubjectsAsync(); } catch { _availableSubjects = new(); }
+        try { _tasks = await TaskService.GetMyTasksAsync(); } catch { _tasks = new(); }
+        try { _schedule = await ScheduleService.GetMyScheduleAsync(); } catch { _schedule = new(); }
+
+        // Auto-felvétel: minden elérhető tantárgyat automatikusan felvesz
+        if (_availableSubjects.Count > 0)
+        {
+            foreach (var s in _availableSubjects.ToList())
+            {
+                try { await SubjectService.EnrollAsync(s.SubjectID); } catch { }
+            }
+            try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { }
+            _availableSubjects = new();
+        }
+
         _isLoading = false;
+    }
+
+    private async Task RefreshSubjects()
+    {
+        await LoadData();
+        StateHasChanged();
     }
 
     private async Task EnrollSubject(int id)
@@ -237,15 +248,6 @@ else
         var r = await SubjectService.EnrollAsync(id);
         _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
         _message = _messageIsError ? r.Message : "Tantárgy sikeresen felvéve!";
-        if (!_messageIsError) await LoadData();
-        StateHasChanged();
-    }
-
-    private async Task DropSubject(int id)
-    {
-        var r = await SubjectService.DropAsync(id);
-        _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
-        _message = _messageIsError ? r.Message : "Tantárgy leadva.";
         if (!_messageIsError) await LoadData();
         StateHasChanged();
     }
@@ -259,586 +261,166 @@ else
         _customIsLoading = false;
         if (r.Status == "OK" || r.Status == "SUCCESS")
         {
-            _message = $"'{_customSubjectName}' hozzáadva.";
-            _messageIsError = false;
-            _customSubjectName = _customSubjectCode = "";
-            _activeTab = "enrolled";
+            _message = $"'{_customSubjectName}' hozzáadva."; _messageIsError = false;
+            _customSubjectName = _customSubjectCode = ""; _showCustomForm = false;
             await LoadData();
         }
         else { _customError = r.Message; }
         StateHasChanged();
     }
 
+    private async Task ToggleTheme() { _theme = _theme == "dark" ? "light" : "dark"; await JS.InvokeVoidAsync("themeHelper.setTheme", _theme); StateHasChanged(); }
     private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }
 
 <style>
-    *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
+    /* ── Design tokens ── */
     .fr-layout {
-        --accent: #2563eb;
-        --accent-hover: #1d4ed8;
-        --accent-subtle: rgba(37,99,235,.08);
-        --bg: #f8f9fb;
-        --surface: #fff;
-        --surface-2: #f1f3f7;
-        --border: #e4e7ed;
-        --border-strong: #c9cdd6;
-        --text-primary: #0f1117;
-        --text-secondary: #52586a;
-        --text-muted: #9299aa;
-        --danger: #dc2626;
-        --danger-subtle: rgba(220,38,38,.07);
-        --warning: #d97706;
-        --warning-subtle: rgba(217,119,6,.08);
-        --success: #16a34a;
-        --success-subtle: rgba(22,163,74,.08);
-        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-        --radius: 10px;
-        --font: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;
+        display:flex; flex-direction:row; width:100vw; height:100vh; overflow:hidden;
+        background:var(--bg); font-family:var(--font,'Inter',system-ui,sans-serif); color:var(--text-primary);
+        --accent:#667eea; --accent-2:#764ba2; --accent-hover:#5a6fd8;
+        --accent-subtle:rgba(102,126,234,.12); --accent-subtle-strong:rgba(102,126,234,.2);
+        --bg:#f4f2f8; --surface:#fff; --surface-2:#f0eef8;
+        --border:#e2ddf0; --border-strong:#c4bce0;
+        --text-primary:#1a1630; --text-secondary:#4a4470; --text-muted:#8880aa;
+        --danger:#e53935; --danger-subtle:rgba(229,57,53,.09);
+        --warning:#f59e0b; --warning-subtle:rgba(245,158,11,.1);
+        --success:#0e9f6e; --success-subtle:rgba(14,159,110,.1);
+        --radius:12px; --font:'Inter',system-ui,sans-serif;
+    }
+    .fr-layout[data-role="Teacher"] { --accent:#f59e0b; --accent-2:#d97706; --accent-hover:#d97706; --accent-subtle:rgba(245,158,11,.12); --accent-subtle-strong:rgba(245,158,11,.22); }
+    .fr-layout[data-role="Teacher"] .fr-btn-primary { background:linear-gradient(135deg,#b45309,#f59e0b) !important; box-shadow:0 2px 10px rgba(245,158,11,.3) !important; }
+    .fr-layout[data-role="Teacher"] .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(217,119,6,.45); }
+    .fr-layout[data-role="Teacher"] .fr-topbar { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; box-shadow:0 2px 16px rgba(245,158,11,.25) !important; }
+    .fr-layout[data-role="Teacher"] .fr-brand { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
+    .fr-layout[data-theme="dark"] {
+        --bg:#0d0b18; --surface:#16132a; --surface-2:#1e1a38; --border:#2e2850; --border-strong:#4a4270;
+        --text-primary:#f0eeff; --text-secondary:#9890cc; --text-muted:#5a5480;
+        --accent-subtle:rgba(102,126,234,.18); --accent-subtle-strong:rgba(102,126,234,.28);
+        --danger-subtle:rgba(229,57,53,.15); --warning-subtle:rgba(245,158,11,.13); --success-subtle:rgba(14,159,110,.13);
     }
 
-        .fr-layout[data-theme="dark"] {
-            --bg: #0d0f14;
-            --surface: #161820;
-            --surface-2: #1e2130;
-            --border: #272b3a;
-            --border-strong: #363c50;
-            --text-primary: #f0f2f8;
-            --text-secondary: #8892a4;
-            --text-muted: #4e566a;
-            --accent-subtle: rgba(37,99,235,.15);
-            --danger-subtle: rgba(220,38,38,.12);
-            --warning-subtle: rgba(217,119,6,.12);
-            --success-subtle: rgba(22,163,74,.12);
-        }
-
-    .fr-layout {
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        height: 100vh;
-        background: var(--bg);
-        font-family: var(--font);
-        color: var(--text-primary);
-    }
     /* ── Sidebar ── */
-    .fr-sidebar {
-        display: flex;
-        flex-direction: column;
-        background: var(--surface);
-        border-right: 1px solid var(--border);
-        height: 100vh;
-        overflow: hidden;
-    }
+    .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 32px rgba(102,126,234,.15); overflow:hidden; }
+    .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
+    .fr-sidebar-backdrop { position:fixed; inset:0; z-index:199; background:rgba(26,22,48,.45); backdrop-filter:blur(3px); }
+    .fr-brand { flex-shrink:0; display:flex; align-items:center; gap:9px; padding:18px 18px 16px; font-size:.95rem; font-weight:700; color:#fff; text-decoration:none; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .fr-nav { flex-shrink:0; display:flex; flex-direction:column; gap:2px; padding:10px 8px; border-bottom:1px solid var(--border); }
+    .fr-nav-item { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; text-decoration:none; font-size:.84rem; font-weight:500; color:var(--text-secondary); transition:all .15s; }
+    .fr-nav-item:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); font-weight:600; }
+    .fr-sidebar-footer { padding:10px 8px; display:flex; flex-direction:column; gap:2px; margin-top:auto; }
+    .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 11px; border:none; border-radius:9px; background:none; color:var(--text-secondary); font-size:.84rem; font-weight:500; cursor:pointer; text-align:left; transition:all .15s; font-family:var(--font); }
+    .fr-theme-toggle:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-logout:hover { background:var(--danger-subtle); color:var(--danger); }
 
-    .fr-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 20px 18px;
-        font-weight: 700;
-        font-size: .95rem;
-        color: var(--accent);
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-    }
+    /* ── Main layout ── */
+    .fr-main { display:flex; flex-direction:column; width:100vw; height:100vh; overflow:hidden; transition:width .25s,margin-left .25s; }
+    .fr-menu-open .fr-main { width:calc(100vw - 270px); margin-left:270px; }
 
-    .fr-nav {
-        flex: 1;
-        padding: 12px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        overflow-y: auto;
-        scrollbar-width: none;
-    }
+    /* ── Topbar ── */
+    .fr-topbar { display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:56px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); box-shadow:0 2px 16px rgba(102,126,234,.3); flex-shrink:0; gap:12px; }
+    .fr-topbar-left { display:flex; align-items:center; gap:10px; }
+    .fr-topbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .fr-hamburger { width:34px; height:34px; border:1px solid rgba(255,255,255,.3); border-radius:8px; background:rgba(255,255,255,.1); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; transition:all .15s; }
+    .fr-hamburger:hover { background:rgba(255,255,255,.2); }
+    .fr-page-title { font-size:1rem; font-weight:700; color:#fff; }
+    .fr-breadcrumb { font-size:.8rem; color:rgba(255,255,255,.65); }
 
-        .fr-nav::-webkit-scrollbar {
-            display: none;
-        }
+    /* ── Content area ── */
+    .fr-content { flex:1; overflow-y:auto; padding:24px 28px; display:flex; flex-direction:column; gap:20px; }
 
-    .fr-nav-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 10px;
-        border-radius: 8px;
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: .875rem;
-        font-weight: 500;
-        transition: background .15s,color .15s;
-    }
+    /* ── Loading / auth ── */
+    .fr-loading { display:flex; align-items:center; justify-content:center; height:100vh; }
+    .fr-spinner { width:28px; height:28px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:fr-spin .7s linear infinite; }
+    .fr-spinner-sm { width:20px; height:20px; }
+    @@keyframes fr-spin { to { transform:rotate(360deg); } }
+    .fr-unauth { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; }
+    .fr-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:48px 20px; color:var(--text-muted); font-size:.875rem; }
 
-        .fr-nav-item:hover {
-            background: var(--surface-2);
-            color: var(--text-primary);
-        }
+    /* ── Buttons ── */
+    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fr-btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 2px 10px rgba(102,126,234,.35); }
+    .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(102,126,234,.45); transform:translateY(-1px); }
+    .fr-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .fr-btn-ghost { background:none; border:1.5px solid var(--border); color:var(--text-secondary); }
+    .fr-btn-ghost:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-btn-sm { padding:7px 12px; font-size:.82rem; }
+    .fr-btn-danger { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(229,57,53,.2); }
+    .fr-btn-danger:hover { background:var(--danger); color:#fff; }
+    .fr-icon-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:7px; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+    .fr-icon-btn:hover { background:var(--surface-2); color:var(--text-primary); }
 
-        .fr-nav-item.fr-active {
-            background: var(--accent-subtle);
-            color: var(--accent);
-        }
+    /* ── Form elements ── */
+    .fr-field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px; }
+    .fr-label { font-size:.78rem; font-weight:600; color:var(--text-secondary); }
+    .fr-input { padding:8px 12px; border:1.5px solid var(--border); border-radius:9px; background:var(--surface); color:var(--text-primary); font-size:.875rem; font-family:var(--font); outline:none; transition:border-color .15s,box-shadow .15s; width:100%; }
+    .fr-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-subtle); }
+    .fr-required { color:var(--danger); }
+    .fr-optional { font-weight:400; color:var(--text-muted); }
+    .fr-form-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
 
-    .fr-sidebar-footer {
-        padding: 12px 10px;
-        border-top: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        flex-shrink: 0;
-    }
+    /* ── Alerts ── */
+    .fr-alert { display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:9px; font-size:.875rem; font-weight:500; }
+    .fr-alert-danger { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(229,57,53,.2); }
+    .fr-alert-success { background:var(--success-subtle); color:var(--success); border:1px solid rgba(14,159,110,.2); }
+    .fr-alert-close { margin-left:auto; background:none; border:none; cursor:pointer; color:inherit; opacity:.6; display:flex; align-items:center; }
 
-    .fr-theme-toggle, .fr-logout {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        width: 100%;
-        padding: 9px 10px;
-        border: none;
-        border-radius: 8px;
-        background: none;
-        color: var(--text-secondary);
-        font-size: .85rem;
-        font-weight: 500;
-        cursor: pointer;
-        text-align: left;
-        transition: background .15s,color .15s;
-        font-family: var(--font);
-    }
+    /* ── Badges ── */
+    .fr-badge { display:inline-flex; align-items:center; justify-content:center; padding:2px 8px; border-radius:12px; font-size:.73rem; font-weight:700; }
+    .fr-badge-active { background:var(--success-subtle); color:var(--success); }
+    .fr-badge-warn { background:var(--warning-subtle); color:var(--warning); }
 
-        .fr-theme-toggle:hover {
-            background: var(--surface-2);
-            color: var(--text-primary);
-        }
+    /* ── Form card (add custom subject) ── */
+    .fr-form-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; display:flex; flex-direction:column; gap:16px; }
+    .fr-form-card-head { display:flex; align-items:flex-start; justify-content:space-between; }
+    .fr-form-title { font-size:1rem; font-weight:700; color:var(--text-primary); }
+    .fr-form-desc { font-size:.82rem; color:var(--text-muted); margin-top:2px; }
+    .fr-form-error { font-size:.82rem; color:var(--danger); font-weight:500; }
 
-        .fr-logout:hover {
-            background: var(--danger-subtle);
-            color: var(--danger);
-        }
+    /* ── Section header ── */
+    .fr-section { display:flex; flex-direction:column; gap:14px; }
+    .fr-section-head { display:flex; align-items:center; gap:10px; }
+    .fr-section-title { font-size:.95rem; font-weight:700; color:var(--text-primary); }
+    .fr-section-count { font-size:.75rem; font-weight:700; color:var(--accent); background:var(--accent-subtle); padding:2px 10px; border-radius:12px; }
+    .fr-auto-note { font-size:.82rem; color:var(--text-muted); line-height:1.5; margin-top:-6px; }
 
-    .fr-user-role {
-        padding: 2px 7px;
-        background: var(--border);
-        border-radius: 4px;
-        font-size: .72rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: .04em;
-    }
-
-    .fr-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 28px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    /* Alerts */
-    .fr-alert {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-size: .875rem;
-        font-weight: 500;
-    }
-
-    .fr-alert-danger {
-        background: var(--danger-subtle);
-        color: var(--danger);
-        border: 1px solid rgba(220,38,38,.2);
-    }
-
-    .fr-alert-success {
-        background: var(--success-subtle);
-        color: var(--success);
-        border: 1px solid rgba(22,163,74,.2);
-    }
-
-    .fr-alert-close {
-        margin-left: auto;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: inherit;
-        opacity: .6;
-        display: flex;
-        align-items: center;
-    }
-
-        .fr-alert-close:hover {
-            opacity: 1;
-        }
-
-    /* Tabs */
-    .fr-tabs {
-        display: flex;
-        gap: 2px;
-        background: var(--surface-2);
-        border-radius: 10px;
-        padding: 4px;
-        width: fit-content;
-    }
-
-    .fr-tab {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 7px;
-        background: none;
-        color: var(--text-secondary);
-        font-size: .85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background .15s,color .15s;
-    }
-
-        .fr-tab:hover {
-            color: var(--text-primary);
-        }
-
-        .fr-tab.fr-tab-active {
-            background: var(--surface);
-            color: var(--text-primary);
-            font-weight: 600;
-            box-shadow: 0 1px 3px rgba(0,0,0,.08);
-        }
-
-    .fr-tab-count {
-        font-size: .75rem;
-        padding: 1px 7px;
-        border-radius: 20px;
-        background: var(--border);
-        color: var(--text-muted);
-        font-variant-numeric: tabular-nums;
-    }
-
-    .fr-tab.fr-tab-active .fr-tab-count {
-        background: var(--accent-subtle);
-        color: var(--accent);
-    }
-
-    /* Subject grid */
+    /* ── Subject cards grid ── */
     .fr-subject-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
-        gap: 14px;
+        display:grid;
+        grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+        gap:14px;
     }
-
     .fr-subject-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        transition: border-color .15s,box-shadow .15s;
+        position:relative; overflow:hidden;
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+        transition:all .2s ease; cursor:default;
     }
-
-        .fr-subject-card:hover {
-            border-color: var(--border-strong);
-            box-shadow: 0 4px 12px rgba(0,0,0,.06);
-        }
-
-    .fr-subject-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .fr-subject-card:hover {
+        border-color:var(--sc,var(--accent));
+        box-shadow:0 4px 20px rgba(from var(--sc,#667eea) r g b / .12);
+        transform:translateY(-2px);
     }
-
-    .fr-subject-code {
-        font-family: -apple-system,BlinkMacSystemFont,'JetBrains Mono','Cascadia Code',monospace;
-        font-size: .78rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        letter-spacing: .04em;
+    .fr-sc-stripe {
+        height:4px;
+        background:linear-gradient(90deg, var(--sc,var(--accent)), color-mix(in srgb, var(--sc,var(--accent)) 60%, #fff));
     }
+    .fr-sc-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; }
+    .fr-sc-top { display:flex; align-items:center; gap:8px; }
+    .fr-sc-code { font-size:.73rem; font-weight:800; color:var(--sc,var(--accent)); letter-spacing:.04em; text-transform:uppercase; }
+    .fr-sc-name { font-size:1.05rem; font-weight:700; color:var(--text-primary); line-height:1.3; }
+    .fr-sc-meta { font-size:.78rem; color:var(--text-muted); }
+    .fr-sc-stats { display:flex; gap:14px; margin-top:6px; padding-top:10px; border-top:1px solid var(--border); }
+    .fr-sc-stat { display:flex; align-items:center; gap:5px; font-size:.76rem; color:var(--text-secondary); font-weight:500; }
+    .fr-sc-stat-n { font-weight:700; color:var(--text-primary); }
 
-    .fr-subject-name {
-        font-weight: 700;
-        font-size: .95rem;
-        color: var(--text-primary);
-        line-height: 1.35;
-    }
-
-    .fr-subject-meta {
-        font-size: .8rem;
-        color: var(--text-muted);
-    }
-
-    /* Badges */
-    .fr-badge {
-        font-size: .72rem;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-
-    .fr-badge-default {
-        background: var(--accent-subtle);
-        color: var(--accent);
-    }
-
-    .fr-badge-success {
-        background: var(--success-subtle);
-        color: var(--success);
-    }
-
-    .fr-badge-warn {
-        background: var(--warning-subtle);
-        color: var(--warning);
-    }
-
-    .fr-badge-danger {
-        background: var(--danger-subtle);
-        color: var(--danger);
-    }
-
-    /* Capacity bar */
-    .fr-cap-bar {
-        height: 3px;
-        background: var(--border);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    .fr-cap-fill {
-        height: 100%;
-        background: var(--accent);
-        border-radius: 2px;
-        transition: width .3s;
-    }
-
-    /* Buttons */
-    .fr-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 9px 16px;
-        border-radius: 8px;
-        font-size: .875rem;
-        font-weight: 600;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: background .15s;
-    }
-
-    .fr-btn-primary {
-        background: var(--accent);
-        color: #fff;
-    }
-
-        .fr-btn-primary:hover:not(:disabled) {
-            background: var(--accent-hover);
-        }
-
-        .fr-btn-primary:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-        }
-
-    .fr-btn-sm {
-        padding: 7px 13px;
-        font-size: .82rem;
-        margin-top: auto;
-    }
-
-    .fr-btn-ghost {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 12px;
-        border-radius: 7px;
-        font-size: .82rem;
-        font-weight: 500;
-        background: none;
-        border: 1px solid var(--border);
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all .15s;
-        margin-top: auto;
-    }
-
-    .fr-btn-danger-ghost:hover {
-        border-color: var(--danger);
-        color: var(--danger);
-        background: var(--danger-subtle);
-    }
-
-    /* Form */
-    .fr-form-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 28px;
-        max-width: 520px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .fr-form-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-    }
-
-    .fr-form-desc {
-        font-size: .875rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-    }
-
-    .fr-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .fr-label {
-        font-size: .85rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .fr-required {
-        color: var(--danger);
-    }
-
-    .fr-optional {
-        font-weight: 400;
-        color: var(--text-muted);
-        font-size: .8rem;
-    }
-
-    .fr-input {
-        padding: 9px 12px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-size: .9rem;
-        font-family: inherit;
-        outline: none;
-        transition: border-color .15s,box-shadow .15s;
-    }
-
-        .fr-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-subtle);
-        }
-
-    /* Empty states */
-    .fr-empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 14px;
-        padding: 60px 24px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text-muted);
-        font-size: .875rem;
-    }
-
-    .fr-panel-empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 48px;
-    }
-
-    .fr-spinner-sm {
-        width: 18px;
-        height: 18px;
-        border-width: 2px;
-    }
-
-    .fr-main {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        height: 100vh;
-    }
-
-    .fr-topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 24px;
-        height: 56px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-    }
-
-    .fr-topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .fr-topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .fr-page-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .fr-breadcrumb {
-        font-size: .85rem;
-        color: var(--text-muted);
-    }
-
-    .fr-user-chip {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        background: var(--surface-2);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 5px 12px 5px 8px;
-        font-size: .8rem;
-        color: var(--text-secondary);
-    }
-
-    .fr-user-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--success);
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    @@media (max-width:768px) {
-        .fr-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .fr-sidebar {
-            display: none;
-        }
-
-        .fr-subject-grid {
-            grid-template-columns: 1fr;
-        }
+    /* ── Responsive ── */
+    @@media (max-width:600px) {
+        .fr-content { padding:16px; }
+        .fr-subject-grid { grid-template-columns:1fr; }
+        .fr-topbar-right { gap:6px; }
+        .fr-btn-sm { padding:6px 10px; font-size:.78rem; }
     }
 </style>
