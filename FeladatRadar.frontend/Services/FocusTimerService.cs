@@ -8,12 +8,16 @@ public class FocusTimerService : IDisposable
 {
     // ── Beállítások ──────────────────────────────────────────────────────────
     public int FocusMinutes { get; set; } = 25;
+    public int FocusSeconds { get; set; } = 0;
     public int ShortBreakMinutes { get; set; } = 5;
+    public int ShortBreakSeconds { get; set; } = 0;
     public int LongBreakMinutes { get; set; } = 15;
+    public int LongBreakSeconds { get; set; } = 0;
     public bool AutoSwitch { get; set; } = true;
 
     // ── Futó állapot ─────────────────────────────────────────────────────────
     public string Mode { get; private set; } = "focus"; // focus | short | long
+    public string CurrentSessionType { get; set; } = "tanulas"; // session típus (Fokusz oldalról állítva)
     public int SecondsLeft { get; private set; }
     public bool IsRunning { get; private set; }
     public int CompletedSessions { get; private set; }
@@ -30,11 +34,25 @@ public class FocusTimerService : IDisposable
     }
 
     // ── Csak olvasásra szánt segéd-tulajdonságok ──────────────────────────────
-    public int TotalSeconds => Mode switch
+    public int TotalSeconds => Math.Max(1, Mode switch
     {
-        "short" => ShortBreakMinutes * 60,
-        "long" => LongBreakMinutes * 60,
-        _ => FocusMinutes * 60
+        "short" => ShortBreakMinutes * 60 + ShortBreakSeconds,
+        "long" => LongBreakMinutes * 60 + LongBreakSeconds,
+        _ => FocusMinutes * 60 + FocusSeconds
+    });
+
+    public int CurrentMinutes => Mode switch
+    {
+        "short" => ShortBreakMinutes,
+        "long" => LongBreakMinutes,
+        _ => FocusMinutes
+    };
+
+    public int CurrentSeconds => Mode switch
+    {
+        "short" => ShortBreakSeconds,
+        "long" => LongBreakSeconds,
+        _ => FocusSeconds
     };
 
     public string TimerDisplay
@@ -52,7 +70,7 @@ public class FocusTimerService : IDisposable
         get
         {
             var total = TotalSeconds;
-            return total == 0 ? 0 : 603.0 * ((double)SecondsLeft / total);
+            return total == 0 ? 0 : 553.0 * ((double)SecondsLeft / total);
         }
     }
 
@@ -108,7 +126,7 @@ public class FocusTimerService : IDisposable
 
                 var finishedMode = Mode;
                 var finishedMinutes = TotalSeconds / 60;
-                SessionLog.Add(new SessionEntry(finishedMode, finishedMinutes, DateTime.Now));
+                SessionLog.Add(new SessionEntry(finishedMode, finishedMinutes, DateTime.Now, CurrentSessionType));
                 if (finishedMode == "focus") CompletedSessions++;
 
                 if (AutoSwitch)
@@ -151,9 +169,35 @@ public class FocusTimerService : IDisposable
         OnTick?.Invoke();
     }
 
+    public void SwitchModeReset(string mode)
+    {
+        if (IsRunning) return;
+        Mode = mode;
+        switch (mode)
+        {
+            case "short":
+                ShortBreakMinutes = 5;
+                ShortBreakSeconds = 0;
+                break;
+            case "long":
+                LongBreakMinutes = 15;
+                LongBreakSeconds = 0;
+                break;
+        }
+        SecondsLeft = TotalSeconds;
+        OnTick?.Invoke();
+    }
+
     public void ApplyFocusMinutes(int val)
     {
         FocusMinutes = val;
+        if (!IsRunning && Mode == "focus") SecondsLeft = TotalSeconds;
+        OnTick?.Invoke();
+    }
+
+    public void ApplyFocusSeconds(int val)
+    {
+        FocusSeconds = val;
         if (!IsRunning && Mode == "focus") SecondsLeft = TotalSeconds;
         OnTick?.Invoke();
     }
@@ -165,9 +209,23 @@ public class FocusTimerService : IDisposable
         OnTick?.Invoke();
     }
 
+    public void ApplyShortBreakSeconds(int val)
+    {
+        ShortBreakSeconds = val;
+        if (!IsRunning && Mode == "short") SecondsLeft = TotalSeconds;
+        OnTick?.Invoke();
+    }
+
     public void ApplyLongBreakMinutes(int val)
     {
         LongBreakMinutes = val;
+        if (!IsRunning && Mode == "long") SecondsLeft = TotalSeconds;
+        OnTick?.Invoke();
+    }
+
+    public void ApplyLongBreakSeconds(int val)
+    {
+        LongBreakSeconds = val;
         if (!IsRunning && Mode == "long") SecondsLeft = TotalSeconds;
         OnTick?.Invoke();
     }
@@ -177,16 +235,5 @@ public class FocusTimerService : IDisposable
         _timer?.Dispose();
     }
 
-    public record SessionEntry(string Mode, int Minutes, DateTime FinishedAt);
-
-    public string CurrentSessionType { get; set; } = "study";
-
-    public void SwitchModeReset(string mode)
-    {
-        _timer?.Change(Timeout.Infinite, Timeout.Infinite);
-        IsRunning = false;
-        Mode = mode;
-        SecondsLeft = TotalSeconds;
-        OnTick?.Invoke();
-    }
+    public record SessionEntry(string Mode, int Minutes, DateTime FinishedAt, string SessionType = "tanulas");
 }
