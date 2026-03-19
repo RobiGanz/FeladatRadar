@@ -138,3 +138,143 @@ else if (_isAuthenticated)
                                         <span class="fr-group-item-name">@g.GroupName</span>
                                         <span class="fr-group-item-meta">
                                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                            @g.MemberCount tag
+                                            @if (g.OwnerRole == "Teacher") { <span class="fr-group-type-badge fr-type-teacher">Tanári</span> }
+                                            else { <span class="fr-group-type-badge fr-type-student">Diák</span> }
+                                        </span>
+                                    </div>
+                                    @if (g.IsOwner)
+                                    {
+                                        <span class="fr-badge fr-badge-accent">Tulajdonos</span>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Group detail -->
+                    @if (_selectedGroup != null)
+                    {
+                        <div class="fr-group-detail">
+                            <div class="fr-group-detail-head">
+                                <h2 class="fr-group-detail-name">@_selectedGroup.GroupName</h2>
+                                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                                    <div class="fr-detail-tabs">
+                                        <button class="fr-dtab @(_detailTab == "members" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("members")'>Tagok</button>
+                                        <button class="fr-dtab @(_detailTab == "subjects" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("subjects")'>Tantárgyak</button>
+                                        <button class="fr-dtab @(_detailTab == "tasks" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("tasks")'>Feladatok</button>
+                                        <button class="fr-dtab @(_detailTab == "polls" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("polls")'>🗳️ Szavazás @(_polls.Count > 0 ? $"({_polls.Count})" : "")</button>
+                                        <button class="fr-dtab @(_detailTab == "exams" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("exams")'>📝 Dolgozatok @(_exams.Count > 0 ? $"({_exams.Count})" : "")</button>
+                                        @if (_canManage)
+                                        {
+                                            <button class="fr-dtab @(_detailTab == "invite" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("invite")'>Meghívó</button>
+                                        }
+                                    </div>
+                                    @if (!_selectedGroup.IsOwner)
+                                    {
+                                        <button class="fr-btn-ghost fr-btn-sm fr-btn-danger" @onclick="() => LeaveGroup(_selectedGroup.GroupID)">Kilépés</button>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (_selectedGroup.OwnerRole == "Teacher" && !_selectedGroup.IsOwner && !_isTeacher)
+                            {
+                                <div class="fr-permission-notice">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    Tanári csoport — csak megtekintés és szavazás elérhető.
+                                </div>
+                            }
+
+                            <div class="fr-detail-body">
+                                @if (_isLoadingDetail)
+                                {
+                                    <div class="fr-panel-empty"><div class="fr-spinner fr-spinner-sm"></div></div>
+                                }
+                                else if (_detailTab == "members")
+                                {
+                                    <table class="fr-table">
+                                        <thead><tr><th>Név</th><th>Email</th><th>Csatlakozás</th><th></th></tr></thead>
+                                        <tbody>
+                                            @foreach (var m in _members)
+                                            {
+                                                <tr>
+                                                    <td class="fr-td-name">@m.FirstName @m.LastName</td>
+                                                    <td class="fr-td-meta">@m.Email</td>
+                                                    <td class="fr-td-meta">@m.JoinedAt.ToString("yyyy.MM.dd")</td>
+                                                    <td>@if (m.IsOwner) { <span class="fr-badge fr-badge-accent">Tulajdonos</span> }</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else if (_detailTab == "subjects")
+                                {
+                                    @if (!_groupSubjects.Any())
+                                    {
+                                        <div class="fr-panel-empty fr-text-muted">Nincsenek tantárgyak.</div>
+                                    }
+                                    else
+                                    {
+                                        <table class="fr-table">
+                                            <thead><tr><th>Kód</th><th>Tantárgy</th><th>Tag</th></tr></thead>
+                                            <tbody>
+                                                @foreach (var s in _groupSubjects)
+                                                {
+                                                    <tr>
+                                                        <td class="fr-td-code">@s.SubjectCode</td>
+                                                        <td class="fr-td-name">@s.SubjectName</td>
+                                                        <td class="fr-td-meta">@s.OwnerName</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else if (_detailTab == "tasks")
+                                {
+                                    @if (!_groupTasks.Any())
+                                    {
+                                        <div class="fr-panel-empty fr-text-muted">Nincsenek feladatok.</div>
+                                    }
+                                    else
+                                    {
+                                        <table class="fr-table">
+                                            <thead><tr><th>Feladat</th><th>Tantárgy</th><th>Határidő</th><th>Tag</th><th></th></tr></thead>
+                                            <tbody>
+                                                @foreach (var t in _groupTasks.OrderBy(t => t.DueDate))
+                                                {
+                                                    var overdue = !t.IsCompleted && t.DueDate < DateTime.Now;
+                                                    <tr class='@(overdue ? "fr-row-danger" : "") @(t.IsCompleted ? "fr-row-done" : "")'>
+                                                        <td class="fr-td-name">@t.Title</td>
+                                                        <td class="fr-td-meta">@t.SubjectName</td>
+                                                        <td class="fr-td-meta @(overdue ? "fr-text-danger" : "")">@t.DueDate.ToString("MM.dd HH:mm")</td>
+                                                        <td class="fr-td-meta">@t.OwnerName</td>
+                                                        <td>
+                                                            @if (t.IsCompleted) { <span class="fr-badge fr-badge-success">Kész</span> }
+                                                            else if (overdue) { <span class="fr-badge fr-badge-danger">Lejárt</span> }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                }
+                                else if (_detailTab == "polls")
+                                {
+                                    <div class="fr-tab-content">
+                                        @if (_canManage)
+                                        {
+                                            <div class="fr-teacher-form">
+                                                <h3 class="fr-section-title">Új szavazás létrehozása</h3>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Kérdés</label>
+                                                    <input class="fr-input" type="text" placeholder="pl. Szombaton lézerharc?" @bind="_pollQuestion" maxlength="300" />
+                                                </div>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Opciók (soronként egy)</label>
+                                                    <textarea class="fr-input fr-textarea" rows="4" placeholder="Igen&#10;Nem&#10;Talán" @bind="_pollOptionsText"></textarea>
+                                                </div>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Lejárat (opcionális)</label>
+                                                    <input class="fr-input" type="datetime-local" @bind="_pollExpires" />
+                                                </div>
