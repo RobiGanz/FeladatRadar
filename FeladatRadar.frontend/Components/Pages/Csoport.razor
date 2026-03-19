@@ -558,3 +558,283 @@ else
     .fr-group-list { width:260px; flex-shrink:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
     .fr-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px 20px; color:var(--text-muted); font-size:.875rem; text-align:center; }
 
+    /* Group items */
+    .fr-group-item { display:flex; align-items:center; gap:10px; padding:11px 14px; cursor:pointer; transition:background .1s; border-bottom:1px solid var(--border); }
+    .fr-group-item:last-child { border-bottom:none; }
+    .fr-group-item:hover { background:var(--surface-2); }
+    .fr-group-item-active { background:var(--accent-subtle) !important; }
+    .fr-group-color-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .fr-group-item-main { flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .fr-group-item-name { font-size:.875rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fr-group-item-meta { display:flex; align-items:center; gap:4px; font-size:.73rem; color:var(--text-muted); }
+
+    /* Group detail */
+    .fr-group-detail { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; min-width:0; }
+    .fr-group-detail-head { padding:16px 20px; border-bottom:1px solid var(--border); background:linear-gradient(135deg,rgba(102,126,234,.05),rgba(118,75,162,.05)); display:flex; flex-direction:column; gap:10px; }
+    .fr-group-detail-name { font-size:1.1rem; font-weight:800; color:var(--text-primary); }
+
+    /* Detail tabs */
+    .fr-detail-tabs { display:flex; flex-wrap:wrap; gap:4px; }
+    .fr-dtab { padding:6px 14px; border-radius:8px; border:none; background:none; color:var(--text-secondary); font-size:.82rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fr-dtab:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-dtab-active { background:var(--accent-subtle); color:var(--accent); font-weight:600; }
+
+    /* Danger button variant */
+    .fr-btn-danger { border-color:var(--danger) !important; color:var(--danger) !important; }
+    .fr-btn-danger:hover { background:var(--danger-subtle) !important; }
+
+    /* Detail body */
+    .fr-detail-body { overflow:auto; }
+
+    /* Table */
+    .fr-table { width:100%; border-collapse:collapse; }
+    .fr-table thead tr { background:linear-gradient(135deg,rgba(102,126,234,.04),rgba(118,75,162,.04)); border-bottom:1.5px solid var(--border); }
+    .fr-table th { padding:10px 14px; text-align:left; font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+    .fr-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .fr-table tbody tr:last-child td { border-bottom:none; }
+    .fr-table tbody tr:hover { background:var(--surface-2); }
+    .fr-td-name { font-size:.875rem; font-weight:500; color:var(--text-primary); }
+    .fr-td-meta { font-size:.8rem; color:var(--text-secondary); }
+    .fr-td-code { font-size:.72rem; font-weight:700; color:var(--accent); }
+    .fr-text-muted { color:var(--text-muted); }
+    .fr-text-danger { color:var(--danger); font-weight:600; }
+    .fr-row-danger { background:var(--danger-subtle) !important; }
+    .fr-row-done td { opacity:.55; }
+
+    /* Extra badges */
+    .fr-badge-success { background:var(--success-subtle); color:var(--success); }
+    .fr-badge-danger { background:var(--danger-subtle); color:var(--danger); }
+    .fr-badge-accent { background:var(--accent-subtle); color:var(--accent); }
+    .fr-group-type-badge { font-size:.65rem; font-weight:700; padding:1px 6px; border-radius:8px; margin-left:4px; }
+    .fr-type-teacher { background:rgba(234,88,12,.12); color:#ea580c; }
+    .fr-type-student { background:rgba(14,159,110,.12); color:#0e9f6e; }
+    .fr-permission-notice { display:flex; align-items:center; gap:8px; padding:10px 16px; margin:0 0 -8px; border-radius:8px; background:rgba(245,158,11,.1); color:#b45309; font-size:.82rem; font-weight:500; border:1px solid rgba(245,158,11,.2); }
+
+    /* Tab content wrapper */
+    .fr-tab-content { display:flex; flex-direction:column; gap:16px; padding:16px 20px; }
+
+    /* Teacher form */
+    .fr-teacher-form { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:12px; }
+    .fr-section-title { font-size:.875rem; font-weight:700; color:var(--text-primary); }
+    .fr-form-error { font-size:.8rem; color:var(--danger); font-weight:500; }
+    .fr-textarea { resize:vertical; min-height:80px; }
+
+    /* Icon btn danger */
+    .fr-icon-btn-danger { border-color:var(--danger-subtle) !important; color:var(--danger) !important; }
+    .fr-icon-btn-danger:hover { background:var(--danger-subtle) !important; }
+
+    /* Polls */
+    .fr-poll-card { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
+    .fr-poll-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .fr-poll-question { font-size:.9rem; font-weight:700; color:var(--text-primary); flex:1; }
+    .fr-poll-options { display:flex; flex-direction:column; gap:6px; }
+    .fr-poll-option { position:relative; display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface); cursor:pointer; transition:all .15s; overflow:hidden; }
+    .fr-poll-option:hover { border-color:var(--accent); background:var(--accent-subtle); }
+    .fr-poll-option-selected { border-color:var(--accent); background:var(--accent-subtle); }
+    .fr-poll-bar { position:absolute; left:0; top:0; bottom:0; background:var(--accent-subtle); opacity:.6; border-radius:6px; transition:width .4s ease; pointer-events:none; }
+    .fr-poll-option-text { flex:1; font-size:.82rem; font-weight:500; color:var(--text-primary); position:relative; z-index:1; }
+    .fr-poll-pct { font-size:.75rem; font-weight:700; color:var(--accent); position:relative; z-index:1; }
+    .fr-poll-total { font-size:.75rem; color:var(--text-muted); }
+
+    /* Invite form */
+    .fr-invite-form { padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
+    .fr-form-row-inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .fr-form-row-inline .fr-input { flex:1; min-width:200px; }
+
+    /* Welcome state */
+    .fr-group-welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:48px 32px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); text-align:center; }
+    .fr-welcome-icon { width:80px; height:80px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; }
+    .fr-welcome-title { font-size:1.2rem; font-weight:800; color:var(--text-primary); }
+    .fr-welcome-desc { font-size:.875rem; color:var(--text-muted); max-width:340px; line-height:1.5; }
+    .fr-welcome-stats { display:flex; align-items:center; gap:20px; padding:16px 24px; background:var(--surface-2); border-radius:12px; border:1px solid var(--border); }
+    .fr-wstat { display:flex; flex-direction:column; align-items:center; gap:3px; }
+    .fr-wstat-value { font-size:1.5rem; font-weight:800; color:var(--text-primary); }
+    .fr-wstat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; }
+    .fr-wstat-divider { width:1px; height:36px; background:var(--border); }
+    .fr-welcome-tip { display:flex; align-items:center; gap:7px; font-size:.8rem; color:var(--text-muted); background:var(--surface-2); padding:8px 14px; border-radius:8px; border:1px solid var(--border); }
+
+@@media (max-width: 800px) {
+        .fr-groups-layout { flex-direction:column; }
+        .fr-group-list { width:100%; }
+    }
+</style>
+
+@code {
+        private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
+    private bool _hasCheckedAuth = false;
+    private bool _isAuthenticated = false;
+    private string _userEmail = "";
+    private string _message = "";
+    private bool _messageIsError = false;
+    private string _theme = "light";
+    private string _userRole = "";
+
+    private static readonly string[] _groupColors = { "#4f46e5","#0891b2","#0e9f6e","#d97706","#db2777","#7c3aed","#ea580c","#65a30d" };
+
+    private List<GroupDto> _groups = new();
+    private List<GroupInviteDto> _invites = new();
+    private GroupDto? _selectedGroup = null;
+    private string _detailTab = "members";
+
+    private List<GroupMemberDto> _members = new();
+    private List<GroupSubjectDto> _groupSubjects = new();
+    private List<GroupTaskDto> _groupTasks = new();
+    private bool _isLoadingDetail = false;
+
+    private bool _showCreate = false;
+    private string _newGroupName = "";
+    private string _createError = "";
+    private bool _isCreating = false;
+
+    private string _inviteEmail = "";
+    private string _inviteError = "";
+    private bool _isInviting = false;
+
+    // Teacher feature state
+    private bool _isTeacher = false;
+    private int _currentUserId = 0;
+
+    /// <summary>
+    /// Diák-csoport: mindenki mindent kezelhet.
+    /// Tanár-csoport: csak a tulajdonos (tanár) kezelhet, diákok csak nézhetnek + szavazhatnak.
+    /// </summary>
+    private bool _canManage
+    {
+        get
+        {
+            if (_selectedGroup == null) return false;
+            // Tanári csoport: csak tanár kezelhet
+            if (_selectedGroup.OwnerRole == "Teacher") return _isTeacher;
+            // Diák csoport: mindenki kezelhet
+            return true;
+        }
+    }
+
+    // Polls
+    private List<PollDto> _polls = new();
+    private string _pollQuestion = "";
+    // FIX: literal newlines replaced with \n escape sequences
+    private string _pollOptionsText = "Igen\nNem\nTalán";
+    private DateTime? _pollExpires = null;
+    private string _pollError = "";
+    private bool _isSavingPoll = false;
+
+    // Exams
+    private List<TeacherExamDto> _exams = new();
+    private string _examTitle = "";
+    private string _examSubject = "";
+    private DateTime _examDate = DateTime.Now.AddDays(7);
+    private string _examDesc = "";
+    private string _examError = "";
+    private bool _isSavingExam = false;
+
+    private async Task ToggleTheme()
+    {
+        _theme = _theme == "dark" ? "light" : "dark";
+        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        try { await AuthService.InitializeAsync(); } catch { }
+        _hasCheckedAuth = true;
+        _isAuthenticated = AuthService.IsAuthenticated;
+        _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _isTeacher = AuthService.CurrentUser?.UserRole == "Teacher";
+        _userRole = AuthService.CurrentUser?.UserRole ?? "";
+        _currentUserId = AuthService.CurrentUser?.UserID ?? 0;
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        try { _groups = await GroupService.GetMyGroupsAsync(); } catch { _groups = new(); }
+        try { _invites = await GroupService.GetMyInvitesAsync(); } catch { _invites = new(); }
+        // Utoljára használt sorrend – LocalStorage alapján
+        await SortGroupsByLastUsed();
+    }
+
+    private async Task SortGroupsByLastUsed()
+    {
+        var order = new Dictionary<int, long>();
+        foreach (var g in _groups)
+        {
+            try
+            {
+                var ts = await JS.InvokeAsync<long>("groupHelper.getLastUsed", g.GroupID);
+                order[g.GroupID] = ts;
+            }
+            catch { order[g.GroupID] = 0; }
+        }
+        _groups = _groups.OrderByDescending(g => order.GetValueOrDefault(g.GroupID, 0)).ToList();
+    }
+
+    private async Task SelectGroup(GroupDto g)
+    {
+        _selectedGroup = g;
+        _detailTab = "members";
+        // Eltároljuk az utolsó megnyitás idejét
+        try { await JS.InvokeVoidAsync("groupHelper.setLastUsed", g.GroupID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); } catch { }
+        await LoadGroupDetail();
+    }
+
+    private async Task LoadGroupDetail()
+    {
+        if (_selectedGroup == null) return;
+        _isLoadingDetail = true; StateHasChanged();
+        try { _members = await GroupService.GetMembersAsync(_selectedGroup.GroupID); } catch { _members = new(); }
+        try { _groupSubjects = await GroupService.GetGroupSubjectsAsync(_selectedGroup.GroupID); } catch { _groupSubjects = new(); }
+        try { _groupTasks = await GroupService.GetGroupTasksAsync(_selectedGroup.GroupID); } catch { _groupTasks = new(); }
+        try { _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup.GroupID); } catch { _polls = new(); }
+        try { _exams = await TeacherService.GetGroupExamsAsync(_selectedGroup.GroupID); } catch { _exams = new(); }
+        _isLoadingDetail = false; StateHasChanged();
+    }
+
+    private async Task SwitchTab(string tab)
+    {
+        _detailTab = tab;
+        StateHasChanged();
+    }
+
+    // ── SZAVAZÁS ──
+    private async Task CreatePoll()
+    {
+        _pollError = "";
+        if (string.IsNullOrWhiteSpace(_pollQuestion)) { _pollError = "Add meg a kérdést."; return; }
+        // FIX: Split on '\n' escape sequence, not a literal newline
+        var opts = _pollOptionsText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        if (opts.Count < 2) { _pollError = "Legalább 2 opció szükséges."; return; }
+        _isSavingPoll = true; StateHasChanged();
+        try
+        {
+            var r = await TeacherService.CreatePollAsync(_selectedGroup!.GroupID, _pollQuestion.Trim(), opts, _pollExpires);
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = "Szavazás létrehozva."; _messageIsError = false;
+                // FIX: literal newlines replaced with \n escape sequences
+                _pollQuestion = ""; _pollOptionsText = "Igen\nNem\nTalán"; _pollExpires = null;
+                _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup.GroupID);
+            }
+            else { _pollError = r.Message; }
+        }
+        catch (Exception ex) { _pollError = ex.Message; }
+        finally { _isSavingPoll = false; StateHasChanged(); }
+    }
+
+    private async Task CastVote(int pollId, int optionId)
+    {
+        try
+        {
+            var r = await TeacherService.VoteAsync(pollId, optionId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Szavazat rögzítve!";
+            if (!_messageIsError) _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup!.GroupID);
+        }
