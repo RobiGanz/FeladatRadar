@@ -278,3 +278,143 @@ else if (_isAuthenticated)
                                                     <label class="fr-label">Lejárat (opcionális)</label>
                                                     <input class="fr-input" type="datetime-local" @bind="_pollExpires" />
                                                 </div>
+                                                @if (!string.IsNullOrEmpty(_pollError)) { <p class="fr-form-error">@_pollError</p> }
+                                                <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="CreatePoll" disabled="@_isSavingPoll">
+                                                    @(_isSavingPoll ? "Mentés..." : "Szavazás létrehozása")
+                                                </button>
+                                            </div>
+                                        }
+                                        @if (!_polls.Any())
+                                        {
+                                            <div class="fr-panel-empty fr-text-muted">Még nincs szavazás ebben a csoportban.</div>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var poll in _polls)
+                                            {
+                                                <div class="fr-poll-card">
+                                                    <div class="fr-poll-head">
+                                                        <span class="fr-poll-question">@poll.Question</span>
+                                                        <div style="display:flex;align-items:center;gap:8px;">
+                                                            <span class="fr-td-meta">@poll.CreatedByName · @poll.CreatedAt.ToString("MM.dd")</span>
+                                                            @if (poll.ExpiresAt.HasValue) { <span class="fr-badge fr-badge-warn">⏱ @poll.ExpiresAt.Value.ToString("MM.dd HH:mm")</span> }
+                                                            @if (poll.CreatedBy == _currentUserId)
+                                                            {
+                                                                <button class="fr-icon-btn fr-icon-btn-danger" @onclick="() => DeletePoll(poll.PollID)">🗑</button>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div class="fr-poll-options">
+                                                        @foreach (var opt in poll.Options)
+                                                        {
+                                                            var pct = poll.TotalVotes > 0 ? (opt.VoteCount * 100 / poll.TotalVotes) : 0;
+                                                            var isMyVote = poll.MyVoteOptionID == opt.OptionID;
+                                                            <div class='fr-poll-option @(isMyVote ? "fr-poll-option-selected" : "")' @onclick="() => CastVote(poll.PollID, opt.OptionID)">
+                                                                <div class="fr-poll-bar" style="width:@pct%"></div>
+                                                                <span class="fr-poll-option-text">@opt.OptionText @(isMyVote ? "✓" : "")</span>
+                                                                <span class="fr-poll-pct">@opt.VoteCount szavazat (@pct%)</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <p class="fr-poll-total">Összesen: @poll.TotalVotes szavazat</p>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                }
+                                else if (_detailTab == "exams")
+                                {
+                                    <div class="fr-tab-content">
+                                        @if (_canManage)
+                                        {
+                                            <div class="fr-teacher-form">
+                                                <h3 class="fr-section-title">Dolgozat felvitele a naptárba</h3>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Megnevezés</label>
+                                                    <input class="fr-input" type="text" placeholder="pl. Matek ZH – 3. fejezet" @bind="_examTitle" maxlength="200" />
+                                                </div>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Tantárgy neve (opcionális)</label>
+                                                    <input class="fr-input" type="text" placeholder="pl. Matematika" @bind="_examSubject" />
+                                                </div>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Dátum és idő</label>
+                                                    <input class="fr-input" type="datetime-local" @bind="_examDate" />
+                                                </div>
+                                                <div class="fr-field">
+                                                    <label class="fr-label">Leírás (opcionális)</label>
+                                                    <textarea class="fr-input fr-textarea" rows="2" placeholder="Tematika, tudnivalók..." @bind="_examDesc"></textarea>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(_examError)) { <p class="fr-form-error">@_examError</p> }
+                                                <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="CreateExam" disabled="@_isSavingExam">
+                                                    @(_isSavingExam ? "Mentés..." : "Dolgozat hozzáadása")
+                                                </button>
+                                            </div>
+                                        }
+                                        @if (!_exams.Any())
+                                        {
+                                            <div class="fr-panel-empty fr-text-muted">Még nincs dolgozat ebben a csoportban.</div>
+                                        }
+                                        else
+                                        {
+                                            <table class="fr-table">
+                                                <thead><tr><th>Dolgozat</th><th>Tantárgy</th><th>Dátum</th><th>Tanár</th><th></th></tr></thead>
+                                                <tbody>
+                                                    @foreach (var ex in _exams.OrderBy(e => e.ExamDate))
+                                                    {
+                                                        var isPast = ex.ExamDate < DateTime.Now;
+                                                        <tr class='@(isPast ? "fr-row-done" : "")'>
+                                                            <td class="fr-td-name">
+                                                                @ex.Title
+                                                                @if (!string.IsNullOrEmpty(ex.Description)) { <div class="fr-td-meta" style="margin-top:2px">@ex.Description</div> }
+                                                            </td>
+                                                            <td class="fr-td-meta">@(ex.SubjectName ?? "—")</td>
+                                                            <td class="fr-td-meta">@ex.ExamDate.ToString("yyyy.MM.dd HH:mm")</td>
+                                                            <td class="fr-td-meta">@ex.CreatedByName</td>
+                                                            <td>
+                                                                @if (ex.CreatedBy == _currentUserId)
+                                                                {
+                                                                    <button class="fr-icon-btn fr-icon-btn-danger" @onclick="() => DeleteExam(ex.ExamID)">🗑</button>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                    </div>
+                                }
+                                else if (_detailTab == "invite" && (_canManage))
+                                {
+                                    <div class="fr-invite-form">
+                                        <p class="fr-form-desc">Add meg a meghívandó személy email-címét.@(_isTeacher ? " Tanárként bárkit meghívhatsz." : "")</p>
+                                        <div class="fr-form-row-inline">
+                                            <input class="fr-input" type="email" placeholder="email@example.com" @bind="_inviteEmail" />
+                                            <button class="fr-btn fr-btn-primary" @onclick="SendInvite" disabled="@_isInviting">
+                                                @(_isInviting ? "Küldés..." : "Meghívó küldése")
+                                            </button>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(_inviteError))
+                                        {
+                                            <p class="fr-form-error">@_inviteError</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Welcome / no-selection state -->
+                        <div class="fr-group-welcome">
+                            <div class="fr-welcome-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
+                            <h2 class="fr-welcome-title">Válassz egy csoportot</h2>
+                            <p class="fr-welcome-desc">A bal oldali listából válassz egy csoportot a részletek megtekintéséhez, vagy hozz létre egy újat.</p>
+
+                            <div class="fr-welcome-stats">
+                                <div class="fr-wstat">
+                                    <span class="fr-wstat-value">@_groups.Count</span>
+                                    <span class="fr-wstat-label">Csoportom</span>
+                                </div>
