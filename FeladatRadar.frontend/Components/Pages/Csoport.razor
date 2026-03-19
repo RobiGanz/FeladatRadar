@@ -405,7 +405,7 @@ else if (_isAuthenticated)
                     }
                     else
                     {
-                        <!-- Welcome / no-selection state -->
+                        
                         <div class="fr-group-welcome">
                             <div class="fr-welcome-icon">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -694,14 +694,11 @@ else
     private string _inviteError = "";
     private bool _isInviting = false;
 
-    // Teacher feature state
+    
     private bool _isTeacher = false;
     private int _currentUserId = 0;
 
-    /// <summary>
-    /// Diák-csoport: mindenki mindent kezelhet.
-    /// Tanár-csoport: csak a tulajdonos (tanár) kezelhet, diákok csak nézhetnek + szavazhatnak.
-    /// </summary>
+    
     private bool _canManage
     {
         get
@@ -714,16 +711,16 @@ else
         }
     }
 
-    // Polls
+    
     private List<PollDto> _polls = new();
     private string _pollQuestion = "";
-    // FIX: literal newlines replaced with \n escape sequences
+    
     private string _pollOptionsText = "Igen\nNem\nTalán";
     private DateTime? _pollExpires = null;
     private string _pollError = "";
     private bool _isSavingPoll = false;
 
-    // Exams
+    
     private List<TeacherExamDto> _exams = new();
     private string _examTitle = "";
     private string _examSubject = "";
@@ -781,7 +778,7 @@ else
     {
         _selectedGroup = g;
         _detailTab = "members";
-        // Eltároljuk az utolsó megnyitás idejét
+        
         try { await JS.InvokeVoidAsync("groupHelper.setLastUsed", g.GroupID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); } catch { }
         await LoadGroupDetail();
     }
@@ -809,7 +806,7 @@ else
     {
         _pollError = "";
         if (string.IsNullOrWhiteSpace(_pollQuestion)) { _pollError = "Add meg a kérdést."; return; }
-        // FIX: Split on '\n' escape sequence, not a literal newline
+        
         var opts = _pollOptionsText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
         if (opts.Count < 2) { _pollError = "Legalább 2 opció szükséges."; return; }
         _isSavingPoll = true; StateHasChanged();
@@ -819,7 +816,7 @@ else
             if (r.Status == "OK" || r.Status == "SUCCESS")
             {
                 _message = "Szavazás létrehozva."; _messageIsError = false;
-                // FIX: literal newlines replaced with \n escape sequences
+                
                 _pollQuestion = ""; _pollOptionsText = "Igen\nNem\nTalán"; _pollExpires = null;
                 _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup.GroupID);
             }
@@ -838,3 +835,136 @@ else
             _message = _messageIsError ? r.Message : "Szavazat rögzítve!";
             if (!_messageIsError) _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup!.GroupID);
         }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task DeletePoll(int pollId)
+    {
+        try
+        {
+            var r = await TeacherService.DeletePollAsync(pollId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Szavazás törölve.";
+            if (!_messageIsError) _polls = await TeacherService.GetGroupPollsAsync(_selectedGroup!.GroupID);
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+   
+    private async Task CreateExam()
+    {
+        _examError = "";
+        if (string.IsNullOrWhiteSpace(_examTitle)) { _examError = "Add meg a dolgozat nevét."; return; }
+        _isSavingExam = true; StateHasChanged();
+        try
+        {
+            var r = await TeacherService.CreateExamAsync(_selectedGroup!.GroupID, _examTitle.Trim(),
+                _examDate, _examDesc.Trim(), _examSubject.Trim());
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = "Dolgozat felvéve a naptárba."; _messageIsError = false;
+                _examTitle = ""; _examSubject = ""; _examDesc = "";
+                _examDate = DateTime.Now.AddDays(7);
+                _exams = await TeacherService.GetGroupExamsAsync(_selectedGroup.GroupID);
+            }
+            else { _examError = r.Message; }
+        }
+        catch (Exception ex) { _examError = ex.Message; }
+        finally { _isSavingExam = false; StateHasChanged(); }
+    }
+
+    private async Task DeleteExam(int examId)
+    {
+        try
+        {
+            var r = await TeacherService.DeleteExamAsync(examId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Dolgozat törölve.";
+            if (!_messageIsError) _exams = await TeacherService.GetGroupExamsAsync(_selectedGroup!.GroupID);
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task CreateGroup()
+    {
+        _createError = "";
+        if (string.IsNullOrWhiteSpace(_newGroupName)) { _createError = "Add meg a csoport nevét."; return; }
+        _isCreating = true; StateHasChanged();
+        try
+        {
+            var r = await GroupService.CreateGroupAsync(_newGroupName.Trim());
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = "Csoport létrehozva."; _messageIsError = false;
+                _newGroupName = ""; _showCreate = false;
+                await LoadData();
+            }
+            else { _createError = r.Message; }
+        }
+        catch (Exception ex) { _createError = ex.Message; }
+        finally { _isCreating = false; StateHasChanged(); }
+    }
+
+    private async Task AcceptInvite(int inviteId)
+    {
+        try
+        {
+            var r = await GroupService.AcceptInviteAsync(inviteId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Meghívó elfogadva.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task DeclineInvite(int inviteId)
+    {
+        try
+        {
+            var r = await GroupService.DeclineInviteAsync(inviteId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Meghívó elutasítva.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task LeaveGroup(int groupId)
+    {
+        try
+        {
+            var r = await GroupService.LeaveGroupAsync(groupId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Kilépés sikeres.";
+            if (!_messageIsError) { _selectedGroup = null; await LoadData(); }
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task SendInvite()
+    {
+        _inviteError = "";
+        if (string.IsNullOrWhiteSpace(_inviteEmail)) { _inviteError = "Add meg az email-címet."; return; }
+        if (_selectedGroup == null) return;
+        _isInviting = true; StateHasChanged();
+        try
+        {
+            var r = await GroupService.InviteAsync(_selectedGroup.GroupID, _inviteEmail.Trim());
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = $"Meghívó elküldve: {_inviteEmail}"; _messageIsError = false; _inviteEmail = "";
+            }
+            else { _inviteError = r.Message; }
+        }
+        catch (Exception ex) { _inviteError = ex.Message; }
+        finally { _isInviting = false; StateHasChanged(); }
+    }
+
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
+}
