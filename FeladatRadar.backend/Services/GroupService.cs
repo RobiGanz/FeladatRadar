@@ -35,7 +35,7 @@ namespace FeladatRadar.backend.Services
             {
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
-                parameters.Add("@StudentID", userId);
+                parameters.Add("@UserID", userId);
                 parameters.Add("@GroupName", groupName);
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
                     "sp_CreateGroup", parameters, commandType: CommandType.StoredProcedure);
@@ -112,8 +112,22 @@ namespace FeladatRadar.backend.Services
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
                 parameters.Add("@StudentID", userId);
-                return await connection.QueryAsync<Group>(
-                    "sp_GetMyGroups", parameters, commandType: CommandType.StoredProcedure);
+                var groups = (await connection.QueryAsync<Group>(
+                    "sp_GetMyGroups", parameters, commandType: CommandType.StoredProcedure)).ToList();
+
+                // Enrich with OwnerRole from Users table
+                if (groups.Any())
+                {
+                    var ownerIds = groups.Select(g => g.CreatedBy).Distinct().ToList();
+                    var roles = (await connection.QueryAsync<(int UserID, string UserRole)>(
+                        "SELECT UserID, ISNULL(UserRole, 'Student') AS UserRole FROM Users WHERE UserID IN @Ids",
+                        new { Ids = ownerIds })).ToDictionary(r => r.UserID, r => r.UserRole);
+                    foreach (var g in groups)
+                    {
+                        g.OwnerRole = roles.GetValueOrDefault(g.CreatedBy, "Student");
+                    }
+                }
+                return groups;
             }
             catch { return Enumerable.Empty<Group>(); }
         }
@@ -160,7 +174,7 @@ namespace FeladatRadar.backend.Services
             }
             catch { return Enumerable.Empty<GroupScheduleEntry>(); }
         }
-        public async Task<SubjectResponse> AddGroupScheduleEntryAsync(int groupId, int userId, AddScheduleRequest request)
+        public async Task<SubjectResponse> AddGroupScheduleEntryAsync(int groupId, int userId, AddScheduleRequest request, string userRole = "Teacher")
         {
             try
             {
@@ -205,11 +219,7 @@ namespace FeladatRadar.backend.Services
             }
             catch { return Enumerable.Empty<GroupInvite>(); }
         }
-
-        Task<IEnumerable<Group>> IGroupService.GetMyGroupsAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
     }
+
 
 }

@@ -34,6 +34,19 @@ namespace FeladatRadar.backend.Controllers
             return User.FindFirst(ClaimTypes.Role)?.Value ?? "Student";
         }
 
+        /// <summary>Check if user can manage (add/edit/delete) in a group</summary>
+        private async Task<bool> CanManageGroup(int groupId)
+        {
+            var userId = GetCurrentUserId();
+            var groups = await _groupService.GetMyGroupsAsync(userId);
+            var group = groups.FirstOrDefault(g => g.GroupID == groupId);
+            if (group == null) return false;
+            // Student-owned group: everyone can manage
+            if (group.OwnerRole == "Student") return true;
+            // Teacher-owned group: only the owner (teacher) can manage
+            return group.IsOwner;
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupRequest request)
         {
@@ -124,11 +137,13 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpPost("{groupId}/schedule/add")]
-        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddGroupSchedule(int groupId, [FromBody] AddScheduleRequest request)
         {
+            if (!await CanManageGroup(groupId))
+                return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod a csoport kezeléséhez." });
+
             request.DayOfWeek = request.DayOfWeek;
-            var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request);
+            var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request, "Teacher");
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);
         }

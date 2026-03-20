@@ -8,7 +8,7 @@ namespace FeladatRadar.backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Minden endpoint JWT tokent vár
+    [Authorize]
     public class SubjectController : ControllerBase
     {
         private readonly ISubjectService _subjectService;
@@ -18,19 +18,13 @@ namespace FeladatRadar.backend.Controllers
             _subjectService = subjectService;
         }
 
-        // Bejelentkezett user ID-jának kinyerése a tokenből
         private int GetCurrentUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.Parse(claim ?? "0");
         }
 
-
-        /// GET /api/subject/available
-        /// Felvehető tantárgyak listája a bejelentkezett felhasználónak.
-        /// Csak azok jelennek meg, amelyeket még nem vett fel, és van szabad hely.
         [HttpGet("available")]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetAvailableSubjects()
         {
             int studentId = GetCurrentUserId();
@@ -38,11 +32,7 @@ namespace FeladatRadar.backend.Controllers
             return Ok(subjects);
         }
 
-
-        /// GET /api/subject/my-enrollments
-        /// A bejelentkezett felhasználó által felvett tantárgyak.
         [HttpGet("my-enrollments")]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetMyEnrollments()
         {
             int studentId = GetCurrentUserId();
@@ -50,11 +40,7 @@ namespace FeladatRadar.backend.Controllers
             return Ok(enrollments);
         }
 
-
-        /// POST /api/subject/enroll
-        /// Tantárgy felvétele. Body: { "subjectID": 3 }
         [HttpPost("enroll")]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Enroll([FromBody] EnrollRequest request)
         {
             if (!ModelState.IsValid)
@@ -69,11 +55,7 @@ namespace FeladatRadar.backend.Controllers
             return Ok(response);
         }
 
-
-        /// DELETE /api/subject/drop/{subjectId}
-        /// Tantárgy leadása.
         [HttpDelete("drop/{subjectId}")]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> Drop(int subjectId)
         {
             int studentId = GetCurrentUserId();
@@ -85,12 +67,7 @@ namespace FeladatRadar.backend.Controllers
             return Ok(response);
         }
 
-
-        /// POST /api/subject/enroll-custom
-        /// Egyedi (nem listában szereplő) tantárgy felvétele név alapján.
-        /// Body: { "subjectName": "Kvantumfizika", "subjectCode": "KF001" }
         [HttpPost("enroll-custom")]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> EnrollCustom([FromBody] CustomEnrollRequest request)
         {
             if (!ModelState.IsValid)
@@ -105,14 +82,12 @@ namespace FeladatRadar.backend.Controllers
             return Ok(response);
         }
 
-        /// GET /api/subject/all
-        /// Összes tantárgy listája (tanároknak és adminnak).
         [HttpGet("all")]
-        [Authorize(Roles = "Teacher,Admin")]
         public async Task<IActionResult> GetAllSubjects()
         {
             var subjects = await _subjectService.GetAllSubjectsAsync();
             return Ok(subjects);
         }
     }
+
 }
