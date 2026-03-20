@@ -1,0 +1,692 @@
+﻿@page "/admin"
+@using FeladatRadar.frontend.Services
+@using FeladatRadar.frontend.Models
+@inject AuthService AuthService
+@inject AdminService AdminService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>Admin Panel — FeladatRadar</PageTitle>
+
+@if (!_hasCheckedAuth)
+{
+    <div class="fr-loading"><div class="fr-spinner"></div></div>
+}
+else if (_isAuthenticated && _userRole == "Admin")
+{
+    <div class="@LayoutClass" data-theme="@_theme" data-role="Admin">
+        @if (_menuOpen) { <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div> }
+        <aside class="@SidebarClass">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>FeladatRadar</span>
+            </a>
+            <nav class="fr-nav">
+                <a href="/dashboard" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></a>
+                <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
+                <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
+                <a href="/tantargyak" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
+                <a href="/csoport" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Csoportok</a>
+                <a href="/admin" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</a>
+            </nav>
+            <div class="fr-sidebar-footer">
+                <button class="fr-theme-toggle" @onclick="ToggleTheme">
+                    @if (_theme == "dark") { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg><span>Világos mód</span> }
+                    else { <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span>Sötét mód</span> }
+                </button>
+                <button class="fr-logout" @onclick="HandleLogout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Kijelentkezés</button>
+            </div>
+        </aside>
+
+        <main class="fr-main">
+            <header class="fr-topbar admin-topbar">
+                <div class="fr-topbar-left">
+                    <button class="fr-hamburger" @onclick="ToggleMenu" title="Menü">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    <span class="fr-page-title">🛡️ Admin Panel</span>
+                </div>
+                <div class="fr-topbar-right">
+                    <div class="fr-user-chip">
+                        <div class="fr-user-dot admin-dot"></div>
+                        <span>@_userEmail</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="fr-content">
+                @if (_isLoading)
+                {
+                    <div class="fr-loading-inline"><div class="fr-spinner"></div><span>Betöltés...</span></div>
+                }
+                else
+                {
+                    <!-- Tab navigation -->
+                    <div class="admin-tabs">
+                        <button class="admin-tab @(_activeTab == "stats" ? "admin-tab-active" : "")" @onclick='() => SwitchTab("stats")'>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                            Áttekintés
+                        </button>
+                        <button class="admin-tab @(_activeTab == "users" ? "admin-tab-active" : "")" @onclick='() => SwitchTab("users")'>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Felhasználók (@_allUsers.Count)
+                        </button>
+                        <button class="admin-tab @(_activeTab == "groups" ? "admin-tab-active" : "")" @onclick='() => SwitchTab("groups")'>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Csoportok (@_allGroups.Count)
+                        </button>
+                        <button class="admin-tab @(_activeTab == "audit" ? "admin-tab-active" : "")" @onclick='() => SwitchTab("audit")'>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Napló
+                        </button>
+                    </div>
+
+                    <!-- Toast üzenet -->
+                    @if (!string.IsNullOrEmpty(_toastMessage))
+                    {
+                        <div class="admin-toast @(_toastIsError ? "admin-toast-error" : "admin-toast-ok")">
+                            @_toastMessage
+                            <button class="admin-toast-close" @onclick='() => _toastMessage = ""'>✕</button>
+                        </div>
+                    }
+
+                    <!-- ═══ ÁTTEKINTÉS TAB ═══ -->
+                    @if (_activeTab == "stats")
+                    {
+                        <div class="admin-stats-grid">
+                            <div class="admin-stat-card admin-stat-purple">
+                                <div class="admin-stat-num">@_stats.TotalUsers</div>
+                                <div class="admin-stat-label">Összes felhasználó</div>
+                            </div>
+                            <div class="admin-stat-card admin-stat-blue">
+                                <div class="admin-stat-num">@_stats.TotalStudents</div>
+                                <div class="admin-stat-label">Diák</div>
+                            </div>
+                            <div class="admin-stat-card admin-stat-amber">
+                                <div class="admin-stat-num">@_stats.TotalTeachers</div>
+                                <div class="admin-stat-label">Tanár</div>
+                            </div>
+                            <div class="admin-stat-card admin-stat-red">
+                                <div class="admin-stat-num">@_stats.TotalAdmins</div>
+                                <div class="admin-stat-label">Admin</div>
+                            </div>
+                            <div class="admin-stat-card admin-stat-green">
+                                <div class="admin-stat-num">@_stats.TotalGroups</div>
+                                <div class="admin-stat-label">Csoport</div>
+                            </div>
+                            <div class="admin-stat-card admin-stat-teal">
+                                <div class="admin-stat-num">@_stats.TotalSubjects</div>
+                                <div class="admin-stat-label">Tantárgy</div>
+                            </div>
+                        </div>
+
+                        <div class="admin-detail-grid">
+                            <div class="fr-panel">
+                                <div class="fr-panel-header"><span class="fr-panel-title">📊 Feladatok</span></div>
+                                <div class="admin-detail-body">
+                                    <div class="admin-detail-row"><span>Összes feladat</span><strong>@_stats.TotalTasks</strong></div>
+                                    <div class="admin-detail-row"><span>Aktív feladat</span><strong class="admin-c-blue">@_stats.ActiveTasksCount</strong></div>
+                                    <div class="admin-detail-row"><span>Lejárt feladat</span><strong class="admin-c-red">@_stats.OverdueTasksCount</strong></div>
+                                    <div class="admin-detail-row"><span>Szavazások</span><strong>@_stats.TotalPolls</strong></div>
+                                    <div class="admin-detail-row"><span>Dolgozatok</span><strong>@_stats.TotalExams</strong></div>
+                                </div>
+                            </div>
+                            <div class="fr-panel">
+                                <div class="fr-panel-header"><span class="fr-panel-title">📈 Regisztrációk</span></div>
+                                <div class="admin-detail-body">
+                                    <div class="admin-detail-row"><span>Ma regisztrált</span><strong class="admin-c-green">@_stats.NewUsersToday</strong></div>
+                                    <div class="admin-detail-row"><span>Elmúlt 7 nap</span><strong class="admin-c-blue">@_stats.NewUsersThisWeek</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- ═══ FELHASZNÁLÓK TAB ═══ -->
+                    @if (_activeTab == "users")
+                    {
+                        <div class="admin-toolbar">
+                            <div class="admin-search-box">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Keresés név, email, username..." @bind="_userSearch" @bind:event="oninput" />
+                            </div>
+                            <div class="admin-filter-pills">
+                                <button class="admin-pill @(_userFilter == "all" ? "admin-pill-active" : "")" @onclick='() => _userFilter = "all"'>Mind</button>
+                                <button class="admin-pill @(_userFilter == "Student" ? "admin-pill-active" : "")" @onclick='() => _userFilter = "Student"'>Diákok</button>
+                                <button class="admin-pill @(_userFilter == "Teacher" ? "admin-pill-active" : "")" @onclick='() => _userFilter = "Teacher"'>Tanárok</button>
+                                <button class="admin-pill @(_userFilter == "Admin" ? "admin-pill-active" : "")" @onclick='() => _userFilter = "Admin"'>Adminok</button>
+                            </div>
+                            <button class="admin-btn-refresh" @onclick="LoadData" title="Frissítés">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="fr-panel admin-table-panel">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Név</th>
+                                        <th>Email</th>
+                                        <th>Username</th>
+                                        <th>Szerepkör</th>
+                                        <th>Státusz</th>
+                                        <th>Regisztráció</th>
+                                        <th>Műveletek</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in FilteredUsers)
+                                    {
+                                        var isSelf = user.UserID == AuthService.CurrentUser?.UserID;
+                                        <tr class="@(!user.IsActive ? "admin-row-inactive" : "")">
+                                            <td class="admin-td-id">@user.UserID</td>
+                                            <td class="admin-td-name">@user.FirstName @user.LastName</td>
+                                            <td class="admin-td-email">@user.Email</td>
+                                            <td>@user.Username</td>
+                                            <td>
+                                                <select class="admin-role-select admin-role-@(user.UserRole.ToLower())"
+                                                        value="@user.UserRole"
+                                                        disabled="@isSelf"
+                                                        @onchange="(e) => HandleRoleChange(user.UserID, e.Value?.ToString() ?? user.UserRole)">
+                                                    <option value="Student">Student</option>
+                                                    <option value="Teacher">Teacher</option>
+                                                    <option value="Admin">Admin</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                @if (user.IsActive)
+                                                {
+                                                    <span class="admin-badge admin-badge-ok">Aktív</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="admin-badge admin-badge-warn">Tiltva</span>
+                                                }
+                                            </td>
+                                            <td class="admin-td-date">@user.CreatedAt.ToString("yyyy.MM.dd")</td>
+                                            <td class="admin-td-actions">
+                                                @if (!isSelf)
+                                                {
+                                                    @if (user.IsActive)
+                                                    {
+                                                        <button class="admin-act-btn admin-act-warn" title="Letiltás" @onclick="() => HandleToggleActive(user.UserID, false)">
+                                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="admin-act-btn admin-act-ok" title="Aktiválás" @onclick="() => HandleToggleActive(user.UserID, true)">
+                                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                        </button>
+                                                    }
+                                                    <button class="admin-act-btn admin-act-danger" title="Törlés" @onclick="() => HandleDeleteUser(user)">
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="admin-td-muted">Te</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            @if (!FilteredUsers.Any())
+                            {
+                                <div class="fr-panel-empty">Nincs találat.</div>
+                            }
+                        </div>
+                    }
+
+                    <!-- ═══ CSOPORTOK TAB ═══ -->
+                    @if (_activeTab == "groups")
+                    {
+                        <div class="admin-toolbar">
+                            <div class="admin-search-box">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" placeholder="Keresés csoportnév, tulajdonos..." @bind="_groupSearch" @bind:event="oninput" />
+                            </div>
+                        </div>
+
+                        <div class="fr-panel admin-table-panel">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Csoport neve</th>
+                                        <th>Tulajdonos</th>
+                                        <th>Tulajdonos role</th>
+                                        <th>Tagok</th>
+                                        <th>Létrehozva</th>
+                                        <th>Műveletek</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var g in FilteredGroups)
+                                    {
+                                        <tr>
+                                            <td class="admin-td-id">@g.GroupID</td>
+                                            <td class="admin-td-name">@g.GroupName</td>
+                                            <td>@g.OwnerName</td>
+                                            <td><span class="admin-badge admin-badge-@(g.OwnerRole.ToLower())">@g.OwnerRole</span></td>
+                                            <td class="admin-td-center">@g.MemberCount</td>
+                                            <td class="admin-td-date">@g.CreatedAt.ToString("yyyy.MM.dd")</td>
+                                            <td class="admin-td-actions">
+                                                <button class="admin-act-btn admin-act-danger" title="Csoport törlése" @onclick="() => HandleDeleteGroup(g)">
+                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            @if (!FilteredGroups.Any())
+                            {
+                                <div class="fr-panel-empty">Nincs csoport.</div>
+                            }
+                        </div>
+                    }
+
+                    <!-- ═══ AUDIT LOG TAB ═══ -->
+                    @if (_activeTab == "audit")
+                    {
+                        <div class="fr-panel admin-table-panel">
+                            <div class="fr-panel-header">
+                                <span class="fr-panel-title">Rendszernapló (utolsó 100)</span>
+                                <button class="admin-btn-refresh" @onclick="LoadAuditLog" title="Frissítés">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                </button>
+                            </div>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Időpont</th>
+                                        <th>Felhasználó</th>
+                                        <th>Művelet</th>
+                                        <th>Részletek</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in _auditLog)
+                                    {
+                                        <tr>
+                                            <td class="admin-td-date">@log.CreatedAt.ToString("MM.dd HH:mm")</td>
+                                            <td>@log.Username</td>
+                                            <td><span class="admin-badge admin-badge-action">@TranslateAction(log.Action)</span></td>
+                                            <td class="admin-td-details">@(log.Details ?? "—")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            @if (!_auditLog.Any())
+                            {
+                                <div class="fr-panel-empty">Nincs bejegyzés a naplóban.</div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+
+    <!-- Megerősítő modal -->
+    @if (_confirmVisible)
+    {
+        <div class="admin-modal-backdrop" @onclick="() => _confirmVisible = false">
+            <div class="admin-modal" @onclick:stopPropagation="true">
+                <div class="admin-modal-title">⚠️ Megerősítés</div>
+                <div class="admin-modal-body">@_confirmMessage</div>
+                <div class="admin-modal-actions">
+                    <button class="admin-modal-btn admin-modal-cancel" @onclick="() => _confirmVisible = false">Mégse</button>
+                    <button class="admin-modal-btn admin-modal-confirm" @onclick="ConfirmAction">Igen, végrehajtás</button>
+                </div>
+            </div>
+        </div>
+    }
+}
+else if (_isAuthenticated && _userRole != "Admin")
+{
+    <div class="fr-unauth"><p>🛡️ Nincs admin jogosultságod.</p><a href="/dashboard" class="fr-btn fr-btn-primary">Vissza a Dashboard-ra</a></div>
+}
+else
+{
+    <div class="fr-unauth"><p>Nincs aktív munkamenet.</p><a href="/login" class="fr-btn fr-btn-primary">Bejelentkezés</a></div>
+}
+
+<style>
+    /* ── Admin theme ── */
+    .fr-layout[data-role="Admin"] { --admin-accent:#e53935; --admin-accent-2:#b71c1c; }
+    .fr-layout[data-role="Admin"] .fr-topbar,
+    .admin-topbar { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; box-shadow:0 2px 16px rgba(229,57,53,.25) !important; }
+    .fr-layout[data-role="Admin"] .fr-brand { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; }
+    .admin-dot { background:#e53935 !important; }
+
+    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+    .fr-loading-inline { display:flex; align-items:center; gap:10px; padding:40px; color:var(--text-muted); font-size:.875rem; }
+
+    /* Tabs */
+    .admin-tabs { display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:4px; flex-shrink:0; flex-wrap:wrap; }
+    .admin-tab { display:flex; align-items:center; gap:6px; padding:8px 16px; border:none; border-radius:8px; background:none; color:var(--text-muted); font-size:.82rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .admin-tab:hover { color:var(--text-primary); background:var(--surface-2); }
+    .admin-tab-active { background:linear-gradient(135deg,#b71c1c,#e53935); color:#fff !important; font-weight:700; box-shadow:0 2px 8px rgba(229,57,53,.25); }
+
+    /* Toast */
+    .admin-toast { padding:10px 18px; border-radius:8px; font-size:.82rem; font-weight:600; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-shrink:0; }
+    .admin-toast-ok { background:var(--success-subtle); color:var(--success); border:1px solid rgba(14,159,110,.2); }
+    .admin-toast-error { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(229,57,53,.2); }
+    .admin-toast-close { background:none; border:none; cursor:pointer; color:inherit; font-size:.9rem; padding:2px 6px; }
+
+    /* Stats grid */
+    .admin-stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; flex-shrink:0; }
+    .admin-stat-card { padding:22px 18px; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface); text-align:center; transition:transform .12s,box-shadow .12s; }
+    .admin-stat-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.08); }
+    .admin-stat-num { font-size:2.2rem; font-weight:800; line-height:1; margin-bottom:6px; }
+    .admin-stat-label { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-weight:500; }
+    .admin-stat-purple .admin-stat-num { color:#667eea; }
+    .admin-stat-blue .admin-stat-num { color:#3b82f6; }
+    .admin-stat-amber .admin-stat-num { color:#f59e0b; }
+    .admin-stat-red .admin-stat-num { color:#e53935; }
+    .admin-stat-green .admin-stat-num { color:#0e9f6e; }
+    .admin-stat-teal .admin-stat-num { color:#14b8a6; }
+
+    /* Detail panels */
+    .admin-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .admin-detail-body { padding:4px 0; }
+    .admin-detail-row { display:flex; justify-content:space-between; align-items:center; padding:10px 18px; border-bottom:1px solid var(--border); font-size:.84rem; }
+    .admin-detail-row:last-child { border-bottom:none; }
+    .admin-c-blue { color:#3b82f6; }
+    .admin-c-red { color:#e53935; }
+    .admin-c-green { color:#0e9f6e; }
+
+    /* Toolbar */
+    .admin-toolbar { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; }
+    .admin-search-box { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; flex:1; min-width:200px; }
+    .admin-search-box input { border:none; background:none; outline:none; flex:1; font-size:.84rem; color:var(--text-primary); font-family:var(--font); }
+    .admin-search-box svg { color:var(--text-muted); flex-shrink:0; }
+    .admin-filter-pills { display:flex; gap:3px; }
+    .admin-pill { padding:5px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text-muted); font-size:.72rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .admin-pill:hover { border-color:var(--border-strong); color:var(--text-primary); }
+    .admin-pill-active { background:#e53935; color:#fff; border-color:#e53935; font-weight:700; }
+    .admin-btn-refresh { width:34px; height:34px; border:1px solid var(--border); border-radius:8px; background:var(--surface); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:all .15s; }
+    .admin-btn-refresh:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* Table */
+    .admin-table-panel { overflow:auto; flex:1; min-height:0; }
+    .admin-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .admin-table thead { position:sticky; top:0; z-index:2; }
+    .admin-table th { padding:10px 14px; text-align:left; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); background:var(--surface-2); border-bottom:2px solid var(--border); white-space:nowrap; }
+    .admin-table td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text-primary); vertical-align:middle; }
+    .admin-table tbody tr { transition:background .1s; }
+    .admin-table tbody tr:hover { background:var(--surface-2); }
+    .admin-row-inactive { opacity:.5; }
+    .admin-td-id { color:var(--text-muted); font-size:.75rem; font-weight:500; }
+    .admin-td-name { font-weight:600; }
+    .admin-td-email { color:var(--text-secondary); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .admin-td-date { color:var(--text-muted); font-size:.78rem; white-space:nowrap; }
+    .admin-td-center { text-align:center; font-weight:600; }
+    .admin-td-actions { display:flex; gap:4px; }
+    .admin-td-muted { color:var(--text-muted); font-size:.75rem; font-style:italic; }
+    .admin-td-details { color:var(--text-secondary); font-size:.78rem; max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* Role select */
+    .admin-role-select { padding:3px 8px; border:1px solid var(--border); border-radius:5px; background:var(--surface); color:var(--text-primary); font-size:.78rem; font-family:var(--font); cursor:pointer; font-weight:600; }
+    .admin-role-select:disabled { opacity:.5; cursor:not-allowed; }
+    .admin-role-student { border-color:#667eea; color:#667eea; }
+    .admin-role-teacher { border-color:#f59e0b; color:#f59e0b; }
+    .admin-role-admin { border-color:#e53935; color:#e53935; }
+
+    /* Badges */
+    .admin-badge { padding:2px 8px; border-radius:4px; font-size:.7rem; font-weight:600; white-space:nowrap; }
+    .admin-badge-ok { background:var(--success-subtle); color:var(--success); }
+    .admin-badge-warn { background:var(--danger-subtle); color:var(--danger); }
+    .admin-badge-student { background:rgba(102,126,234,.12); color:#667eea; }
+    .admin-badge-teacher { background:rgba(245,158,11,.12); color:#f59e0b; }
+    .admin-badge-admin { background:rgba(229,57,53,.1); color:#e53935; }
+    .admin-badge-action { background:var(--accent-subtle); color:var(--accent); }
+
+    /* Action buttons */
+    .admin-act-btn { width:28px; height:28px; border:1px solid var(--border); border-radius:6px; background:var(--surface); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .12s; }
+    .admin-act-warn { color:var(--warning); }
+    .admin-act-warn:hover { background:var(--warning-subtle); border-color:var(--warning); }
+    .admin-act-ok { color:var(--success); }
+    .admin-act-ok:hover { background:var(--success-subtle); border-color:var(--success); }
+    .admin-act-danger { color:var(--danger); }
+    .admin-act-danger:hover { background:var(--danger-subtle); border-color:var(--danger); }
+
+    /* Modal */
+    .admin-modal-backdrop { position:fixed; inset:0; z-index:999; background:rgba(26,22,48,.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; }
+    .admin-modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:28px; width:90%; max-width:420px; box-shadow:0 12px 40px rgba(0,0,0,.2); }
+    .admin-modal-title { font-size:1.1rem; font-weight:700; margin-bottom:12px; color:var(--text-primary); }
+    .admin-modal-body { font-size:.88rem; color:var(--text-secondary); margin-bottom:20px; line-height:1.5; }
+    .admin-modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+    .admin-modal-btn { padding:8px 20px; border:none; border-radius:8px; font-size:.84rem; font-weight:600; cursor:pointer; font-family:var(--font); transition:all .12s; }
+    .admin-modal-cancel { background:var(--surface-2); color:var(--text-secondary); }
+    .admin-modal-cancel:hover { background:var(--border); }
+    .admin-modal-confirm { background:#e53935; color:#fff; }
+    .admin-modal-confirm:hover { background:#c62828; }
+
+    @@media (max-width:900px) {
+        .admin-stats-grid { grid-template-columns:repeat(2,1fr); }
+        .admin-detail-grid { grid-template-columns:1fr; }
+    }
+    @@media (max-width:600px) {
+        .admin-stats-grid { grid-template-columns:1fr 1fr; }
+        .admin-table { font-size:.75rem; }
+        .admin-table th, .admin-table td { padding:8px 8px; }
+    }
+</style>
+
+@code {
+    private bool _menuOpen = false;
+    private string SidebarClass => _menuOpen ? "fr-sidebar fr-sidebar-open" : "fr-sidebar";
+    private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
+    private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
+    private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
+    private bool _hasCheckedAuth = false;
+    private bool _isAuthenticated = false;
+    private string _userRole = "";
+    private string _userEmail = "";
+    private string _theme = "light";
+    private bool _isLoading = true;
+
+    // Tab state
+    private string _activeTab = "stats";
+
+    // Data
+    private SystemStatsDto _stats = new();
+    private List<AdminUserDto> _allUsers = new();
+    private List<AdminGroupDto> _allGroups = new();
+    private List<AuditLogEntry> _auditLog = new();
+
+    // Filters
+    private string _userSearch = "";
+    private string _userFilter = "all";
+    private string _groupSearch = "";
+
+    // Toast
+    private string _toastMessage = "";
+    private bool _toastIsError = false;
+
+    // Confirm modal
+    private bool _confirmVisible = false;
+    private string _confirmMessage = "";
+    private Func<Task>? _confirmAction = null;
+
+    private IEnumerable<AdminUserDto> FilteredUsers
+    {
+        get
+        {
+            var q = _allUsers.AsEnumerable();
+            if (_userFilter != "all")
+                q = q.Where(u => u.UserRole == _userFilter);
+            if (!string.IsNullOrWhiteSpace(_userSearch))
+            {
+                var s = _userSearch.ToLower();
+                q = q.Where(u =>
+                    u.Username.ToLower().Contains(s) ||
+                    u.Email.ToLower().Contains(s) ||
+                    u.FirstName.ToLower().Contains(s) ||
+                    u.LastName.ToLower().Contains(s));
+            }
+            return q;
+        }
+    }
+
+    private IEnumerable<AdminGroupDto> FilteredGroups
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(_groupSearch)) return _allGroups;
+            var s = _groupSearch.ToLower();
+            return _allGroups.Where(g =>
+                g.GroupName.ToLower().Contains(s) ||
+                g.OwnerName.ToLower().Contains(s));
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _theme = _theme == "dark" ? "light" : "dark";
+        await JS.InvokeVoidAsync("themeHelper.setTheme", _theme);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
+        try { await AuthService.InitializeAsync(); } catch { }
+        _hasCheckedAuth = true;
+        _isAuthenticated = AuthService.IsAuthenticated;
+        _userEmail = AuthService.CurrentUser?.Email ?? "";
+        _userRole = AuthService.CurrentUser?.UserRole ?? "";
+        if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        if (_userRole != "Admin") { StateHasChanged(); return; }
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        _isLoading = true; StateHasChanged();
+        try { _stats = await AdminService.GetSystemStatsAsync(); } catch { _stats = new(); }
+        try { _allUsers = await AdminService.GetAllUsersAsync(); } catch { _allUsers = new(); }
+        try { _allGroups = await AdminService.GetAllGroupsAsync(); } catch { _allGroups = new(); }
+        _isLoading = false;
+    }
+
+    private async Task LoadAuditLog()
+    {
+        try { _auditLog = await AdminService.GetAuditLogAsync(); } catch { _auditLog = new(); }
+        StateHasChanged();
+    }
+
+    private async void SwitchTab(string tab)
+    {
+        _activeTab = tab;
+        if (tab == "audit" && !_auditLog.Any())
+            await LoadAuditLog();
+        StateHasChanged();
+    }
+
+    // ──────────────── Műveletek ────────────────
+
+    private void ShowToast(string message, bool isError = false)
+    {
+        _toastMessage = message;
+        _toastIsError = isError;
+        StateHasChanged();
+    }
+
+    private void ShowConfirm(string message, Func<Task> action)
+    {
+        _confirmMessage = message;
+        _confirmAction = action;
+        _confirmVisible = true;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmAction()
+    {
+        _confirmVisible = false;
+        if (_confirmAction != null)
+            await _confirmAction();
+        StateHasChanged();
+    }
+
+    private async Task HandleRoleChange(int userId, string newRole)
+    {
+        var result = await AdminService.ChangeUserRoleAsync(userId, newRole);
+        if (result.Status == "OK")
+        {
+            var u = _allUsers.FirstOrDefault(x => x.UserID == userId);
+            if (u != null) u.UserRole = newRole;
+            ShowToast($"Szerepkör módosítva: {newRole}");
+        }
+        else ShowToast(result.Message, true);
+    }
+
+    private void HandleToggleActive(int userId, bool activate)
+    {
+        var u = _allUsers.FirstOrDefault(x => x.UserID == userId);
+        var name = u != null ? $"{u.FirstName} {u.LastName}" : $"#{userId}";
+        var msg = activate
+            ? $"Biztosan aktiválod {name} felhasználót?"
+            : $"Biztosan letiltod {name} felhasználót?";
+
+        ShowConfirm(msg, async () =>
+        {
+            var result = await AdminService.ToggleUserActiveAsync(userId, activate);
+            if (result.Status == "OK")
+            {
+                if (u != null) u.IsActive = activate;
+                ShowToast(result.Message);
+            }
+            else ShowToast(result.Message, true);
+        });
+    }
+
+    private void HandleDeleteUser(AdminUserDto user)
+    {
+        ShowConfirm($"Biztosan TÖRLÖD {user.FirstName} {user.LastName} ({user.Username}) felhasználót? Ez nem vonható vissza!", async () =>
+        {
+            var result = await AdminService.DeleteUserAsync(user.UserID);
+            if (result.Status == "OK")
+            {
+                _allUsers.RemoveAll(u => u.UserID == user.UserID);
+                ShowToast(result.Message);
+            }
+            else ShowToast(result.Message, true);
+        });
+    }
+
+    private void HandleDeleteGroup(AdminGroupDto group)
+    {
+        ShowConfirm($"Biztosan törlöd a \"{group.GroupName}\" csoportot ({group.MemberCount} taggal)? Ez nem vonható vissza!", async () =>
+        {
+            var result = await AdminService.DeleteGroupAsync(group.GroupID);
+            if (result.Status == "OK")
+            {
+                _allGroups.RemoveAll(g => g.GroupID == group.GroupID);
+                ShowToast(result.Message);
+            }
+            else ShowToast(result.Message, true);
+        });
+    }
+
+    private string TranslateAction(string action) => action switch
+    {
+        "CHANGE_ROLE" => "Szerepkör módosítás",
+        "ACTIVATE_USER" => "Felhasználó aktiválás",
+        "DEACTIVATE_USER" => "Felhasználó tiltás",
+        "DELETE_USER" => "Felhasználó törlés",
+        "DELETE_GROUP" => "Csoport törlés",
+        "DELETE_POLL" => "Szavazás törlés",
+        "DELETE_EXAM" => "Dolgozat törlés",
+        "DELETE_TASK" => "Feladat törlés",
+        _ => action
+    };
+
+    private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
+}
