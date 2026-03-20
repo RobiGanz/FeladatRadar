@@ -14,12 +14,14 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SubjectService>();
 builder.Services.AddScoped<ScheduleService>();
-builder.Services.AddSingleton<FocusTimerService>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<TeacherService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddBlazoredLocalStorage();
+
+// FocusTimerService: singleton, hogy navigáció között is megmaradjon az állapot
+builder.Services.AddSingleton<FocusTimerService>();
 
 var app = builder.Build();
 
