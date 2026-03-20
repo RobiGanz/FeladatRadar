@@ -50,7 +50,8 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
-
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 
 
