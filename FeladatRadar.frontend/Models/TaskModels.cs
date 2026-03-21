@@ -3,7 +3,7 @@
     public class TaskDto
     {
         public int TaskID { get; set; }
-        public int SubjectID { get; set; }
+        public int? SubjectID { get; set; }
         public string SubjectName { get; set; } = string.Empty;
         public string SubjectCode { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
