@@ -543,7 +543,7 @@ else if (_isAuthenticated)
                     }
 
                     <div class="fr-modal-body">
-                        @if (_myEnrollments.Count == 0 && !_groupMode)
+                        @if (_myEnrollments.Count == 0 && !_groupMode && _panelTab == "ora")
                         {
                             <p class="fr-add-notice">Nincs felvett tantárgyad. <a href="/tantargyak" class="fr-link">Tantárgyak felvétele →</a></p>
                         }
@@ -1007,14 +1007,14 @@ else
     private async Task AddTask()
     {
         _formError = "";
-        if (_taskSubjectId == 0) { _formError = "Válassz tantárgyat."; return; }
+        
         if (string.IsNullOrWhiteSpace(_taskTitle)) { _formError = "Add meg a feladat nevét."; return; }
         _isSaving = true; StateHasChanged();
         try
         {
             var r = await TaskService.AddTaskAsync(new AddTaskRequest
             {
-                SubjectID = _taskSubjectId,
+                SubjectID = _taskSubjectId == 0 ? null : _taskSubjectId,
                 Title = _taskTitle.Trim(),
                 Description = _taskDescription.Trim(),
                 DueDate = _taskDueDate,
