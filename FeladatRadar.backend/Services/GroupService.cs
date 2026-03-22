@@ -20,7 +20,7 @@ namespace FeladatRadar.backend.Services
         private SubjectResponse ParseResponse(dynamic result)
         {
             if (result == null)
-                return new SubjectResponse { Status = "ERROR", Message = "Nem Ã©rkezett vÃ¡lasz az adatbÃ¡zistÃ³l." };
+                return new SubjectResponse { Status = "ERROR", Message = "Nem érkezett válasz az adatbázistól." };
             var dict = (IDictionary<string, object>)result;
             return new SubjectResponse
             {

@@ -143,7 +143,7 @@ namespace FeladatRadar.backend.Controllers
                 return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod a csoport kezeléséhez." });
 
 
-            var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request, "Teacher");
+            var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request, GetCurrentUserRole());
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);
         }

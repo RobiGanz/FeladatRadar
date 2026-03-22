@@ -85,11 +85,19 @@ namespace FeladatRadar.backend.Services
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                var sql = "UPDATE Tasks SET IsCompleted = 0, CompletedAt = NULL WHERE TaskID = @TaskID AND StudentID = @StudentID";
-                var rows = await connection.ExecuteAsync(sql, new { TaskID = taskId, StudentID = studentId });
-                return rows > 0
-                    ? new SubjectResponse { Status = "OK", Message = "Feladat visszaállítva." }
-                    : new SubjectResponse { Status = "ERROR", Message = "Feladat nem található." };
+                var parameters = new DynamicParameters();
+                parameters.Add("@TaskID", taskId);
+                parameters.Add("@StudentID", studentId);
+
+                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                    "sp_UncompleteTask", parameters, commandType: CommandType.StoredProcedure);
+
+                var dict = (IDictionary<string, object>)result!;
+                return new SubjectResponse
+                {
+                    Status = dict["Status"]?.ToString() ?? "ERROR",
+                    Message = dict["Message"]?.ToString() ?? ""
+                };
             }
             catch (Exception ex)
             {
