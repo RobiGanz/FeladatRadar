@@ -1,7 +1,7 @@
 ﻿using FeladatRadar.backend.Models;
 
 
-namespace FeladatRadar.frontend.Services
+namespace FeladatRadar.backend.Services
 {
     public interface IGroupService
     {

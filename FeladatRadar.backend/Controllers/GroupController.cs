@@ -1,5 +1,5 @@
 ﻿using FeladatRadar.backend.Models;
-using FeladatRadar.frontend.Services;
+using FeladatRadar.backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -142,7 +142,7 @@ namespace FeladatRadar.backend.Controllers
             if (!await CanManageGroup(groupId))
                 return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod a csoport kezeléséhez." });
 
-            request.DayOfWeek = request.DayOfWeek;
+
             var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request, "Teacher");
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);

@@ -1,6 +1,5 @@
 ﻿using FeladatRadar.backend.Models;
 using FeladatRadar.backend.Services;
-using FeladatRadar.frontend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
