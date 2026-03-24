@@ -28,7 +28,6 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                 <span>FeladatRadar</span>
             </a>
             <nav class="fr-nav">
-                
                 <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Naptár</a>
                 <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Fókusz Időzítő</a>
                 <a href="/tantargyak" class="fr-nav-item fr-active" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>Tantárgyak</a>
@@ -65,12 +64,20 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                     <span class="fr-breadcrumb">/ @_myEnrollments.Count aktív</span>
                 </div>
                 <div class="fr-topbar-right">
-                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick='() => _showCustomForm = !_showCustomForm'>
+                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick='() => { _showCustomForm = !_showCustomForm; _showTemplates = false; }'>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                         Egyéni tantárgy
                     </button>
-                    <button class="fr-btn fr-btn-sm fr-btn-ghost" @onclick="RefreshSubjects">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                    <button class="fr-btn fr-btn-sm fr-btn-secondary" @onclick='() => { _showTemplates = !_showTemplates; _showCustomForm = false; }'>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+                        Sablon tantárgyak
+                        @if (_availableSubjects.Count > 0)
+                        {
+                            <span class="fr-btn-badge">@_availableSubjects.Count</span>
+                        }
+                    </button>
+                    <button class="fr-btn fr-btn-sm fr-btn-ghost" @onclick="RefreshSubjects" disabled="@_isLoading">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="@(_isLoading ? "fr-spin-icon" : "")"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
                         Frissítés
                     </button>
                 </div>
@@ -87,6 +94,7 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                     </div>
                 }
 
+                <!-- Egyéni tantárgy form -->
                 @if (_showCustomForm)
                 {
                     <div class="fr-form-card">
@@ -119,6 +127,75 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                     </div>
                 }
 
+                <!-- Sablon tantárgyak (elérhető, előre megadott) -->
+                @if (_showTemplates)
+                {
+                    <div class="fr-form-card">
+                        <div class="fr-form-card-head">
+                            <div>
+                                <h2 class="fr-form-title">Sablon tantárgyak</h2>
+                                <p class="fr-form-desc">Előre összeállított tantárgyak — egy kattintással felveheted bármelyiket.</p>
+                            </div>
+                            <button class="fr-icon-btn" @onclick='() => _showTemplates = false'>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
+                        @if (_availableSubjects.Count == 0)
+                        {
+                            <div class="fr-empty-state" style="padding:24px 0">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                                <span>Már minden elérhető sablon tantárgyat felvettél!</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="fr-template-list">
+                                @foreach (var s in _availableSubjects)
+                                {
+                                    var color = SubjectColor(s.SubjectName);
+                                    var isEnrolling = _enrollingIds.Contains(s.SubjectID);
+                                    <div class="fr-template-row">
+                                        <div class="fr-template-dot" style="background:@color"></div>
+                                        <div class="fr-template-info">
+                                            <span class="fr-template-name">@s.SubjectName</span>
+                                            <span class="fr-template-meta">
+                                                @if (!string.IsNullOrEmpty(s.SubjectCode))
+                                                {
+                                                    <span>@s.SubjectCode</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(s.TeacherName))
+                                                {
+                                                    <span>· @s.TeacherName</span>
+                                                }
+                                                @if (s.Credits > 0)
+                                                {
+                                                    <span>· @s.Credits kredit</span>
+                                                }
+                                                @if (s.MaxStudents > 0)
+                                                {
+                                                    <span>· @s.FreeSlots hely szabad</span>
+                                                }
+                                            </span>
+                                        </div>
+                                        <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => EnrollTemplate(s.SubjectID)" disabled="@isEnrolling">
+                                            @if (isEnrolling)
+                                            {
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fr-spin-icon"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                                                <span>Felvétel...</span>
+                                            }
+                                            else
+                                            {
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                                <span>Felvenni</span>
+                                            }
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
                 @if (_isLoading)
                 {
                     <div class="fr-empty-state"><div class="fr-spinner fr-spinner-sm"></div></div>
@@ -131,12 +208,12 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                             <span class="fr-section-title">Felvett tantárgyaim</span>
                             <span class="fr-section-count">@_myEnrollments.Count</span>
                         </div>
-                        <p class="fr-auto-note">Az összes elérhető tantárgy automatikusan fel lett véve. Egyéni tantárgyat a jobb felső gombbal adhatsz hozzá.</p>
                         @if (_myEnrollments.Count == 0)
                         {
                             <div class="fr-empty-state">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
                                 <span>Még nincs felvett tantárgyad.</span>
+                                <span style="font-size:.78rem;opacity:.7">Vegyél fel sablont, vagy adj hozzá egyéni tantárgyat.</span>
                             </div>
                         }
                         else
@@ -148,12 +225,26 @@ else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
                                     var taskCount = _tasks.Count(t => t.SubjectID == e.SubjectID && !t.IsCompleted);
                                     var doneCount = _tasks.Count(t => t.SubjectID == e.SubjectID && t.IsCompleted);
                                     var classCount = _schedule.Count(s => s.SubjectID == e.SubjectID);
+                                    var isDropping = _droppingIds.Contains(e.SubjectID);
                                     <div class="fr-subject-card" style="--sc:@color">
                                         <div class="fr-sc-stripe"></div>
                                         <div class="fr-sc-body">
                                             <div class="fr-sc-top">
                                                 <span class="fr-sc-code">@(string.IsNullOrEmpty(e.SubjectCode) ? "—" : e.SubjectCode)</span>
                                                 <span class="fr-badge fr-badge-active">Aktív</span>
+                                                <button class="fr-drop-btn @(isDropping ? "fr-drop-btn-loading" : "")"
+                                                        @onclick="() => DropSubject(e.SubjectID)"
+                                                        disabled="@isDropping"
+                                                        title="Tantárgy leadása">
+                                                    @if (isDropping)
+                                                    {
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fr-spin-icon"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                                                    }
+                                                    else
+                                                    {
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
+                                                    }
+                                                </button>
                                             </div>
                                             <h3 class="fr-sc-name">@e.SubjectName</h3>
                                             <p class="fr-sc-meta">Felvéve: @e.EnrolledAt.ToString("yyyy. MM. dd.")</p>
@@ -193,12 +284,15 @@ else
     private string LayoutClass => _menuOpen ? "fr-layout fr-menu-open" : "fr-layout";
     private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
     private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
-    private bool _hasCheckedAuth, _isLoading, _messageIsError, _showCustomForm, _customIsLoading;
+
+    private bool _hasCheckedAuth, _isLoading, _messageIsError, _showCustomForm, _showTemplates, _customIsLoading;
     private string _message = "", _customSubjectName = "", _customSubjectCode = "", _customError = "", _theme = "light", _userRole = "";
     private List<SubjectDto> _availableSubjects = new();
     private List<EnrollmentDto> _myEnrollments = new();
     private List<TaskDto> _tasks = new();
     private List<ScheduleEntryDto> _schedule = new();
+    private HashSet<int> _droppingIds = new();
+    private HashSet<int> _enrollingIds = new();
 
     private static readonly string[] _palette = { "#4f46e5", "#0891b2", "#0e9f6e", "#d97706", "#db2777", "#7c3aed", "#ea580c", "#65a30d" };
     private string SubjectColor(string name) => _palette[Math.Abs(name?.GetHashCode() ?? 0) % _palette.Length];
@@ -218,40 +312,46 @@ else
     private async Task LoadData()
     {
         _isLoading = true; StateHasChanged();
+
         try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { _myEnrollments = new(); }
         try { _availableSubjects = await SubjectService.GetAvailableSubjectsAsync(); } catch { _availableSubjects = new(); }
         try { _tasks = await TaskService.GetMyTasksAsync(); } catch { _tasks = new(); }
         try { _schedule = await ScheduleService.GetMyScheduleAsync(); } catch { _schedule = new(); }
 
-        // Auto-felvétel: minden elérhető tantárgyat automatikusan felvesz
-        if (_availableSubjects.Count > 0)
-        {
-            foreach (var s in _availableSubjects.ToList())
-            {
-                try { await SubjectService.EnrollAsync(s.SubjectID); } catch { }
-            }
-            try { _myEnrollments = await SubjectService.GetMyEnrollmentsAsync(); } catch { }
-            _availableSubjects = new();
-        }
+        // Már felvett tantárgyakat szűrjük ki az elérhető listából
+        var enrolledIds = _myEnrollments.Select(e => e.SubjectID).ToHashSet();
+        _availableSubjects = _availableSubjects.Where(s => !enrolledIds.Contains(s.SubjectID)).ToList();
 
         _isLoading = false;
     }
 
     private async Task RefreshSubjects()
     {
+        _message = "";
         await LoadData();
         StateHasChanged();
     }
 
-    private async Task EnrollSubject(int id)
+    // Sablon tantárgy felvétele (a sablon panelből)
+    private async Task EnrollTemplate(int subjectId)
     {
-        var r = await SubjectService.EnrollAsync(id);
-        _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
-        _message = _messageIsError ? r.Message : "Tantárgy sikeresen felvéve!";
-        if (!_messageIsError) await LoadData();
+        _enrollingIds.Add(subjectId);
+        StateHasChanged();
+
+        var r = await SubjectService.EnrollAsync(subjectId);
+        _enrollingIds.Remove(subjectId);
+
+        var isOk = r.Status == "OK" || r.Status == "SUCCESS" || r.Status == "ALREADY_ENROLLED";
+        _messageIsError = !isOk;
+        _message = isOk
+            ? "Tantárgy sikeresen felvéve!"
+            : r.Message;
+
+        if (isOk) await LoadData();
         StateHasChanged();
     }
 
+    // Egyéni tantárgy felvétele
     private async Task EnrollCustomSubject()
     {
         _customError = "";
@@ -266,6 +366,23 @@ else
             await LoadData();
         }
         else { _customError = r.Message; }
+        StateHasChanged();
+    }
+
+    // Tantárgy leadása (drop)
+    private async Task DropSubject(int subjectId)
+    {
+        _droppingIds.Add(subjectId);
+        StateHasChanged();
+
+        var r = await SubjectService.DropAsync(subjectId);
+        _droppingIds.Remove(subjectId);
+
+        var isOk = r.Status == "OK" || r.Status == "SUCCESS";
+        _messageIsError = !isOk;
+        _message = isOk ? "Tantárgy leadva." : r.Message;
+
+        if (isOk) await LoadData();
         StateHasChanged();
     }
 
@@ -337,21 +454,26 @@ else
     .fr-spinner { width:28px; height:28px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:fr-spin .7s linear infinite; }
     .fr-spinner-sm { width:20px; height:20px; }
     @@keyframes fr-spin { to { transform:rotate(360deg); } }
+    .fr-spin-icon { animation:fr-spin .7s linear infinite; }
     .fr-unauth { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; }
     .fr-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:48px 20px; color:var(--text-muted); font-size:.875rem; }
 
     /* ── Buttons ── */
-    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:var(--font); }
+    .fr-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all .15s; font-family:var(--font); position:relative; }
     .fr-btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 2px 10px rgba(102,126,234,.35); }
     .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(102,126,234,.45); transform:translateY(-1px); }
     .fr-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .fr-btn-secondary { background:rgba(255,255,255,.15); backdrop-filter:blur(8px); color:#fff; border:1px solid rgba(255,255,255,.3); }
+    .fr-btn-secondary:hover { background:rgba(255,255,255,.25); }
     .fr-btn-ghost { background:none; border:1.5px solid var(--border); color:var(--text-secondary); }
     .fr-btn-ghost:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-btn-ghost:disabled { opacity:.5; cursor:not-allowed; }
     .fr-btn-sm { padding:7px 12px; font-size:.82rem; }
     .fr-btn-danger { background:var(--danger-subtle); color:var(--danger); border:1px solid rgba(229,57,53,.2); }
     .fr-btn-danger:hover { background:var(--danger); color:#fff; }
     .fr-icon-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:7px; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; }
     .fr-icon-btn:hover { background:var(--surface-2); color:var(--text-primary); }
+    .fr-btn-badge { background:rgba(255,255,255,.35); color:#fff; font-size:.7rem; font-weight:700; padding:1px 6px; border-radius:9px; margin-left:2px; }
 
     /* ── Form elements ── */
     .fr-field { display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px; }
@@ -373,40 +495,33 @@ else
     .fr-badge-active { background:var(--success-subtle); color:var(--success); }
     .fr-badge-warn { background:var(--warning-subtle); color:var(--warning); }
 
-    /* ── Form card (add custom subject) ── */
+    /* ── Form card ── */
     .fr-form-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; display:flex; flex-direction:column; gap:16px; }
     .fr-form-card-head { display:flex; align-items:flex-start; justify-content:space-between; }
     .fr-form-title { font-size:1rem; font-weight:700; color:var(--text-primary); }
     .fr-form-desc { font-size:.82rem; color:var(--text-muted); margin-top:2px; }
     .fr-form-error { font-size:.82rem; color:var(--danger); font-weight:500; }
 
+    /* ── Sablon tantárgy lista ── */
+    .fr-template-list { display:flex; flex-direction:column; gap:6px; }
+    .fr-template-row { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2); transition:background .15s; }
+    .fr-template-row:hover { background:var(--accent-subtle); border-color:var(--accent); }
+    .fr-template-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .fr-template-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .fr-template-name { font-size:.875rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fr-template-meta { font-size:.76rem; color:var(--text-muted); display:flex; gap:6px; flex-wrap:wrap; }
+
     /* ── Section header ── */
     .fr-section { display:flex; flex-direction:column; gap:14px; }
     .fr-section-head { display:flex; align-items:center; gap:10px; }
     .fr-section-title { font-size:.95rem; font-weight:700; color:var(--text-primary); }
     .fr-section-count { font-size:.75rem; font-weight:700; color:var(--accent); background:var(--accent-subtle); padding:2px 10px; border-radius:12px; }
-    .fr-auto-note { font-size:.82rem; color:var(--text-muted); line-height:1.5; margin-top:-6px; }
 
     /* ── Subject cards grid ── */
-    .fr-subject-grid {
-        display:grid;
-        grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
-        gap:14px;
-    }
-    .fr-subject-card {
-        position:relative; overflow:hidden;
-        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-        transition:all .2s ease; cursor:default;
-    }
-    .fr-subject-card:hover {
-        border-color:var(--sc,var(--accent));
-        box-shadow:0 4px 20px rgba(from var(--sc,#667eea) r g b / .12);
-        transform:translateY(-2px);
-    }
-    .fr-sc-stripe {
-        height:4px;
-        background:linear-gradient(90deg, var(--sc,var(--accent)), color-mix(in srgb, var(--sc,var(--accent)) 60%, #fff));
-    }
+    .fr-subject-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px; }
+    .fr-subject-card { position:relative; overflow:hidden; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition:all .2s ease; cursor:default; }
+    .fr-subject-card:hover { border-color:var(--sc,var(--accent)); box-shadow:0 4px 20px rgba(0,0,0,.08); transform:translateY(-2px); }
+    .fr-sc-stripe { height:4px; background:linear-gradient(90deg, var(--sc,var(--accent)), color-mix(in srgb, var(--sc,var(--accent)) 60%, #fff)); }
     .fr-sc-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; }
     .fr-sc-top { display:flex; align-items:center; gap:8px; }
     .fr-sc-code { font-size:.73rem; font-weight:800; color:var(--sc,var(--accent)); letter-spacing:.04em; text-transform:uppercase; }
@@ -415,6 +530,12 @@ else
     .fr-sc-stats { display:flex; gap:14px; margin-top:6px; padding-top:10px; border-top:1px solid var(--border); }
     .fr-sc-stat { display:flex; align-items:center; gap:5px; font-size:.76rem; color:var(--text-secondary); font-weight:500; }
     .fr-sc-stat-n { font-weight:700; color:var(--text-primary); }
+
+    /* ── Drop gomb ── */
+    .fr-drop-btn { margin-left:auto; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border:1px solid transparent; border-radius:7px; background:none; color:var(--text-muted); cursor:pointer; transition:all .15s; padding:0; }
+    .fr-drop-btn:hover:not(:disabled) { background:var(--danger-subtle); border-color:rgba(229,57,53,.2); color:var(--danger); }
+    .fr-drop-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .fr-drop-btn-loading { opacity:.6; }
 
     /* ── Responsive ── */
     @@media (max-width:600px) {

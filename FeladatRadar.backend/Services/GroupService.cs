@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using FeladatRadar.backend.Models;
-using FeladatRadar.frontend.Services;
+using FeladatRadar.backend.Services;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
