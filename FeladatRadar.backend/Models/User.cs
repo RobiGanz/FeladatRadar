@@ -65,4 +65,14 @@ namespace FeladatRadar.backend.Models
         public string LastName { get; set; } = string.Empty;
         public string UserRole { get; set; } = string.Empty;
     }
+    public class UpdateUsernameRequest
+    {
+        public string NewUsername { get; set; } = string.Empty;
+    }
+
+    public class ChangePasswordRequest
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+    }
 }

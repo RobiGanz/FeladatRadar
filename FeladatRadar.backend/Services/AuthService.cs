@@ -18,15 +18,13 @@ namespace FeladatRadar.backend.Services
         {
             _configuration = configuration;
             _connectionString = configuration.GetConnectionString("Default")
-                ?? throw new InvalidOperationException("Connection string not found");
+                ?? throw new InvalidOperationException("Kapcsolati sztring nem található.");
         }
 
         public async Task<LoginResponse> Register(RegisterRequest request)
         {
             try
             {
-                Console.WriteLine($"[API] Register attempt for: {request.Username}");
-
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
                 using var connection = new SqlConnection(_connectionString);
@@ -39,79 +37,28 @@ namespace FeladatRadar.backend.Services
                 parameters.Add("@UserRole", request.UserRole);
 
                 var results = await connection.QueryAsync<dynamic>(
-                    "sp_RegisterUser",
-                    parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    "sp_RegisterUser", parameters, commandType: CommandType.StoredProcedure);
 
                 var result = results.FirstOrDefault();
-
-                Console.WriteLine($"[API] Register SP result: {(result != null ? "Found" : "NULL")}");
-
                 if (result == null)
-                {
-                    return new LoginResponse
-                    {
-                        Status = "ERROR",
-                        Message = "Hiba történt a regisztráció során"
-                    };
-                }
+                    return new LoginResponse { Status = "ERROR", Message = "Hiba történt a regisztráció során." };
 
-                var resultDict = (IDictionary<string, object>)result;
+                var d = (IDictionary<string, object>)result;
+                if (d["Status"]?.ToString() == "ERROR")
+                    return new LoginResponse { Status = "ERROR", Message = d["Message"]?.ToString() ?? "Hiba" };
 
-                if (resultDict.ContainsKey("Status") && resultDict["Status"]?.ToString() == "ERROR")
-                {
-                    Console.WriteLine($"[API] Register error: {resultDict["Message"]}");
-                    return new LoginResponse
-                    {
-                        Status = "ERROR",
-                        Message = resultDict["Message"]?.ToString() ?? "Hiba"
-                    };
-                }
-
-                var user = new User
-                {
-                    UserID = Convert.ToInt32(resultDict["UserID"]),
-                    Username = resultDict["Username"]?.ToString() ?? "",
-                    Email = resultDict["Email"]?.ToString(),
-                    FirstName = resultDict["FirstName"]?.ToString(),
-                    LastName = resultDict["LastName"]?.ToString(),
-                    UserRole = resultDict["UserRole"]?.ToString() ?? "",
-                    CreatedAt = Convert.ToDateTime(resultDict["CreatedAt"])
-                };
-
-                Console.WriteLine($"[API] User registered: {user.Username}, ID: {user.UserID}");
-
-                string token = GenerateJwtToken(user);
-
-                Console.WriteLine($"[API] Register token generated: {token.Substring(0, Math.Min(20, token.Length))}...");
-
+                var user = MapUser(d);
                 return new LoginResponse
                 {
                     Status = "SUCCESS",
                     Message = "Sikeres regisztráció!",
-                    Token = token,
-                    User = new UserDto
-                    {
-                        UserID = user.UserID,
-                        Username = user.Username,
-                        Email = user.Email ?? "",
-                        FirstName = user.FirstName ?? "",
-                        LastName = user.LastName ?? "",
-                        UserRole = user.UserRole
-                    }
+                    Token = GenerateJwtToken(user),
+                    User = MapUserDto(user)
                 };
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Register exception: {ex.Message}");
-                Console.WriteLine($"[API] Stack trace: {ex.StackTrace}");
-
-                return new LoginResponse
-                {
-                    Status = "ERROR",
-                    Message = $"Hiba: {ex.Message}"
-                };
+                return new LoginResponse { Status = "ERROR", Message = $"Hiba: {ex.Message}" };
             }
         }
 
@@ -119,134 +66,39 @@ namespace FeladatRadar.backend.Services
         {
             try
             {
-                Console.WriteLine($"[API] ========== LOGIN START ==========");
-                Console.WriteLine($"[API] Login attempt for: {request.Username}");
-                Console.WriteLine($"[API] Connection string: {_connectionString.Substring(0, 30)}...");
-
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-                Console.WriteLine($"[API] Database connection opened successfully");
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@Username", request.Username);
 
                 var results = await connection.QueryAsync<dynamic>(
-                    "sp_LoginUser",
-                    parameters,
-                    commandType: CommandType.StoredProcedure
-                );
+                    "sp_LoginUser", parameters, commandType: CommandType.StoredProcedure);
 
                 var result = results.FirstOrDefault();
-
-                Console.WriteLine($"[API] SP result: {(result != null ? "Found" : "NULL")}");
-
                 if (result == null)
-                {
-                    Console.WriteLine($"[API] User not found in database");
-                    return new LoginResponse
-                    {
-                        Status = "ERROR",
-                        Message = "Hibás felhasználónév vagy jelszó!"
-                    };
-                }
+                    return new LoginResponse { Status = "ERROR", Message = "Hibás felhasználónév vagy jelszó!" };
 
-                var resultDict = (IDictionary<string, object>)result;
+                var d = (IDictionary<string, object>)result;
+                if (d["Status"]?.ToString() == "ERROR")
+                    return new LoginResponse { Status = "ERROR", Message = "Hibás felhasználónév vagy jelszó!" };
 
-                Console.WriteLine($"[API] Result contains {resultDict.Count} fields");
+                string storedHash = d["PasswordHash"]?.ToString() ?? "";
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHash))
+                    return new LoginResponse { Status = "ERROR", Message = "Hibás felhasználónév vagy jelszó!" };
 
-                if (resultDict.ContainsKey("Status") && resultDict["Status"]?.ToString() == "ERROR")
-                {
-                    Console.WriteLine($"[API] SP returned ERROR status");
-                    return new LoginResponse
-                    {
-                        Status = "ERROR",
-                        Message = "Hibás felhasználónév vagy jelszó!"
-                    };
-                }
-
-                string storedPasswordHash = resultDict["PasswordHash"]?.ToString() ?? "";
-                Console.WriteLine($"[API] Password hash retrieved: {storedPasswordHash.Substring(0, Math.Min(20, storedPasswordHash.Length))}...");
-
-                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPasswordHash);
-                Console.WriteLine($"[API] Password verification result: {isPasswordValid}");
-
-                if (!isPasswordValid)
-                {
-                    Console.WriteLine($"[API] Password verification FAILED");
-                    return new LoginResponse
-                    {
-                        Status = "ERROR",
-                        Message = "Hibás felhasználónév vagy jelszó!"
-                    };
-                }
-
-                Console.WriteLine($"[API] Creating User object...");
-
-                var user = new User
-                {
-                    UserID = Convert.ToInt32(resultDict["UserID"]),
-                    Username = resultDict["Username"]?.ToString() ?? "",
-                    Email = resultDict["Email"]?.ToString(),
-                    FirstName = resultDict["FirstName"]?.ToString(),
-                    LastName = resultDict["LastName"]?.ToString(),
-                    UserRole = resultDict["UserRole"]?.ToString() ?? "",
-                    CreatedAt = Convert.ToDateTime(resultDict["CreatedAt"])
-                };
-
-                Console.WriteLine($"[API] User object created:");
-                Console.WriteLine($"[API]   - UserID: {user.UserID}");
-                Console.WriteLine($"[API]   - Username: {user.Username}");
-                Console.WriteLine($"[API]   - Email: {user.Email}");
-                Console.WriteLine($"[API]   - FirstName: {user.FirstName}");
-                Console.WriteLine($"[API]   - LastName: {user.LastName}");
-                Console.WriteLine($"[API]   - UserRole: {user.UserRole}");
-
-                Console.WriteLine($"[API] Generating JWT token...");
-                string token = GenerateJwtToken(user);
-                Console.WriteLine($"[API] Token generated: {token.Substring(0, Math.Min(30, token.Length))}...");
-
-                var userDto = new UserDto
-                {
-                    UserID = user.UserID,
-                    Username = user.Username,
-                    Email = user.Email ?? "",
-                    FirstName = user.FirstName ?? "",
-                    LastName = user.LastName ?? "",
-                    UserRole = user.UserRole
-                };
-
-                Console.WriteLine($"[API] UserDto created");
-
-                var response = new LoginResponse
+                var user = MapUser(d);
+                return new LoginResponse
                 {
                     Status = "SUCCESS",
                     Message = "Sikeres bejelentkezés!",
-                    Token = token,
-                    User = userDto
+                    Token = GenerateJwtToken(user),
+                    User = MapUserDto(user)
                 };
-
-                Console.WriteLine($"[API] LoginResponse created:");
-                Console.WriteLine($"[API]   - Status: {response.Status}");
-                Console.WriteLine($"[API]   - Message: {response.Message}");
-                Console.WriteLine($"[API]   - Token: {(response.Token != null ? "EXISTS" : "NULL")}");
-                Console.WriteLine($"[API]   - User: {(response.User != null ? "EXISTS" : "NULL")}");
-                Console.WriteLine($"[API] ========== LOGIN SUCCESS ==========");
-
-                return response;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] ========== LOGIN EXCEPTION ==========");
-                Console.WriteLine($"[API] Exception type: {ex.GetType().Name}");
-                Console.WriteLine($"[API] Exception message: {ex.Message}");
-                Console.WriteLine($"[API] Stack trace: {ex.StackTrace}");
-                Console.WriteLine($"[API] =========================================");
-
-                return new LoginResponse
-                {
-                    Status = "ERROR",
-                    Message = $"Hiba: {ex.Message}"
-                };
+                return new LoginResponse { Status = "ERROR", Message = $"Hiba: {ex.Message}" };
             }
         }
 
@@ -255,39 +107,29 @@ namespace FeladatRadar.backend.Services
             using var connection = new SqlConnection(_connectionString);
             var parameters = new DynamicParameters();
             parameters.Add("@UserID", userId);
-
             return await connection.QueryFirstOrDefaultAsync<User>(
-                "sp_GetUserById",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
+                "sp_GetUserById", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public string GenerateJwtToken(User user)
         {
-            Console.WriteLine($"[API] GenerateJwtToken called for user: {user.Username}");
-
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"]
-                ?? throw new InvalidOperationException("JWT SecretKey not configured");
-
-            Console.WriteLine($"[API] JWT SecretKey loaded (length: {secretKey.Length})");
+                ?? throw new InvalidOperationException("JWT SecretKey nincs beállítva.");
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserID.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
-            new Claim(ClaimTypes.Role, user.UserRole),
-            new Claim("FirstName", user.FirstName ?? ""),
-            new Claim("LastName", user.LastName ?? ""),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-            Console.WriteLine($"[API] Claims created: {claims.Length} claims");
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserID.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+                new Claim(ClaimTypes.Role, user.UserRole),
+                new Claim("FirstName", user.FirstName ?? ""),
+                new Claim("LastName", user.LastName ?? ""),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -297,10 +139,92 @@ namespace FeladatRadar.backend.Services
                 signingCredentials: credentials
             );
 
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-            Console.WriteLine($"[API] Token string generated (length: {tokenString.Length})");
-
-            return tokenString;
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<LoginResponse> UpdateUsername(int userId, string newUsername)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", userId);
+                parameters.Add("@NewUsername", newUsername);
+
+                var results = await connection.QueryAsync<dynamic>(
+                    "sp_UpdateUsername", parameters, commandType: CommandType.StoredProcedure);
+
+                var result = results.FirstOrDefault();
+                if (result == null)
+                    return new LoginResponse { Status = "ERROR", Message = "Hiba történt." };
+
+                var d = (IDictionary<string, object>)result;
+                if (d["Status"]?.ToString() == "ERROR")
+                    return new LoginResponse { Status = "ERROR", Message = d["Message"]?.ToString() ?? "Hiba" };
+
+                var user = MapUser(d);
+                return new LoginResponse
+                {
+                    Status = "SUCCESS",
+                    Message = "Felhasználónév sikeresen módosítva!",
+                    Token = GenerateJwtToken(user),
+                    User = MapUserDto(user)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new LoginResponse { Status = "ERROR", Message = $"Hiba: {ex.Message}" };
+            }
+        }
+
+        public async Task<LoginResponse> ChangePassword(int userId, string currentPassword, string newPassword)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+
+                var hash = await connection.QueryFirstOrDefaultAsync<string>(
+                    "SELECT PasswordHash FROM Users WHERE UserID = @UserID",
+                    new { UserID = userId });
+
+                if (string.IsNullOrEmpty(hash) || !BCrypt.Net.BCrypt.Verify(currentPassword, hash))
+                    return new LoginResponse { Status = "ERROR", Message = "A jelenlegi jelszó helytelen!" };
+
+                string newHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", userId);
+                parameters.Add("@NewPasswordHash", newHash);
+
+                await connection.ExecuteAsync(
+                    "sp_ChangePassword", parameters, commandType: CommandType.StoredProcedure);
+
+                return new LoginResponse { Status = "SUCCESS", Message = "Jelszó sikeresen módosítva!" };
+            }
+            catch (Exception ex)
+            {
+                return new LoginResponse { Status = "ERROR", Message = $"Hiba: {ex.Message}" };
+            }
+        }
+
+        private static User MapUser(IDictionary<string, object> d) => new()
+        {
+            UserID = Convert.ToInt32(d["UserID"]),
+            Username = d["Username"]?.ToString() ?? "",
+            Email = d["Email"]?.ToString(),
+            FirstName = d["FirstName"]?.ToString(),
+            LastName = d["LastName"]?.ToString(),
+            UserRole = d["UserRole"]?.ToString() ?? "",
+            CreatedAt = Convert.ToDateTime(d["CreatedAt"])
+        };
+
+        private static UserDto MapUserDto(User user) => new()
+        {
+            UserID = user.UserID,
+            Username = user.Username,
+            Email = user.Email ?? "",
+            FirstName = user.FirstName ?? "",
+            LastName = user.LastName ?? "",
+            UserRole = user.UserRole
+        };
     }
 }

@@ -20,28 +20,18 @@ namespace FeladatRadar.backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var response = await _authService.Register(request);
-
-            if (response.Status == "ERROR")
-                return BadRequest(response);
-
+            if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var response = await _authService.Login(request);
-
-            if (response.Status == "ERROR")
-                return Unauthorized(response);
-
+            if (response.Status == "ERROR") return Unauthorized(response);
             return Ok(response);
         }
 
@@ -50,15 +40,12 @@ namespace FeladatRadar.backend.Controllers
         public async Task<IActionResult> GetCurrentUser()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized(new { message = "Invalid token" });
+                return Unauthorized(new { message = "Érvénytelen token." });
 
-            int userId = int.Parse(userIdClaim);
-            var user = await _authService.GetUserById(userId);
-
+            var user = await _authService.GetUserById(int.Parse(userIdClaim));
             if (user == null)
-                return NotFound(new { message = "User not found" });
+                return NotFound(new { message = "A felhasználó nem található." });
 
             return Ok(new UserDto
             {
@@ -69,6 +56,28 @@ namespace FeladatRadar.backend.Controllers
                 LastName = user.LastName ?? "",
                 UserRole = user.UserRole
             });
+        }
+
+        [Authorize]
+        [HttpPut("update-username")]
+        public async Task<IActionResult> UpdateUsername([FromBody] UpdateUsernameRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            var response = await _authService.UpdateUsername(int.Parse(userIdClaim), request.NewUsername);
+            if (response.Status == "ERROR") return BadRequest(response);
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            var response = await _authService.ChangePassword(int.Parse(userIdClaim), request.CurrentPassword, request.NewPassword);
+            if (response.Status == "ERROR") return BadRequest(response);
+            return Ok(response);
         }
     }
 }
