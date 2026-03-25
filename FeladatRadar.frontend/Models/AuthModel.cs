@@ -35,16 +35,10 @@ namespace FeladatRadar.frontend.Models
         [Required(ErrorMessage = "A szerepkör kiválasztása kötelező!")]
         public string UserRole { get; set; } = "Student";
 
-        // Custom validation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Password != ConfirmPassword)
-            {
-                yield return new ValidationResult(
-                    "A jelszavak nem egyeznek!",
-                    new[] { nameof(ConfirmPassword) }
-                );
-            }
+                yield return new ValidationResult("A jelszavak nem egyeznek!", new[] { nameof(ConfirmPassword) });
         }
     }
 
@@ -73,5 +67,16 @@ namespace FeladatRadar.frontend.Models
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string UserRole { get; set; } = string.Empty;
+    }
+
+    public class UpdateUsernameRequest
+    {
+        public string NewUsername { get; set; } = string.Empty;
+    }
+
+    public class ChangePasswordRequest
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }
