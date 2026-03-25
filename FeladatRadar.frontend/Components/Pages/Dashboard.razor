@@ -9,7 +9,7 @@
 @inject IJSRuntime JS
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<PageTitle>Dashboard — FeladatRadar</PageTitle>
+<PageTitle>Főoldal— FeladatRadar</PageTitle>
 
 @if (!_hasCheckedAuth)
 {
@@ -20,13 +20,11 @@ else if (_isAuthenticated)
     <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
         @if (_menuOpen) { <div class="fr-sidebar-backdrop" @onclick="CloseMenu"></div> }
         <aside class="@SidebarClass">
-                        <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
+            <a href="/dashboard" class="fr-brand" @onclick="CloseMenu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>FeladatRadar</span>
             </a>
             <nav class="fr-nav">
-                
-                
                 <a href="/naptar" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Naptár</a>
                 <a href="/fokusz" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Fókusz Időzítő</a>
                 <a href="/tantargyak" class="fr-nav-item" @onclick="CloseMenu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tantárgyak</a>
@@ -45,10 +43,6 @@ else if (_isAuthenticated)
                         <span>Sötét mód</span>
                     }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Kijelentkezés
-                </button>
             </div>
         </aside>
 
@@ -61,10 +55,7 @@ else if (_isAuthenticated)
                     <span class="fr-page-title">Dashboard</span>
                 </div>
                 <div class="fr-topbar-right">
-                    <div class="fr-user-chip">
-                        <div class="fr-user-dot"></div>
-                        <span>@_userEmail</span>
-                    </div>
+                    <Fiok />
                 </div>
             </header>
 
@@ -175,10 +166,8 @@ else if (_isAuthenticated)
                             }
                         </div>
 
-                        <!-- 2. Funkciók + nap -->
+                        <!-- 2. Gyors navigáció -->
                         <div class="db-col-panel db-info-col">
-
-                            <!-- Navigáció -->
                             <div class="fr-panel db-nav-panel-grow">
                                 <div class="fr-panel-header"><span class="fr-panel-title">Gyors navigáció</span></div>
                                 <div class="db-nav-list">
@@ -204,7 +193,6 @@ else if (_isAuthenticated)
                                     </a>
                                 </div>
                             </div>
-
                         </div>
 
                     </div>
@@ -219,7 +207,6 @@ else
 }
 
 <style>
-    /* ── Layout tokens (naptár palette) ── */
     .fr-layout { display:flex; flex-direction:row; width:100vw; height:100vh; overflow:hidden; background:var(--bg,#f4f2f8); font-family:var(--font); color:var(--text-primary); --accent:#667eea; --accent-2:#764ba2; --accent-hover:#5a6fd8; --accent-subtle:rgba(102,126,234,.12); --accent-subtle-strong:rgba(102,126,234,.2); --bg:#f4f2f8; --surface:#fff; --surface-2:#f0eef8; --border:#e2ddf0; --border-strong:#c4bce0; --text-primary:#1a1630; --text-secondary:#4a4470; --text-muted:#8880aa; --danger:#e53935; --danger-subtle:rgba(229,57,53,.09); --warning:#f59e0b; --warning-subtle:rgba(245,158,11,.1); --success:#0e9f6e; --success-subtle:rgba(14,159,110,.1); --radius:12px; --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
     .fr-layout[data-role="Teacher"] { --accent:#f59e0b; --accent-2:#d97706; --accent-hover:#d97706; --accent-subtle:rgba(245,158,11,.12); --accent-subtle-strong:rgba(245,158,11,.22); }
     .fr-layout[data-role="Teacher"] .fr-btn-primary { background:linear-gradient(135deg,#b45309,#f59e0b) !important; box-shadow:0 2px 10px rgba(245,158,11,.3) !important; }
@@ -229,11 +216,9 @@ else
     .fr-layout[data-role="Teacher"] .db-welcome-banner { background:linear-gradient(120deg,#b45309 0%,#f59e0b 100%); box-shadow:0 4px 24px rgba(245,158,11,.3); }
     .fr-layout[data-theme="dark"] { --bg:#0d0b18; --surface:#16132a; --surface-2:#1e1a38; --border:#2e2850; --border-strong:#4a4270; --text-primary:#f0eeff; --text-secondary:#9890cc; --text-muted:#5a5480; --accent-subtle:rgba(102,126,234,.18); --accent-subtle-strong:rgba(102,126,234,.28); --danger-subtle:rgba(229,57,53,.15); --warning-subtle:rgba(245,158,11,.13); --success-subtle:rgba(14,159,110,.13); }
 
-    /* Dashboard-specific styles — layout from app.css */
     .fr-content { flex:1; overflow:hidden; padding:20px 24px; display:flex; flex-direction:column; gap:14px; min-height:0; }
     .fr-loading-inline { display:flex; align-items:center; gap:10px; padding:40px; color:var(--text-muted); font-size:.875rem; }
 
-    /* Üdvözlő sáv */
     .db-welcome-banner { display:flex; align-items:center; justify-content:space-between; padding:22px 28px; border-radius:var(--radius); background:linear-gradient(120deg,#667eea 0%,#764ba2 100%); color:#fff; flex-shrink:0; box-shadow:0 4px 24px rgba(102,126,234,.3); gap:16px; }
     .db-welcome-left { display:flex; flex-direction:column; gap:5px; }
     .db-welcome-greeting { font-size:1.6rem; font-weight:800; letter-spacing:-.01em; }
@@ -244,7 +229,6 @@ else
     .db-welcome-badge-warn { background:rgba(239,68,68,.25); border:1px solid rgba(239,68,68,.4); }
     .db-welcome-badge-info { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); }
 
-    /* Stat kártyák */
     .db-stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; flex-shrink:0; }
     .db-stat { display:flex; align-items:center; gap:16px; padding:20px; border-radius:var(--radius); text-decoration:none; border:1px solid var(--border); background:var(--surface); transition:box-shadow .15s,transform .12s; }
     .db-stat:hover { box-shadow:0 4px 18px rgba(102,126,234,.12); transform:translateY(-2px); }
@@ -262,27 +246,23 @@ else
     .db-stat-subjects:hover { border-color:var(--warning); }
     .db-stat-groups:hover { border-color:var(--success); }
 
-    /* 2 oszlopos fő grid */
     .db-three-grid { display:grid; grid-template-columns:1fr 400px; gap:16px; flex:1; min-height:0; }
     .db-col-panel { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
     .db-info-col { display:flex; flex-direction:column; gap:12px; min-height:0; overflow:hidden; }
     .db-nav-panel-grow { flex:1; display:flex; flex-direction:column; min-height:0; }
     .db-nav-panel-grow .db-nav-list { flex:1; overflow-y:auto; }
 
-    /* Panel override for scroll */
     .fr-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; flex-shrink:0; }
     .fr-panel-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:linear-gradient(135deg,rgba(102,126,234,.05),rgba(118,75,162,.05)); flex-wrap:wrap; gap:6px; flex-shrink:0; }
     .fr-panel-title { font-weight:700; font-size:.875rem; display:flex; align-items:center; color:var(--text-primary); }
     .fr-panel-link { font-size:.78rem; color:var(--accent); text-decoration:none; font-weight:500; }
     .fr-panel-empty { display:flex; align-items:center; justify-content:center; padding:40px; color:var(--text-muted); font-size:.85rem; flex:1; }
 
-    /* Szűrő */
     .db-day-filter { display:flex; gap:2px; background:var(--surface-2); border-radius:7px; padding:2px; }
     .db-day-btn { padding:3px 8px; border:none; border-radius:5px; background:none; color:var(--text-muted); font-size:.7rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font); }
     .db-day-btn:hover { color:var(--text-primary); }
     .db-day-btn.db-day-active { background:var(--surface); color:var(--text-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.08); }
 
-    /* Feladat lista */
     .fr-task-list { flex:1; overflow-y:auto; }
     .fr-task-row { display:flex; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); gap:10px; transition:background .12s; }
     .fr-task-row:last-child { border-bottom:none; }
@@ -299,7 +279,6 @@ else
     .fr-due-soon { background:var(--warning-subtle); color:var(--warning); }
     .fr-due-date { font-size:.7rem; color:var(--text-muted); font-weight:500; white-space:nowrap; }
 
-    /* Nav lista */
     .db-nav-list { display:flex; flex-direction:column; }
     .db-navitem { display:flex; align-items:center; gap:14px; padding:14px 18px; text-decoration:none; border-bottom:1px solid var(--border); transition:background .12s; }
     .db-navitem:last-child { border-bottom:none; }
@@ -326,11 +305,10 @@ else
     private bool _hasCheckedAuth = false;
     private bool _isAuthenticated = false;
     private string _userRole = "";
-    private string _userEmail = "";
-    private string _firstName = "";
     private string _theme = "light";
     private bool _isLoading = true;
     private string _dayFilter = "today";
+    private string _firstName = "";
 
     private int _activeTasks = 0;
     private int _overdueTasks = 0;
@@ -360,10 +338,8 @@ else
         try { await AuthService.InitializeAsync(); } catch { }
         _hasCheckedAuth = true;
         _isAuthenticated = AuthService.IsAuthenticated;
-        _userEmail = AuthService.CurrentUser?.Email ?? "";
         _userRole = AuthService.CurrentUser?.UserRole ?? "";
-        var namePart = _userEmail.Split('@')[0].Split('.')[0];
-        _firstName = namePart.Length > 0 ? char.ToUpper(namePart[0]) + namePart.Substring(1) : _userEmail;
+        _firstName = AuthService.CurrentUser?.FirstName ?? "";
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
         await LoadData();
         StateHasChanged();
@@ -384,21 +360,6 @@ else
         _todayEvents  = _allTasks.Count(t => !t.IsCompleted && t.DueDate.Date == DateTime.Today);
         _isLoading = false;
     }
-
-    private string TranslateType(string t) => t switch
-    {
-        "Assignment" => "Beadandó",
-        "Homework"   => "Házi",
-        "Exam"       => "Dolgozat",
-        "Vizsga"     => "Vizsga",
-        "Project"    => "Projekt",
-        "Verseny"    => "Verseny",
-        "Sport"      => "Sport",
-        "Olvasas"    => "Olvasás",
-        "Personal"   => "Személyes",
-        "Other"      => "Egyéb",
-        _            => t
-    };
 
     private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }
 }

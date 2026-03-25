@@ -1,0 +1,532 @@
+﻿@using FeladatRadar.frontend.Services
+@using FeladatRadar.frontend.Models
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="prof-wrap @(_open ? "prof-open" : "")" data-role="@_role">
+    <button class="prof-trigger" @onclick="Toggle">
+        <div class="prof-avatar">@_initials</div>
+        <div class="prof-trigger-info">
+            <span class="prof-trigger-name">@_fullName</span>
+            <span class="prof-trigger-email">@_email</span>
+        </div>
+        <svg class="prof-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9" /></svg>
+    </button>
+
+    @if (_open)
+    {
+        <div class="prof-backdrop" @onclick="Close"></div>
+        <div class="prof-dropdown">
+
+          
+            <div class="prof-header">
+                <div class="prof-header-avatar">@_initials</div>
+                <div class="prof-header-info">
+                    <div class="prof-header-name">@_fullName</div>
+                    <div class="prof-header-role">@_roleLabel</div>
+                </div>
+            </div>
+
+            <!-- Fiókadatok -->
+            <div class="prof-section">
+                <div class="prof-section-label">Fiókadatok</div>
+                <div class="prof-info-row">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    <span class="prof-info-label">Felhasználónév</span>
+                    <span class="prof-info-val">@(AuthService.CurrentUser?.Username)</span>
+                </div>
+                <div class="prof-info-row">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                    <span class="prof-info-label">Email</span>
+                    <span class="prof-info-val">@_email</span>
+                </div>
+            </div>
+
+            <div class="prof-divider"></div>
+
+              <!-- Felhasználónév módosítása -->
+            <div class="prof-section">
+                <div class="prof-section-label">Felhasználónév módosítása</div>
+                @if (!string.IsNullOrEmpty(_usernameMsg))
+                {
+                    <div class="prof-msg @(_usernameMsgOk ? "prof-msg-ok" : "prof-msg-err")">@_usernameMsg</div>
+                }
+                <div class="prof-field-row">
+                    <input class="prof-input" type="text" placeholder="Új felhasználónév (min. 3 kar.)"
+                           autocomplete="off"
+                           @bind="_newUsername" @bind:event="oninput" />
+                    <button class="prof-btn" @onclick="HandleUpdateUsername" disabled="@_usernameLoading">
+                        @if (_usernameLoading)
+                        {
+                            <span class="prof-spin"></span>
+                        }
+                        else
+                        {
+
+                            <span>Mentés</span>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            <div class="prof-divider"></div>
+
+            <!-- Jelszóváltás -->
+            <div class="prof-section">
+                <div class="prof-section-label">Jelszóváltás</div>
+                @if (!string.IsNullOrEmpty(_passwordMsg))
+                {
+                    <div class="prof-msg @(_passwordMsgOk ? "prof-msg-ok" : "prof-msg-err")">@_passwordMsg</div>
+                }
+
+                <!-- Jelenlegi jelszó -->
+                <div class="prof-pw-wrap">
+                    <input class="prof-input prof-input-full"
+                           type="@(_showCurrentPw ? "text" : "password")"
+                           placeholder="Jelenlegi jelszó"
+                           autocomplete="off"
+                           value="@_currentPassword"
+                           @oninput="@(e => _currentPassword = e.Value?.ToString() ?? "")" />
+                    <button type="button" class="prof-eye-btn" @onclick="ToggleCurrentPw" tabindex="-1">
+                        @if (_showCurrentPw)
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        }
+                    </button>
+                </div>
+
+                <!-- Új jelszó -->
+                <div class="prof-pw-wrap">
+                    <input class="prof-input prof-input-full"
+                           type="@(_showNewPw ? "text" : "password")"
+                           placeholder="Új jelszó"
+                           autocomplete="new-password"
+                           value="@_newPassword"
+                           @oninput="OnNewPasswordInput" />
+                    <button type="button" class="prof-eye-btn" @onclick="ToggleNewPw" tabindex="-1">
+                        @if (_showNewPw)
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        }
+                    </button>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_newPassword))
+                {
+                    <!-- Erősségmérő -->
+                    <div class="prof-strength">
+                        <div class="prof-strength-bar">
+                            <div class="prof-strength-fill prof-strength-@_pwStrength"></div>
+                        </div>
+                        <div class="prof-pw-checks">
+                            <span class="prof-pw-check @(_pwHasLength ? "ok" : "fail")">
+                                @(_pwHasLength ? "✅" : "❌") Min. 8 kar.
+                            </span>
+                            <span class="prof-pw-check @(_pwHasUpper ? "ok" : "fail")">
+                                @(_pwHasUpper ? "✅" : "❌") Nagybetű
+                            </span>
+                            <span class="prof-pw-check @(_pwHasDigit ? "ok" : "fail")">
+                                @(_pwHasDigit ? "✅" : "❌") Szám
+                            </span>
+                            <span class="prof-pw-check @(_pwHasSpecial ? "ok" : "fail")">
+                                @(_pwHasSpecial ? "✅" : "❌") Speciális
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Új jelszó mégegyszer -->
+                <div class="prof-pw-wrap">
+                    <input class="prof-input prof-input-full"
+                           type="@(_showConfirmPw ? "text" : "password")"
+                           placeholder="Új jelszó mégegyszer"
+                           autocomplete="new-password"
+                           value="@_confirmPassword"
+                           @oninput="@(e => _confirmPassword = e.Value?.ToString() ?? "")" />
+                    <button type="button" class="prof-eye-btn" @onclick="ToggleConfirmPw" tabindex="-1">
+                        @if (_showConfirmPw)
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        }
+                    </button>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_confirmPassword))
+                {
+                    <div class="prof-pw-check @(_newPassword == _confirmPassword ? "ok" : "fail")" style="font-size:.76rem;">
+                        @(_newPassword == _confirmPassword ? "✅ A jelszavak egyeznek" : "❌ A jelszavak nem egyeznek")
+                    </div>
+                }
+
+                <button class="prof-btn prof-btn-full" @onclick="HandleChangePassword" disabled="@_passwordLoading">
+                    @if (_passwordLoading)
+                    {
+                        <span class="prof-spin"></span>
+                        <span>Mentés...</span>
+                    }
+                    else
+                    {
+                        <span>Jelszó módosítása</span>
+                    }
+                </button>
+            </div>
+
+            <div class="prof-divider"></div>
+
+            <!-- Kijelentkezés -->
+            <button class="prof-logout-btn" @onclick="HandleLogout">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Kijelentkezés
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _open = false;
+    private string _newUsername = "";
+    private string _currentPassword = "";
+    private string _newPassword = "";
+    private string _confirmPassword = "";
+    private string _usernameMsg = "";
+    private string _passwordMsg = "";
+    private bool _usernameMsgOk;
+    private bool _passwordMsgOk;
+    private bool _usernameLoading;
+    private bool _passwordLoading;
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _initialized) return;
+        _initialized = true;
+        try { await AuthService.InitializeAsync(); } catch { }
+        StateHasChanged();
+    }
+
+    // Eye-toggle state
+    private bool _showCurrentPw = false;
+    private bool _showNewPw = false;
+    private bool _showConfirmPw = false;
+
+    // Password strength state
+    private string _pwStrength = "weak";
+    private bool _pwHasLength;
+    private bool _pwHasUpper;
+    private bool _pwHasDigit;
+    private bool _pwHasSpecial;
+    private bool _pwAllValid => _pwHasLength && _pwHasUpper && _pwHasDigit && _pwHasSpecial;
+
+    private string _email => AuthService.CurrentUser?.Email ?? "";
+    private string _fullName => $"{AuthService.CurrentUser?.FirstName} {AuthService.CurrentUser?.LastName}".Trim();
+    private string _role => AuthService.CurrentUser?.UserRole ?? "Student";
+    private string _roleLabel => _role switch { "Teacher" => "Tanár", "Admin" => "Admin", _ => "Diák" };
+    private string _initials
+    {
+        get
+        {
+            var f = AuthService.CurrentUser?.FirstName ?? "";
+            var l = AuthService.CurrentUser?.LastName ?? "";
+            return $"{(f.Length > 0 ? f[0] : '?')}{(l.Length > 0 ? l[0] : ' ')}".Trim().ToUpper();
+        }
+    }
+
+    private void Toggle() => _open = !_open;
+
+    private void Close()
+    {
+        _open = false;
+        _usernameMsg = ""; _passwordMsg = "";
+        _newUsername = ""; _currentPassword = "";
+        _newPassword = ""; _confirmPassword = "";
+        _showCurrentPw = false; _showNewPw = false; _showConfirmPw = false;
+        ResetPwChecks();
+    }
+
+    // Eye toggle metódusok
+    private void ToggleCurrentPw() { _showCurrentPw = !_showCurrentPw; }
+    private void ToggleNewPw() { _showNewPw = !_showNewPw; }
+    private void ToggleConfirmPw() { _showConfirmPw = !_showConfirmPw; }
+
+    private void ResetPwChecks()
+    {
+        _pwHasLength = _pwHasUpper = _pwHasDigit = _pwHasSpecial = false;
+        _pwStrength = "weak";
+    }
+
+    private void OnNewPasswordInput(ChangeEventArgs e)
+    {
+        var pwd = e.Value?.ToString() ?? "";
+        _newPassword = pwd;
+        _pwHasLength = pwd.Length >= 8;
+        _pwHasUpper = pwd.Any(char.IsUpper);
+        _pwHasDigit = pwd.Any(char.IsDigit);
+        _pwHasSpecial = pwd.Any(c => char.IsSymbol(c) || char.IsPunctuation(c));
+
+        int score = new[] { _pwHasLength, _pwHasUpper, _pwHasDigit, _pwHasSpecial }.Count(x => x);
+        _pwStrength = score switch { 1 => "weak", 2 => "medium", 3 => "good", 4 => "strong", _ => "weak" };
+    }
+
+    private async Task HandleUpdateUsername()
+    {
+        var trimmed = _newUsername.Trim();
+        if (trimmed.Length < 3)
+        {
+            _usernameMsg = "Legalább 3 karakter szükséges."; _usernameMsgOk = false; return;
+        }
+        _usernameLoading = true; _usernameMsg = "";
+        var r = await AuthService.UpdateUsername(trimmed);
+        _usernameLoading = false;
+        _usernameMsgOk = r?.Status == "SUCCESS";
+        _usernameMsg = r?.Message ?? "Hiba történt.";
+        if (_usernameMsgOk) _newUsername = "";
+    }
+
+    private async Task HandleChangePassword()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPassword) || string.IsNullOrWhiteSpace(_newPassword) || string.IsNullOrWhiteSpace(_confirmPassword))
+        { _passwordMsg = "Töltsd ki az összes mezőt!"; _passwordMsgOk = false; return; }
+
+        if (!_pwHasLength)
+        { _passwordMsg = "Az új jelszó legalább 8 karakter legyen!"; _passwordMsgOk = false; return; }
+        if (!_pwHasUpper)
+        { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 nagybetűt!"; _passwordMsgOk = false; return; }
+        if (!_pwHasDigit)
+        { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 számot!"; _passwordMsgOk = false; return; }
+        if (!_pwHasSpecial)
+        { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 speciális karaktert!"; _passwordMsgOk = false; return; }
+        if (_newPassword != _confirmPassword)
+        { _passwordMsg = "Az új jelszavak nem egyeznek!"; _passwordMsgOk = false; return; }
+
+        _passwordLoading = true; _passwordMsg = "";
+        var r = await AuthService.ChangePassword(_currentPassword, _newPassword);
+        _passwordLoading = false;
+        _passwordMsgOk = r?.Status == "SUCCESS";
+        _passwordMsg = r?.Message ?? "Hiba történt.";
+        if (_passwordMsgOk) { _currentPassword = ""; _newPassword = ""; _confirmPassword = ""; ResetPwChecks(); }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}
+
+<style>
+    .prof-wrap { position: relative; }
+
+    .prof-trigger {
+        display: flex; align-items: center; gap: 9px;
+        padding: 5px 10px 5px 5px;
+        border: 1px solid rgba(255,255,255,.25); border-radius: 40px;
+        background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
+        cursor: pointer; color: #fff; transition: background .15s;
+    }
+    .prof-trigger:hover { background: rgba(255,255,255,.22); }
+
+    .prof-avatar {
+        width: 30px; height: 30px; border-radius: 50%;
+        background: rgba(255,255,255,.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: .72rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .prof-trigger-info { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+    .prof-trigger-name { font-size: .78rem; font-weight: 600; white-space: nowrap; }
+    .prof-trigger-email { font-size: .68rem; opacity: .7; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+    .prof-chevron { opacity: .75; transition: transform .2s; flex-shrink: 0; }
+    .prof-open .prof-chevron { transform: rotate(180deg); }
+
+    .prof-backdrop { position: fixed; inset: 0; z-index: 299; }
+
+    .prof-dropdown {
+        position: absolute; top: calc(100% + 10px); right: 0;
+        width: 320px;
+        background: var(--surface, #fff);
+        border: 1px solid var(--border, #e2ddf0);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.16), 0 4px 16px rgba(102,126,234,.12);
+        z-index: 300; overflow: hidden;
+        animation: prof-in .18s ease-out both;
+    }
+    @@keyframes prof-in { from { opacity:0; transform:translateY(-8px) scale(.97); } to { opacity:1; transform:none; } }
+
+    /* ── Diák (default) fejléc + gomb ── */
+    .prof-header {
+        display: flex; align-items: center; gap: 12px;
+        padding: 18px 18px 16px;
+        background: linear-gradient(135deg, rgba(102,126,234,.08), rgba(118,75,162,.06));
+        border-bottom: 1px solid var(--border, #e2ddf0);
+    }
+    .prof-header-avatar {
+        width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: .9rem; font-weight: 700; color: #fff;
+    }
+    .prof-btn {
+        padding: 8px 14px; border: none; border-radius: 9px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff; font-size: .8rem; font-weight: 600;
+        cursor: pointer; transition: opacity .15s;
+        display: flex; align-items: center; gap: 6px;
+        white-space: nowrap; font-family: inherit;
+    }
+    .prof-input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.12); }
+
+    /* ── Tanár (amber) fejléc + gomb override ── */
+    [data-role="Teacher"] .prof-header {
+        background: linear-gradient(135deg, rgba(217,119,6,.08), rgba(180,83,9,.06));
+    }
+    [data-role="Teacher"] .prof-header-avatar {
+        background: linear-gradient(135deg, #f59e0b, #b45309);
+    }
+    [data-role="Teacher"] .prof-btn {
+        background: linear-gradient(135deg, #f59e0b, #b45309);
+    }
+    [data-role="Teacher"] .prof-input:focus {
+        border-color: #d97706;
+        box-shadow: 0 0 0 3px rgba(217,119,6,.12);
+    }
+    [data-role="Teacher"] .prof-header-role {
+        background: rgba(217,119,6,.12); color: #b45309;
+    }
+    [data-role="Teacher"] .prof-dropdown {
+        box-shadow: 0 20px 60px rgba(0,0,0,.16), 0 4px 16px rgba(217,119,6,.12);
+    }
+    [data-role="Teacher"] .prof-strength-fill.prof-strength-strong { background: #d97706; }
+
+    .prof-header-name { font-size: .9rem; font-weight: 700; color: var(--text-primary, #1a1630); }
+    .prof-header-role {
+        display: inline-block; margin-top: 3px;
+        font-size: .68rem; font-weight: 600; padding: 2px 8px;
+        background: rgba(102,126,234,.12); color: #667eea; border-radius: 10px;
+    }
+
+    .prof-section { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .prof-section-label {
+        font-size: .68rem; font-weight: 700;
+        color: var(--text-muted, #8880aa);
+        text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px;
+    }
+    .prof-divider { height: 1px; background: var(--border, #e2ddf0); }
+
+    .prof-info-row {
+        display: flex; align-items: center; gap: 8px;
+        font-size: .8rem; color: var(--text-secondary, #4a4470);
+    }
+    .prof-info-row svg { flex-shrink: 0; color: var(--text-muted, #8880aa); }
+    .prof-info-label { color: var(--text-muted, #8880aa); min-width: 90px; font-size: .78rem; }
+    .prof-info-val { font-weight: 600; color: var(--text-primary, #1a1630); word-break: break-all; font-size: .82rem; }
+
+    .prof-field-row { display: flex; gap: 7px; }
+    .prof-input {
+        flex: 1; padding: 8px 11px;
+        border: 1.5px solid var(--border, #e2ddf0); border-radius: 9px;
+        background: var(--surface-2, #f0eef8);
+        color: var(--text-primary, #1a1630);
+        font-size: .82rem; font-family: inherit;
+        outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .prof-input-full { width: 100%; flex: none; box-sizing: border-box; }
+
+    /* ── Jelszó wrapper + szemecske gomb ── */
+    .prof-pw-wrap {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .prof-pw-wrap .prof-input-full {
+        padding-right: 38px;
+    }
+    .prof-eye-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 3px;
+        cursor: pointer;
+        color: var(--text-muted, #8880aa);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        z-index: 2;
+    }
+    .prof-eye-btn:hover { color: var(--text-primary, #1a1630); }
+
+    .prof-btn:hover:not(:disabled) { opacity: .88; }
+    .prof-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .prof-btn-full { width: 100%; justify-content: center; margin-top: 2px; }
+
+    /* Erősségmérő */
+    .prof-strength { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+    .prof-strength-bar { height: 4px; background: rgba(102,126,234,.1); border-radius: 2px; overflow: hidden; }
+    .prof-strength-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; }
+    .prof-strength-weak   { width: 25%;  background: #e53935; }
+    .prof-strength-medium { width: 50%;  background: #f59e0b; }
+    .prof-strength-good   { width: 75%;  background: #84cc16; }
+    .prof-strength-strong { width: 100%; background: #0e9f6e; }
+    .prof-pw-checks { display: flex; gap: 8px; flex-wrap: wrap; }
+    .prof-pw-check { font-size: .72rem; }
+    .prof-pw-check.ok   { color: #0e9f6e; }
+    .prof-pw-check.fail { color: var(--text-muted, #8880aa); }
+
+    .prof-spin {
+        width: 13px; height: 13px;
+        border: 2px solid rgba(255,255,255,.35);
+        border-top-color: #fff; border-radius: 50%;
+        animation: pspin .7s linear infinite; flex-shrink: 0;
+    }
+    @@keyframes pspin { to { transform: rotate(360deg); } }
+
+    .prof-msg { font-size: .78rem; font-weight: 500; padding: 7px 10px; border-radius: 8px; }
+    .prof-msg-ok  { background: rgba(14,159,110,.1);  color: #0e9f6e; }
+    .prof-msg-err { background: rgba(229,57,53,.09); color: #e53935; }
+
+    .prof-logout-btn {
+        display: flex; align-items: center; gap: 9px;
+        width: 100%; padding: 13px 18px;
+        border: none; background: none;
+        color: #e53935; font-size: .84rem; font-weight: 600;
+        cursor: pointer; transition: background .15s;
+        font-family: inherit; text-align: left;
+    }
+    .prof-logout-btn:hover { background: rgba(229,57,53,.07); }
+</style>
