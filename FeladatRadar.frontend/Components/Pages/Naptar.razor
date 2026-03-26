@@ -127,7 +127,7 @@ else if (_isAuthenticated)
                     </div>
                     <div class="fr-week-nav">
                         <button class="fr-week-btn" @onclick="NavPrev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg></button>
-                        <button class="fr-week-today @(IsOnToday() ? "fr-today-current" : "")" @onclick="GoToToday">Ma</button>
+                        <button class="fr-week-today @(IsOnToday() ? "fr-today-current" : "")" @onclick="GoToToday">@GetNavLabel()</button>
                         <button class="fr-week-btn" @onclick="NavNext"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6" /></svg></button>
                     </div>
                     <div class="fr-user-chip">
@@ -448,7 +448,7 @@ else if (_isAuthenticated)
                                             var ge = (GroupScheduleEntryDto)eo;
                                             var hue = GetSubjectHue(ge.SubjectID);
                                             <div class="fr-entry" style="--hue:@hue" @onclick:stopPropagation="true">
-                                                <span class="fr-entry-time">@(ge.StartTime.Length >= 5 ? ge.StartTime[..5] : ge.StartTime)</span>
+                                              <span class="fr-entry-time">@(ge.StartTime.Length >= 5 ? ge.StartTime[..5] : ge.StartTime) – @(ge.EndTime.Length >= 5 ? ge.EndTime[..5] : ge.EndTime)</span>
                                                 <span class="fr-entry-name">@ge.SubjectName</span>
                                                 @if (!string.IsNullOrEmpty(ge.Location))
                                                 {
@@ -475,7 +475,7 @@ else if (_isAuthenticated)
                                             var entryId = entry.EntryID;
                                             var hue = GetSubjectHue(entry.SubjectID);
                                             <div class="fr-entry" style="--hue:@hue" @onclick:stopPropagation="true">
-                                                <span class="fr-entry-time">@(entry.StartTime.Length >= 5 ? entry.StartTime[..5] : entry.StartTime)</span>
+                                          <span class="fr-entry-time">@(entry.StartTime.Length >= 5 ? entry.StartTime[..5] : entry.StartTime) – @(entry.EndTime.Length >= 5 ? entry.EndTime[..5] : entry.EndTime)</span>
                                                 <span class="fr-entry-name">@entry.SubjectName</span>
                                                 @if (!string.IsNullOrEmpty(entry.Location))
                                                 {
@@ -828,7 +828,30 @@ else
             _ => _weekOffset == 0
         };
     }
-
+    private string GetNavLabel()
+{
+    if (IsOnToday()) return "Ma";
+    return _viewMode switch
+    {
+        "day" => _dayViewOffset switch
+        {
+            1 => "Holnap",
+            -1 => "Tegnap",
+            > 0 => $"{_dayViewOffset} nap múlva",
+            < 0 => $"{Math.Abs(_dayViewOffset)} napja",
+            _ => "Ma"
+        },
+        "month" => "Aktuális hónap",
+        _ => _weekOffset switch
+        {
+            1 => "Jövő hét",
+            -1 => "Előző hét",
+            > 1 => $"{_weekOffset} héttel később",
+            < -1 => $"{Math.Abs(_weekOffset)} héttel korábban",
+            _ => "Ez a hét"
+        }
+    };
+}
     private async Task ToggleTheme()
     {
         _theme = _theme == "dark" ? "light" : "dark";
@@ -1333,7 +1356,7 @@ else
         color: #fff; font-size: .78rem; font-family: inherit;
         outline: none; max-width: 150px;
     }
-
+    .fr-group-pick option { color: #1a1630; background: #fff; }
     .fr-week-nav { display: flex; align-items: center; gap: 5px; }
 
     .fr-week-btn {

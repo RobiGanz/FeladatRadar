@@ -542,7 +542,10 @@ body {
     background: var(--accent-subtle);
     color: var(--accent);
 }
-
+select option {
+    color: #1a1630;
+    background: #fff;
+}
 @media (max-width: 600px) {
     .fr-topbar {
         padding: 0 12px;

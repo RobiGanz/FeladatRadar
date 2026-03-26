@@ -25,7 +25,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpGet("my-schedule")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> GetMySchedule()
         {
             var entries = await _scheduleService.GetMyScheduleAsync(GetCurrentUserId());
@@ -33,7 +33,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> AddEntry([FromBody] AddScheduleRequest request)
         {
             var result = await _scheduleService.AddScheduleEntryAsync(GetCurrentUserId(), request);
@@ -42,7 +42,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpDelete("delete/{entryId}")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> DeleteEntry(int entryId)
         {
             var result = await _scheduleService.DeleteScheduleEntryAsync(entryId, GetCurrentUserId());
