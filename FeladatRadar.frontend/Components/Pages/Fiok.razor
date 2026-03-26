@@ -150,8 +150,8 @@
                             <span class="prof-pw-check @(_pwHasDigit ? "ok" : "fail")">
                                 @(_pwHasDigit ? "✅" : "❌") Szám
                             </span>
-                            <span class="prof-pw-check @(_pwHasSpecial ? "ok" : "fail")">
-                                @(_pwHasSpecial ? "✅" : "❌") Speciális
+                            <span class="prof-pw-check @(_pwHasSpecial ? "ok" : "warn")">
+                                @(_pwHasSpecial ? "✅" : "⚠️") Speciális (ajánlott)
                             </span>
                         </div>
                     </div>
@@ -248,7 +248,7 @@
     private bool _pwHasUpper;
     private bool _pwHasDigit;
     private bool _pwHasSpecial;
-    private bool _pwAllValid => _pwHasLength && _pwHasUpper && _pwHasDigit && _pwHasSpecial;
+    private bool _pwAllValid => _pwHasLength && _pwHasUpper && _pwHasDigit;
 
     private string _email => AuthService.CurrentUser?.Email ?? "";
     private string _fullName => $"{AuthService.CurrentUser?.FirstName} {AuthService.CurrentUser?.LastName}".Trim();
@@ -326,8 +326,6 @@
         { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 nagybetűt!"; _passwordMsgOk = false; return; }
         if (!_pwHasDigit)
         { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 számot!"; _passwordMsgOk = false; return; }
-        if (!_pwHasSpecial)
-        { _passwordMsg = "Az új jelszónak tartalmaznia kell legalább 1 speciális karaktert!"; _passwordMsgOk = false; return; }
         if (_newPassword != _confirmPassword)
         { _passwordMsg = "Az új jelszavak nem egyeznek!"; _passwordMsgOk = false; return; }
 
@@ -507,6 +505,7 @@
     .prof-pw-check { font-size: .72rem; }
     .prof-pw-check.ok   { color: #0e9f6e; }
     .prof-pw-check.fail { color: var(--text-muted, #8880aa); }
+    .prof-pw-check.warn { color: #d97706; }
 
     .prof-spin {
         width: 13px; height: 13px;

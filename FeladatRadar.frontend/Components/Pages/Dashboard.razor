@@ -339,7 +339,7 @@ else
         _hasCheckedAuth = true;
         _isAuthenticated = AuthService.IsAuthenticated;
         _userRole = AuthService.CurrentUser?.UserRole ?? "";
-        _firstName = AuthService.CurrentUser?.FirstName ?? "";
+        _firstName = AuthService.CurrentUser?.Username ?? "";
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
         await LoadData();
         StateHasChanged();

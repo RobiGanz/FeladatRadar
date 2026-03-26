@@ -89,7 +89,10 @@
                 <div class="form-group">
                     <label>Jelszó <span class="required">*</span></label>
                     <div class="password-wrapper">
-                        <InputText type="@passwordInputType" class="form-input" @bind-Value="registerModel.Password" placeholder="Min. 8 karakter" @oninput="CheckPassword" />
+                        <input type="@passwordInputType" class="form-input"
+    value="@registerModel.Password"
+    @oninput="OnPasswordChanged"
+    placeholder="Min. 8 karakter" />
                         <button type="button" class="toggle-password" @onclick="TogglePassword">
                             @if (showPassword)
                             {
@@ -110,14 +113,17 @@
                             </div>
                             <div class="strength-checks">
                                 <span class="check @(registerModel.Password.Length >= 8 ? "check-ok" : "check-fail")">
-                                    @(registerModel.Password.Length >= 8 ? "✅" : "❌") Min. 8 kar.
+                                   @(_regHasLength ? "✅" : "❌") Min. 8 kar.
                                 </span>
                                 <span class="check @(registerModel.Password.Any(char.IsUpper) ? "check-ok" : "check-fail")">
-                                    @(registerModel.Password.Any(char.IsUpper) ? "✅" : "❌") Nagybetű
+                                    @(_regHasUpper ? "✅" : "❌") Nagybetű
                                 </span>
                                 <span class="check @(registerModel.Password.Any(char.IsDigit) ? "check-ok" : "check-fail")">
-                                    @(registerModel.Password.Any(char.IsDigit) ? "✅" : "❌") Szám
+                                   @(_regHasDigit ? "✅" : "❌") Szám
                                 </span>
+                                <span class="check @(_regHasSpecial ? "check-ok" : "check-warn")">
+                                    @(_regHasSpecial ? "✅" : "⚠️") Speciális (ajánlott)
+                            </span>
                             </div>
                         </div>
                     }
@@ -221,6 +227,10 @@
     private string passwordInputType = "password";
     private string confirmPasswordInputType = "password";
     private string passwordStrength = "weak";
+    private bool _regHasLength;
+    private bool _regHasUpper;
+    private bool _regHasDigit;
+    private bool _regHasSpecial;
 
     private void TogglePassword()
     {
@@ -234,14 +244,18 @@
         confirmPasswordInputType = showConfirmPassword ? "text" : "password";
     }
 
-    private void CheckPassword(ChangeEventArgs e)
+    private void CheckPassword()
     {
-        var pwd = e.Value?.ToString() ?? "";
-        int strength = 0;
-        if (pwd.Length >= 8) strength++;
-        if (pwd.Any(char.IsUpper)) strength++;
-        if (pwd.Any(char.IsDigit)) strength++;
-        if (pwd.Any(char.IsSymbol) || pwd.Any(char.IsPunctuation)) strength++;
+        var pwd = registerModel.Password ?? "";
+    _regHasLength  = pwd.Length >= 8;
+    _regHasUpper   = pwd.Any(char.IsUpper);
+    _regHasDigit   = pwd.Any(char.IsDigit);
+    _regHasSpecial = pwd.Any(c => char.IsSymbol(c) || char.IsPunctuation(c));
+    int strength = 0;
+    if (_regHasLength)  strength++;
+    if (_regHasUpper)   strength++;
+    if (_regHasDigit)   strength++;
+    if (_regHasSpecial) strength++;
         passwordStrength = strength switch
         {
             0 or 1 => "weak",
@@ -251,6 +265,28 @@
             _ => "weak"
         };
     }
+    private void OnPasswordChanged(ChangeEventArgs e)
+{
+    var pwd = e.Value?.ToString() ?? "";
+    registerModel.Password = pwd;
+    _regHasLength  = pwd.Length >= 8;
+    _regHasUpper   = pwd.Any(char.IsUpper);
+    _regHasDigit   = pwd.Any(char.IsDigit);
+    _regHasSpecial = pwd.Any(c => char.IsSymbol(c) || char.IsPunctuation(c));
+    int strength = 0;
+    if (_regHasLength)  strength++;
+    if (_regHasUpper)   strength++;
+    if (_regHasDigit)   strength++;
+    if (_regHasSpecial) strength++;
+    passwordStrength = strength switch
+    {
+        0 or 1 => "weak",
+        2 => "medium",
+        3 => "good",
+        4 => "strong",
+        _ => "weak"
+    };
+}
 
     private async Task HandleRegister()
     {
@@ -408,6 +444,7 @@
     .check { font-size: .72rem; color: var(--text-muted); }
     .check-ok { color: var(--success); }
     .check-fail { color: var(--danger); }
+    .check-warn { color: #d97706; }
     .password-match { font-size: .78rem; margin-top: 4px; }
     .password-match.success { color: var(--success); }
     .password-match.error { color: var(--danger); }
