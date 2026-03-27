@@ -1140,7 +1140,17 @@ else
         --warning-subtle: rgba(245,158,11,.13);
         --success-subtle: rgba(14,159,110,.13);
     }
-
+    /* Admin — piros téma */
+.fr-layout[data-role="Admin"] {
+    --accent:#e53935; --accent-2:#b71c1c; --accent-hover:#c62828;
+    --accent-subtle:rgba(229,57,53,.12); --accent-subtle-strong:rgba(229,57,53,.22);
+    --a-t1:rgba(229,57,53,.06); --a-t2:rgba(229,57,53,.07); --a-t3:rgba(229,57,53,.08); --a-t4:rgba(229,57,53,.1);
+    --a2-t1:rgba(183,28,28,.06); --a2-t2:rgba(183,28,28,.07); --a2-t3:rgba(183,28,28,.08);
+    --a-g1:rgba(229,57,53,.15); --a-g2:rgba(229,57,53,.18); --a-g3:rgba(229,57,53,.3);
+    --a-g4:rgba(229,57,53,.35); --a-g5:rgba(229,57,53,.4); --a-g6:rgba(229,57,53,.45);
+}
+.fr-layout[data-role="Admin"] .fr-btn-primary { background:linear-gradient(135deg,#b71c1c,#e53935) !important; box-shadow:0 2px 10px rgba(229,57,53,.3) !important; }
+.fr-layout[data-role="Admin"] .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(229,57,53,.45); }
     /* ═══ SIDEBAR ═══ */
     .fr-sidebar {
         position: fixed;

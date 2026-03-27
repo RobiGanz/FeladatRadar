@@ -418,7 +418,12 @@ else
         --accent-subtle:rgba(102,126,234,.18); --accent-subtle-strong:rgba(102,126,234,.28);
         --danger-subtle:rgba(229,57,53,.15); --warning-subtle:rgba(245,158,11,.13); --success-subtle:rgba(14,159,110,.13);
     }
-
+    /* Admin — piros téma */
+.fr-layout[data-role="Admin"] { --accent:#e53935; --accent-2:#b71c1c; --accent-hover:#c62828; --accent-subtle:rgba(229,57,53,.12); --accent-subtle-strong:rgba(229,57,53,.22); }
+.fr-layout[data-role="Admin"] .fr-btn-primary { background:linear-gradient(135deg,#b71c1c,#e53935) !important; box-shadow:0 2px 10px rgba(229,57,53,.3) !important; }
+.fr-layout[data-role="Admin"] .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(229,57,53,.45); }
+.fr-layout[data-role="Admin"] .fr-topbar { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; box-shadow:0 2px 16px rgba(229,57,53,.25) !important; }
+.fr-layout[data-role="Admin"] .fr-brand { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; }
     /* ── Sidebar ── */
     .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 32px rgba(102,126,234,.15); overflow:hidden; }
     .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
