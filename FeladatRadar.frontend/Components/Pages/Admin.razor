@@ -181,13 +181,31 @@ else if (_isAuthenticated && _userRole == "Admin")
                                         var isSelf = user.UserID == AuthService.CurrentUser?.UserID;
                                         <tr class="@(!user.IsActive ? "admin-row-inactive" : "")">
                                             <td class="admin-td-id">@user.UserID</td>
-                                            <td class="admin-td-name">@user.FirstName @user.LastName</td>
+                                            <td class="admin-td-name">
+                                                @if (_editingUserId == user.UserID)
+                                                {
+                                                    <div style="display:flex;gap:4px;align-items:center;">
+                                                        <input class="admin-inline-input" @bind="_editFirstName" placeholder="Vezetéknév" />
+                                                        <input class="admin-inline-input" @bind="_editLastName" placeholder="Keresztnév" />
+                                                        <button class="admin-act-btn admin-act-ok" style="width:22px;height:22px;" @onclick="() => SaveRename(user)">✓</button>
+                                                        <button class="admin-act-btn" style="width:22px;height:22px;" @onclick="() => _editingUserId = 0">✕</button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span>@user.FirstName @user.LastName</span>
+                                                    @if (!isSelf)
+                                                    {
+                                                        <button class="admin-rename-btn" @onclick="() => StartRename(user)" title="Név szerkesztés">✏️</button>
+                                                    }
+                                                }
+                                            </td>
                                             <td class="admin-td-email">@user.Email</td>
                                             <td>@user.Username</td>
                                             <td>
                                                 <select class="admin-role-select admin-role-@(user.UserRole.ToLower())"
                                                         value="@user.UserRole"
-                                                        disabled="@isSelf"
+                                                        disabled="@(isSelf || user.UserRole == "Admin")"
                                                         @onchange="(e) => HandleRoleChange(user.UserID, e.Value?.ToString() ?? user.UserRole)">
                                                     <option value="Student">Student</option>
                                                     <option value="Teacher">Teacher</option>
@@ -206,7 +224,15 @@ else if (_isAuthenticated && _userRole == "Admin")
                                             </td>
                                             <td class="admin-td-date">@user.CreatedAt.ToString("yyyy.MM.dd")</td>
                                             <td class="admin-td-actions">
-                                                @if (!isSelf)
+                                                @if (isSelf)
+                                                {
+                                                    <span class="admin-td-muted">Te</span>
+                                                }
+                                                else if (user.UserRole == "Admin")
+                                                {
+                                                    <span class="admin-td-muted">Védett</span>
+                                                }
+                                                else
                                                 {
                                                     @if (user.IsActive)
                                                     {
@@ -223,10 +249,6 @@ else if (_isAuthenticated && _userRole == "Admin")
                                                     <button class="admin-act-btn admin-act-danger" title="Törlés" @onclick="() => HandleDeleteUser(user)">
                                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                                     </button>
-                                                }
-                                                else
-                                                {
-                                                    <span class="admin-td-muted">Te</span>
                                                 }
                                             </td>
                                         </tr>
@@ -467,14 +489,31 @@ else
     .admin-modal-confirm { background:#e53935; color:#fff; }
     .admin-modal-confirm:hover { background:#c62828; }
 
+    /* Rename inline */
+    .admin-inline-input { padding:3px 6px; border:1px solid var(--accent); border-radius:4px; font-size:.78rem; width:80px; background:var(--surface); color:var(--text-primary); font-family:var(--font); outline:none; }
+    .admin-inline-input:focus { box-shadow:0 0 0 2px var(--accent-subtle); }
+    .admin-rename-btn { background:none; border:none; cursor:pointer; font-size:.65rem; opacity:.3; transition:opacity .15s; padding:0 2px; vertical-align:middle; }
+    .admin-rename-btn:hover { opacity:1; }
+
     @@media (max-width:900px) {
         .admin-stats-grid { grid-template-columns:repeat(2,1fr); }
         .admin-detail-grid { grid-template-columns:1fr; }
     }
     @@media (max-width:600px) {
         .admin-stats-grid { grid-template-columns:1fr 1fr; }
-        .admin-table { font-size:.75rem; }
-        .admin-table th, .admin-table td { padding:8px 8px; }
+        .admin-table { font-size:.72rem; }
+        .admin-table th, .admin-table td { padding:6px 6px; }
+        .admin-table th:nth-child(4), .admin-table td:nth-child(4),
+        .admin-table th:nth-child(7), .admin-table td:nth-child(7) { display:none; }
+        .admin-tabs { gap:2px; }
+        .admin-tab { padding:6px 10px; font-size:.72rem; gap:3px; }
+        .admin-tab svg { display:none; }
+        .admin-filter-pills { flex-wrap:wrap; }
+        .admin-toolbar { flex-direction:column; }
+        .fr-content { padding:12px 10px; }
+        .admin-td-email { max-width:100px; font-size:.68rem; }
+        .fr-user-chip { display:none; }
+        .admin-inline-input { width:60px; font-size:.7rem; }
     }
 </style>
 
@@ -513,6 +552,33 @@ else
     private bool _confirmVisible = false;
     private string _confirmMessage = "";
     private Func<Task>? _confirmAction = null;
+
+    // Rename
+    private int _editingUserId = 0;
+    private string _editFirstName = "";
+    private string _editLastName = "";
+
+    private void StartRename(AdminUserDto user)
+    {
+        _editingUserId = user.UserID;
+        _editFirstName = user.FirstName;
+        _editLastName = user.LastName;
+    }
+
+    private async Task SaveRename(AdminUserDto user)
+    {
+        if (string.IsNullOrWhiteSpace(_editFirstName) || string.IsNullOrWhiteSpace(_editLastName))
+        { ShowToast("Mindkét névmező kitöltése kötelező.", true); return; }
+        var result = await AdminService.RenameUserAsync(user.UserID, _editFirstName.Trim(), _editLastName.Trim());
+        if (result.Status == "OK")
+        {
+            user.FirstName = _editFirstName.Trim();
+            user.LastName = _editLastName.Trim();
+            _editingUserId = 0;
+            ShowToast("Név módosítva.");
+        }
+        else ShowToast(result.Message, true);
+    }
 
     private IEnumerable<AdminUserDto> FilteredUsers
     {
@@ -573,7 +639,7 @@ else
         try { _stats = await AdminService.GetSystemStatsAsync(); } catch { _stats = new(); }
         try { _allUsers = await AdminService.GetAllUsersAsync(); } catch { _allUsers = new(); }
         try { _allGroups = await AdminService.GetAllGroupsAsync(); } catch { _allGroups = new(); }
-        _isLoading = false;
+        _isLoading = false; StateHasChanged();
     }
 
     private async Task LoadAuditLog()
@@ -582,7 +648,7 @@ else
         StateHasChanged();
     }
 
-    private async void SwitchTab(string tab)
+    private async Task SwitchTab(string tab)
     {
         _activeTab = tab;
         if (tab == "audit" && !_auditLog.Any())
@@ -677,14 +743,15 @@ else
 
     private string TranslateAction(string action) => action switch
     {
-        "CHANGE_ROLE" => "Szerepkör módosítás",
-        "ACTIVATE_USER" => "Felhasználó aktiválás",
+        "CHANGE_ROLE" or "ChangeUserRole" => "Szerepkör módosítás",
+        "ACTIVATE_USER" or "ToggleUserActive" => "Aktiválás/Tiltás",
         "DEACTIVATE_USER" => "Felhasználó tiltás",
-        "DELETE_USER" => "Felhasználó törlés",
-        "DELETE_GROUP" => "Csoport törlés",
-        "DELETE_POLL" => "Szavazás törlés",
-        "DELETE_EXAM" => "Dolgozat törlés",
-        "DELETE_TASK" => "Feladat törlés",
+        "DELETE_USER" or "DeleteUser" => "Felhasználó törlés",
+        "DELETE_GROUP" or "DeleteGroup" => "Csoport törlés",
+        "DELETE_POLL" or "AdminDeletePoll" => "Szavazás törlés",
+        "DELETE_EXAM" or "AdminDeleteExam" => "Dolgozat törlés",
+        "DELETE_TASK" or "AdminDeleteTask" => "Feladat törlés",
+        "RenameUser" => "Felhasználó átnevezés",
         _ => action
     };
 
