@@ -1922,9 +1922,21 @@ else
         .fr-week-grid { grid-template-columns: repeat(3,1fr); }
     }
 
-    @@media (max-width:600px) {
-        .fr-week-grid { grid-template-columns: repeat(2,1fr); }
-        .fr-topbar { padding: 0 12px; }
-        .fr-content { padding: 10px 12px; }
-    }
+@@media (max-width:600px) {
+    .fr-week-grid { grid-template-columns: repeat(2,1fr); }
+    .fr-topbar { padding: 0 8px; gap:6px; }
+    .fr-topbar-right { gap:4px; flex-wrap:wrap; }
+    .fr-content { padding: 8px 8px; }
+    .fr-seg-btn { padding: 3px 8px; font-size:.68rem; }
+    .fr-group-pick { max-width:100px; font-size:.72rem; }
+    .fr-week-today { padding: 3px 8px; font-size:.68rem; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .fr-user-chip { display:none; }
+    .fr-slim-stats { padding:6px 8px; flex-wrap:wrap; height:auto; }
+    .fr-day-head { padding:6px 4px 4px; }
+    .fr-day-name { font-size:.58rem; }
+    .fr-day-date { font-size:.9rem; width:26px; height:26px; }
+    .fr-entry { padding:3px 5px; }
+    .fr-entry-time { font-size:.56rem; }
+    .fr-entry-name { font-size:.66rem; }
+}
 </style>

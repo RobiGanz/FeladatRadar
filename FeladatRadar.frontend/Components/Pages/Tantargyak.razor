@@ -542,11 +542,13 @@ else
     .fr-drop-btn:disabled { opacity:.4; cursor:not-allowed; }
     .fr-drop-btn-loading { opacity:.6; }
 
-    /* ── Responsive ── */
-    @@media (max-width:600px) {
-        .fr-content { padding:16px; }
-        .fr-subject-grid { grid-template-columns:1fr; }
-        .fr-topbar-right { gap:6px; }
-        .fr-btn-sm { padding:6px 10px; font-size:.78rem; }
-    }
+
+@@media (max-width:600px) {
+    .fr-content { padding:12px 10px; }
+    .fr-subject-grid { grid-template-columns:1fr; }
+    .fr-topbar-right { gap:4px; }
+    .fr-btn-sm { padding:5px 8px; font-size:.72rem; }
+    .fr-topbar { padding:0 8px; }
+    .fr-user-chip { display:none; }
+}
 </style>
