@@ -75,7 +75,24 @@ namespace FeladatRadar.frontend.Services
                 return new SubjectResponse { Status = "ERROR", Message = ex.Message };
             }
         }
-
+        public async Task<SubjectResponse> RenameUserAsync(int targetUserId, string firstName, string lastName)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("api/Admin/users/rename", new
+                {
+                    targetUserID = targetUserId,
+                    firstName,
+                    lastName
+                });
+                return await ParseResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
         public async Task<SubjectResponse> ToggleUserActiveAsync(int targetUserId, bool isActive)
         {
             await _authService.InitializeAsync();

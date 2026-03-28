@@ -52,7 +52,20 @@ namespace FeladatRadar.backend.Controllers
 
             return Ok(result);
         }
+        [HttpPost("users/rename")]
+        public async Task<IActionResult> RenameUser([FromBody] RenameUserRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+                return BadRequest(new SubjectResponse { Status = "ERROR", Message = "Név megadása kötelező." });
 
+            var result = await _adminService.RenameUserAsync(GetCurrentUserId(), request.TargetUserID, request.FirstName, request.LastName);
+            if (result.Status == "ERROR") return BadRequest(result);
+
+            await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "RenameUser",
+                $"TargetUserID={request.TargetUserID}, Name={request.FirstName} {request.LastName}");
+
+            return Ok(result);
+        }
         [HttpPost("users/toggle-active")]
         public async Task<IActionResult> ToggleUserActive([FromBody] ToggleUserActiveRequest request)
         {
