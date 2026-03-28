@@ -57,8 +57,8 @@ INSERT INTO @subjects VALUES
 ('Történelem','TORT01'),('Angol nyelv','ANG01'),('Biológia','BIO01'),
 ('Kémia','KEM01'),('Földrajz','FOL01'),('Irodalom','IRO01'),('Testnevelés','TES01');
 
-INSERT INTO Subjects (SubjectName, SubjectCode, IsActive, MaxCapacity, CurrentEnrollment, IsPrivate)
-SELECT s.Name, s.Code, 1, 30, 0, 0
+INSERT INTO Subjects (SubjectName, SubjectCode, IsActive, CurrentEnrollment, IsPrivate)
+SELECT s.Name, s.Code, 1, 0, 0
 FROM @subjects s
 WHERE NOT EXISTS (SELECT 1 FROM Subjects WHERE SubjectCode = s.Code);
 PRINT 'Tantárgyak ellenőrizve/létrehozva.';
