@@ -543,10 +543,29 @@
     .feat-green  { background: rgba(14,159,110,.12); color: #0e9f6e; }
     .feat-blue   { background: rgba(37,99,235,.12);  color: #2563eb; }
 
-    @@media (max-width: 768px) {
-        .register-page { grid-template-columns: 1fr; }
-        .register-right { display: none; }
-        .register-left { padding: 1.5rem; }
-        .form-row { grid-template-columns: 1fr; }
+/* ── Responsive breakpoints ── */
+    @@media (max-width:900px) {
+        .register-page { grid-template-columns:3fr 2fr; }
+    }
+    @@media (max-width:768px) {
+        .register-page { grid-template-columns:1fr; }
+        .register-right { display:none; }
+        .register-left { padding:2rem 2.5rem; }
+        .form-row { grid-template-columns:1fr 1fr; }
+    }
+    @@media (max-width:580px) {
+        .register-left { padding:1.5rem; }
+        .register-card { padding:1rem 0 2rem; }
+        .form-row { grid-template-columns:1fr; }
+        .register-header h1 { font-size:1.7rem; }
+    }
+    @@media (max-width:400px) {
+        .register-left { padding:1.2rem; }
+        .register-header h1 { font-size:1.5rem; }
+        .role-selector { grid-template-columns:1fr 1fr; gap:.5rem; }
+        .role-card { padding:12px 8px; gap:5px; }
+        .role-icon { font-size:1.3rem; }
+        .role-desc { font-size:.65rem; }
+        .strength-checks { gap:6px; }
     }
 </style>

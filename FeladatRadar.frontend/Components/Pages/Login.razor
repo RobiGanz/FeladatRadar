@@ -355,10 +355,20 @@
     .feat-green  { background: rgba(14,159,110,.12); color: #0e9f6e; }
     .feat-blue   { background: rgba(37,99,235,.12);  color: #2563eb; }
 
-    @@media (max-width: 720px) {
-        .auth-page { grid-template-columns: 1fr; }
-        .auth-right { display: none; }
-        .auth-left { padding: 2rem; }
-        .auth-card { padding: 2rem 0 3rem; }
+/* ── Responsive breakpoints ── */
+    @@media (max-width:768px) {
+        .auth-page { grid-template-columns:1fr; }
+        .auth-right { display:none; }
+        .auth-left { padding:2rem 2.5rem; }
+        .auth-card { padding:2rem 0 3rem; }
+    }
+    @@media (max-width:480px) {
+        .auth-left { padding:1.5rem; }
+        .auth-card { padding:1.5rem 0 2.5rem; }
+        .auth-header h1 { font-size:1.65rem; }
+    }
+    @@media (max-width:360px) {
+        .auth-left { padding:1.2rem; }
+        .auth-header h1 { font-size:1.5rem; }
     }
 </style>

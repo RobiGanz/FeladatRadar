@@ -528,4 +528,16 @@
         font-family: inherit; text-align: left;
     }
     .prof-logout-btn:hover { background: rgba(229,57,53,.07); }
+
+/* ── Responsive breakpoints ── */
+    @@media (max-width:480px) {
+        .prof-dropdown { width:calc(100vw - 24px); right:-8px; }
+    }
+    @@media (max-width:380px) {
+        .prof-dropdown { width:calc(100vw - 16px); right:-4px; }
+        .prof-trigger-info { display:none; }
+        .prof-trigger { padding:4px 8px; }
+        .prof-section { padding:10px 14px; }
+        .prof-header { padding:14px 14px 12px; }
+    }
 </style>
