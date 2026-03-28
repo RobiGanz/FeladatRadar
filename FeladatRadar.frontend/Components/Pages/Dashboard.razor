@@ -298,8 +298,43 @@ else
     .db-nav-csoport-ic { background:var(--success-subtle); color:var(--success); }
     .db-navitem:hover .db-navitem-arrow { color:var(--accent); }
 
-    @@media (max-width:1100px) { .db-three-grid { grid-template-columns:1fr; } .db-info-col { display:none; } }
-    @@media (max-width:768px) { .db-stats-row { grid-template-columns:repeat(2,1fr); } }
+ /* 1100px: hide right column */
+    @@media (max-width:1100px) {
+        .db-three-grid { grid-template-columns:1fr; }
+        .db-info-col { display:none; }
+    }
+    /* 900px: 3 stat columns */
+    @@media (max-width:900px) {
+        .db-stats-row { grid-template-columns:repeat(3,1fr); }
+    }
+    /* 768px: welcome banner stacks, 2 stat columns */
+    @@media (max-width:768px) {
+        .db-stats-row { grid-template-columns:repeat(2,1fr); gap:10px; }
+        .db-welcome-banner { flex-direction:column; padding:18px 20px; gap:10px; }
+        .db-welcome-greeting { font-size:1.3rem; }
+        .db-welcome-right { width:100%; }
+        .fr-content { padding:14px 16px; gap:12px; }
+    }
+    /* 580px: tighter */
+    @@media (max-width:580px) {
+        .db-stats-row { grid-template-columns:repeat(2,1fr); gap:8px; }
+        .db-stat { padding:14px 12px; gap:10px; }
+        .db-stat-num { font-size:1.5rem; }
+        .db-stat-icon { width:40px; height:40px; }
+        .db-welcome-greeting { font-size:1.15rem; }
+        .db-welcome-badge { font-size:.75rem; padding:6px 12px; }
+        .fr-content { padding:10px 12px; gap:10px; }
+        .fr-panel-header { flex-wrap:wrap; gap:6px; }
+        .db-day-filter { flex-wrap:wrap; gap:2px; }
+    }
+    /* 400px: single column stats */
+    @@media (max-width:400px) {
+        .db-stats-row { grid-template-columns:1fr 1fr; gap:6px; }
+        .db-stat { padding:12px 10px; gap:8px; }
+        .db-stat-num { font-size:1.3rem; }
+        .db-stat-label { font-size:.62rem; }
+        .db-stat-icon { width:34px; height:34px; border-radius:9px; }
+    }
 </style>
 
 @code {

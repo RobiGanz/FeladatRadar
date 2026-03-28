@@ -542,12 +542,62 @@ else
     .fr-drop-btn-loading { opacity:.6; }
 
     /* ── Responsive ── */
+
+    /* 1100px – 3 oszlopos grid */
+    @@media (max-width:1100px) {
+        .fr-subject-grid { grid-template-columns:repeat(3,1fr); }
+    }
+
+    /* 900px – 2 oszlop, topbar wrap */
+    @@media (max-width:900px) {
+        .fr-subject-grid { grid-template-columns:repeat(2,1fr); }
+        .fr-topbar { min-height:56px; height:auto; flex-wrap:wrap; padding:8px 16px; gap:8px; }
+        .fr-topbar-right { flex-wrap:wrap; gap:6px; }
+    }
+
+    /* 768px – form row stack, kisebb padding */
+    @@media (max-width:768px) {
+        .fr-subject-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+        .fr-content { padding:16px 18px; gap:16px; }
+        .fr-form-card { padding:16px 18px; }
+        .fr-topbar { padding:8px 14px; gap:6px; }
+        .fr-topbar-right { gap:6px; }
+        .fr-btn-sm { padding:6px 10px; font-size:.8rem; }
+    }
+
+    /* 600px – 1 oszlop grid, form stack, breadcrumb el */
     @@media (max-width:600px) {
-        .fr-content { padding:12px 10px; }
-        .fr-subject-grid { grid-template-columns:1fr; }
-        .fr-topbar-right { gap:4px; }
-        .fr-btn-sm { padding:5px 8px; font-size:.72rem; }
-        .fr-topbar { padding:0 8px; }
-        .fr-user-chip { display:none; }
+        .fr-subject-grid { grid-template-columns:1fr; gap:8px; }
+        .fr-content { padding:12px 12px; gap:12px; }
+        .fr-form-card { padding:14px 14px; gap:12px; }
+        .fr-form-row { flex-direction:column; gap:10px; }
+        .fr-field { min-width:unset; }
+        .fr-field[style*="flex:2"] { flex:1 !important; }
+        .fr-btn[style*="align-self:flex-end"] { width:100%; justify-content:center; }
+        .fr-breadcrumb { display:none; }
+        .fr-sc-stats { gap:10px; }
+        .fr-template-row { flex-wrap:wrap; gap:8px; }
+        .fr-template-info { width:100%; }
+    }
+
+    /* 480px – topbar gombok kisebb, kártyák kompaktabb */
+    @@media (max-width:480px) {
+        .fr-topbar { padding:6px 10px; }
+        .fr-topbar-right { gap:4px; overflow-x:auto; }
+        .fr-btn-sm { padding:5px 8px; font-size:.75rem; }
+        .fr-btn-badge { display:none; }
+        .fr-sc-body { padding:12px 14px 14px; }
+        .fr-sc-name { font-size:.95rem; }
+        .fr-sc-stats { flex-wrap:wrap; gap:8px; }
+        .fr-page-title { font-size:.9rem; }
+        .fr-form-card-head { flex-wrap:wrap; gap:8px; }
+        .fr-template-name { font-size:.82rem; }
+    }
+
+    /* 360px – minimum méret */
+    @@media (max-width:360px) {
+        .fr-content { padding:8px; }
+        .fr-btn-sm { padding:5px 7px; font-size:.7rem; }
+        .fr-subject-grid { gap:6px; }
     }
 </style>

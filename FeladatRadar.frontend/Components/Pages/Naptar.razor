@@ -1914,29 +1914,87 @@ else
 
     @@keyframes spin { to { transform: rotate(360deg); } }
 
+    /* 1200px: 4-col week */
     @@media (max-width:1200px) {
-        .fr-week-grid { grid-template-columns: repeat(4,1fr); }
+        .fr-week-grid { grid-template-columns:repeat(4,1fr); }
     }
 
+    /* 900px: 3-col week, topbar wraps */
     @@media (max-width:900px) {
-        .fr-week-grid { grid-template-columns: repeat(3,1fr); }
+        .fr-week-grid { grid-template-columns:repeat(3,1fr); }
+        .fr-topbar { height:auto; min-height:56px; flex-wrap:wrap; padding:8px 16px; gap:8px; }
+        .fr-topbar-right { flex-wrap:wrap; gap:6px; }
+        .fr-user-chip span { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     }
 
-@@media (max-width:600px) {
-    .fr-week-grid { grid-template-columns: repeat(2,1fr); }
-    .fr-topbar { padding: 0 8px; gap:6px; }
-    .fr-topbar-right { gap:4px; flex-wrap:wrap; }
-    .fr-content { padding: 8px 8px; }
-    .fr-seg-btn { padding: 3px 8px; font-size:.68rem; }
-    .fr-group-pick { max-width:100px; font-size:.72rem; }
-    .fr-week-today { padding: 3px 8px; font-size:.68rem; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .fr-user-chip { display:none; }
-    .fr-slim-stats { padding:6px 8px; flex-wrap:wrap; height:auto; }
-    .fr-day-head { padding:6px 4px 4px; }
-    .fr-day-name { font-size:.58rem; }
-    .fr-day-date { font-size:.9rem; width:26px; height:26px; }
-    .fr-entry { padding:3px 5px; }
-    .fr-entry-time { font-size:.56rem; }
-    .fr-entry-name { font-size:.66rem; }
-}
+    /* 790px: 2-col week, topbar elements smaller */
+    @@media (max-width:790px) {
+        .fr-week-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+        .fr-topbar { padding:8px 14px; gap:6px; }
+        .fr-topbar-left { gap:8px; }
+        .fr-topbar-right { gap:5px; }
+        .fr-seg-btn { font-size:.75rem; padding:4px 9px; }
+        .fr-week-today { font-size:.75rem; padding:4px 10px; }
+        .fr-group-pick { max-width:130px; font-size:.76rem; }
+        .fr-content { padding:12px 14px; }
+        .fr-slim-stats { overflow-x:auto; }
+    }
+
+    /* 600px: topbar even more compact, day cols tighter */
+    @@media (max-width:600px) {
+        .fr-week-grid { grid-template-columns:repeat(2,1fr); gap:4px; }
+        .fr-topbar { padding:8px 10px; }
+        .fr-seg { padding:2px; }
+        .fr-seg-btn { font-size:.72rem; padding:3px 7px; }
+        .fr-week-today { font-size:.72rem; padding:3px 8px; }
+        .fr-week-btn { width:24px; height:24px; }
+        .fr-page-title { font-size:.9rem; }
+        .fr-breadcrumb { display:none; }
+        .fr-user-chip { display:none; }
+        .fr-content { padding:8px 10px; gap:8px; }
+        .fr-day-head { padding:8px 4px 6px; }
+        .fr-day-name { font-size:.6rem; }
+        .fr-entry { padding:4px 5px; }
+        .fr-entry-time { font-size:.58rem; }
+        .fr-entry-name { font-size:.68rem; }
+        .fr-slim-stats { height:36px; }
+        .fr-slim-stat { padding:0 8px; }
+        .fr-slim-lbl { display:none; }
+        .fr-slim-val { font-size:.85rem; }
+    }
+
+    /* 480px: single col week → switch to day view hint, modal bottom sheet */
+    @@media (max-width:480px) {
+        .fr-week-grid { grid-template-columns:1fr 1fr; gap:3px; }
+        .fr-topbar { padding:6px 10px; gap:4px; }
+        .fr-group-pick { max-width:100px; font-size:.72rem; }
+        .fr-topbar-right { gap:4px; overflow-x:auto; }
+        .fr-topbar-right .fr-seg:last-of-type { flex-shrink:0; }
+        .fr-seg-btn { font-size:.68rem; padding:3px 6px; }
+        .fr-week-today { font-size:.68rem; padding:3px 7px; }
+        .fr-hamburger { width:30px; height:30px; }
+        .fr-mcell { min-height:58px; padding:4px; }
+        .fr-mcell-entry, .fr-mcell-task { font-size:.56rem; padding:1px 3px; }
+        .fr-mcell-num { font-size:.75rem; width:20px; height:20px; }
+        .fr-dv-time-block { min-width:48px; padding:8px 8px; font-size:.7rem; }
+        .fr-day-timeline { padding:12px; }
+        .fr-day-view-header { padding:12px 16px; }
+        .fr-day-view-name { font-size:1rem; }
+        .fr-modal { border-radius:16px 16px 0 0; position:fixed; bottom:0; top:auto; max-height:88vh; width:100%; max-width:100%; }
+        .fr-modal-body { padding:14px 16px 20px; }
+        .fr-modal-head { padding:12px 16px; }
+        .fr-modal-tabs { padding:12px 16px 0; gap:6px; }
+        .fr-modal-tab { padding:6px 12px; font-size:.8rem; }
+        .fr-type-picker { gap:4px; }
+        .fr-type-pick-btn { font-size:.74rem; padding:5px 9px; }
+        .fr-subject-card { padding:6px 10px; min-width:70px; }
+        .fr-form-row { flex-direction:column; }
+    }
+
+    /* 360px: very small phones */
+    @@media (max-width:360px) {
+        .fr-week-grid { grid-template-columns:1fr; }
+        .fr-seg-btn { font-size:.65rem; padding:3px 5px; }
+        .fr-topbar-right { gap:3px; }
+    }
 </style>
