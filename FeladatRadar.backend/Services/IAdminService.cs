@@ -9,6 +9,7 @@ namespace FeladatRadar.backend.Services
         Task<SubjectResponse> ChangeUserRoleAsync(int adminUserId, int targetUserId, string newRole);
         Task<SubjectResponse> ToggleUserActiveAsync(int adminUserId, int targetUserId, bool isActive);
         Task<SubjectResponse> DeleteUserAsync(int adminUserId, int targetUserId);
+        Task<SubjectResponse> RenameUserAsync(int adminUserId, int targetUserId, string firstName, string lastName);
 
         // Rendszer statisztikák
         Task<SystemStatsDto> GetSystemStatsAsync();

@@ -102,6 +102,32 @@ namespace FeladatRadar.backend.Services
                 return new SubjectResponse { Status = "ERROR", Message = ex.Message };
             }
         }
+        public async Task<SubjectResponse> RenameUserAsync(int adminUserId, int targetUserId, string firstName, string lastName)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var p = new DynamicParameters();
+                p.Add("@AdminUserID", adminUserId);
+                p.Add("@TargetUserID", targetUserId);
+                p.Add("@FirstName", firstName);
+                p.Add("@LastName", lastName);
+
+                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                    "sp_Admin_RenameUser", p, commandType: CommandType.StoredProcedure);
+
+                var dict = (IDictionary<string, object>)result!;
+                return new SubjectResponse
+                {
+                    Status = dict["Status"]?.ToString() ?? "ERROR",
+                    Message = dict["Message"]?.ToString() ?? ""
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
 
         // ──────────────────────────────────────────
         // RENDSZER STATISZTIKÁK

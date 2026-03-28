@@ -79,4 +79,12 @@
         public int GroupID { get; set; }
     }
 
+    public class RenameUserRequest
+    {
+        public int TargetUserID { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+    }
+
+
 }
