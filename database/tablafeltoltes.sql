@@ -12,11 +12,11 @@ GO
 -- BCrypt hash = Teszt123!
 DECLARE @Hash NVARCHAR(255) = '$2b$11$45R1Ux6RLSEWcsFRep.k2.B97YlOuYjROJI6YuYkCK1fIq87LG2RG';
 
-IF NOT EXISTS (SELECT 1 FROM Users WHERE Username = 'testdiak')
+IF NOT EXISTS (SELECT 1 FROM Users WHERE Username = 'tesztdiak')
 BEGIN
     INSERT INTO Users (Username, PasswordHash, Email, FirstName, LastName, UserRole, IsActive)
-    VALUES ('testdiak', @Hash, 'testdiak@example.hu', 'Teszt', 'Diák', 'Student', 1);
-    PRINT 'testdiak felhasználó létrehozva.';
+    VALUES ('tesztdiak', @Hash, 'tesztdiak@example.hu', 'Teszt', 'Diák', 'Student', 1);
+    PRINT 'tesztdiak felhasználó létrehozva.';
 END
 
 IF NOT EXISTS (SELECT 1 FROM Users WHERE Username = 'tesztanar')
@@ -64,7 +64,7 @@ WHERE NOT EXISTS (SELECT 1 FROM Subjects WHERE SubjectCode = s.Code);
 PRINT 'Tantárgyak ellenőrizve/létrehozva.';
 
 -- Diák beiratkoztatása az összes tantárgyra
-DECLARE @StudentID INT = (SELECT TOP 1 UserID FROM Users WHERE Username = 'testdiak');
+DECLARE @StudentID INT = (SELECT TOP 1 UserID FROM Users WHERE Username = 'tesztdiak');
 DECLARE @TeacherID INT = (SELECT TOP 1 UserID FROM Users WHERE Username = 'tesztanar');
 
 INSERT INTO StudentSubjects (StudentID, SubjectID)
