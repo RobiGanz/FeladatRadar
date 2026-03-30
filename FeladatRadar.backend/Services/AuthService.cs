@@ -25,6 +25,10 @@ namespace FeladatRadar.backend.Services
         {
             try
             {
+                // Admin szerepkört regisztrációkor nem lehet önállóan felvenni
+                if (request.UserRole == "Admin")
+                    return new LoginResponse { Status = "ERROR", Message = "Admin fiókot nem lehet regisztrációval létrehozni." };
+
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
                 using var connection = new SqlConnection(_connectionString);
@@ -183,8 +187,10 @@ namespace FeladatRadar.backend.Services
             {
                 using var connection = new SqlConnection(_connectionString);
 
+                // Jelenlegi hash lekérése az sp_LoginUser SP eredményéből való user alapján
+                // (direkt lekérdezés, de paraméteres – SQL injection nem lehetséges)
                 var hash = await connection.QueryFirstOrDefaultAsync<string>(
-                    "SELECT PasswordHash FROM Users WHERE UserID = @UserID",
+                    "SELECT PasswordHash FROM Users WHERE UserID = @UserID AND IsActive = 1",
                     new { UserID = userId });
 
                 if (string.IsNullOrEmpty(hash) || !BCrypt.Net.BCrypt.Verify(currentPassword, hash))

@@ -40,10 +40,10 @@ namespace FeladatRadar.backend.Controllers
         public async Task<IActionResult> GetCurrentUser()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 return Unauthorized(new { message = "Érvénytelen token." });
 
-            var user = await _authService.GetUserById(int.Parse(userIdClaim));
+            var user = await _authService.GetUserById(userId);
             if (user == null)
                 return NotFound(new { message = "A felhasználó nem található." });
 
@@ -63,8 +63,9 @@ namespace FeladatRadar.backend.Controllers
         public async Task<IActionResult> UpdateUsername([FromBody] UpdateUsernameRequest request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-            var response = await _authService.UpdateUsername(int.Parse(userIdClaim), request.NewUsername);
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+            var response = await _authService.UpdateUsername(userId, request.NewUsername);
             if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
@@ -74,8 +75,9 @@ namespace FeladatRadar.backend.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
-            var response = await _authService.ChangePassword(int.Parse(userIdClaim), request.CurrentPassword, request.NewPassword);
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+            var response = await _authService.ChangePassword(userId, request.CurrentPassword, request.NewPassword);
             if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }

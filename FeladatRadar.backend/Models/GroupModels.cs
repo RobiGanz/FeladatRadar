@@ -76,4 +76,13 @@
     {
         public string InvitedEmail { get; set; } = string.Empty;
     }
+
+    public class AddGroupTaskRequest
+    {
+        public int SubjectID { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime DueDate { get; set; }
+        public string TaskType { get; set; } = "Exam";
+    }
 }

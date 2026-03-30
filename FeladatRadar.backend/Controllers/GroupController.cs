@@ -21,7 +21,9 @@ namespace FeladatRadar.backend.Controllers
         private int GetCurrentUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(claim ?? "0");
+            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
+                throw new UnauthorizedAccessException("Érvénytelen token.");
+            return userId;
         }
 
         private string GetCurrentUserEmail()
@@ -38,13 +40,7 @@ namespace FeladatRadar.backend.Controllers
         private async Task<bool> CanManageGroup(int groupId)
         {
             var userId = GetCurrentUserId();
-            var groups = await _groupService.GetMyGroupsAsync(userId);
-            var group = groups.FirstOrDefault(g => g.GroupID == groupId);
-            if (group == null) return false;
-            // Student-owned group: everyone can manage
-            if (group.OwnerRole == "Student") return true;
-            // Teacher-owned group: only the owner (teacher) can manage
-            return group.IsOwner;
+            return await _groupService.CanManageGroupAsync(groupId, userId);
         }
 
         [HttpPost("create")]
@@ -142,8 +138,21 @@ namespace FeladatRadar.backend.Controllers
             if (!await CanManageGroup(groupId))
                 return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod a csoport kezeléséhez." });
 
-
             var result = await _groupService.AddGroupScheduleEntryAsync(groupId, GetCurrentUserId(), request, GetCurrentUserRole());
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPost("{groupId}/tasks/add")]
+        public async Task<IActionResult> AddGroupTask(int groupId, [FromBody] AddGroupTaskRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title))
+                return BadRequest(new SubjectResponse { Status = "ERROR", Message = "A cím megadása kötelező." });
+
+            if (!await CanManageGroup(groupId))
+                return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod a csoport kezeléséhez." });
+
+            var result = await _groupService.AddGroupTaskAsync(groupId, GetCurrentUserId(), request);
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);
         }
