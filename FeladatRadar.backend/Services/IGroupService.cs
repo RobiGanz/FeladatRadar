@@ -15,8 +15,10 @@ namespace FeladatRadar.backend.Services
         Task<IEnumerable<GroupSubject>> GetGroupSubjectsAsync(int groupId, int userId);
         Task<IEnumerable<GroupScheduleEntry>> GetGroupScheduleAsync(int groupId, int userId, string userRole = "Student");
         Task<IEnumerable<GroupTask>> GetGroupTasksAsync(int groupId, int userId);
+        Task<SubjectResponse> AddGroupTaskAsync(int groupId, int userId, AddGroupTaskRequest request);
         Task<IEnumerable<GroupInvite>> GetMyInvitesAsync(string email);
         Task<SubjectResponse> AddGroupScheduleEntryAsync(int groupId, int userId, AddScheduleRequest request, string userRole = "Teacher");
+        Task<bool> CanManageGroupAsync(int groupId, int userId);
     }
 
 

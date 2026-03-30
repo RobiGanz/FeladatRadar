@@ -23,18 +23,15 @@ namespace FeladatRadar.backend.Controllers
         private int GetCurrentUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(claim ?? "0");
+            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
+                throw new UnauthorizedAccessException("Érvénytelen token.");
+            return userId;
         }
 
         /// <summary>Check if user can manage (add/edit/delete) in a group</summary>
         private async Task<bool> CanManageGroup(int groupId)
         {
-            var userId = GetCurrentUserId();
-            var groups = await _groupService.GetMyGroupsAsync(userId);
-            var group = groups.FirstOrDefault(g => g.GroupID == groupId);
-            if (group == null) return false;
-            if (group.OwnerRole == "Student") return true;
-            return group.IsOwner;
+            return await _groupService.CanManageGroupAsync(groupId, GetCurrentUserId());
         }
 
         // ──────────────────────────────────────────
