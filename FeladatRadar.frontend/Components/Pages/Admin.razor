@@ -786,9 +786,7 @@ else
                 var s = _userSearch.ToLower();
                 q = q.Where(u =>
                     u.Username.ToLower().Contains(s) ||
-                    u.Email.ToLower().Contains(s) ||
-                    u.FirstName.ToLower().Contains(s) ||
-                    u.LastName.ToLower().Contains(s));
+                    u.Email.ToLower().Contains(s));
             }
             return q;
         }

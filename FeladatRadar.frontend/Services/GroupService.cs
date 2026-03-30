@@ -182,5 +182,18 @@ namespace FeladatRadar.frontend.Services
                 return new SubjectResponse { Status = "ERROR", Message = ex.Message };
             }
         }
+        public async Task<SubjectResponse> AddGroupTaskAsync(int groupId, AddGroupTaskRequest request)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"api/Group/{groupId}/tasks/add", request);
+                return await ParseResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
     }
 }
