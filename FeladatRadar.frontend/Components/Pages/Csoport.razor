@@ -940,7 +940,7 @@ else
             var r = await GroupService.AddGroupTaskAsync(_selectedGroup.GroupID, req);
             if (r.Status == "OK")
             {
-                _taskTitle = ""; _taskSubject = ""; _taskDesc = ""; _taskError = ""; _taskSubjectId = 0;
+                _taskTitle = ""; _taskDesc = ""; _taskError = ""; _taskSubjectId = 0;
                 _taskDate = DateTime.Now.AddDays(7);
                 _groupTasks = await GroupService.GetGroupTasksAsync(_selectedGroup.GroupID);
                 _message = "Csoportos feladat hozzáadva."; _messageIsError = false;
