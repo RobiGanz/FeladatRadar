@@ -211,6 +211,18 @@ namespace FeladatRadar.backend.Services
             }
         }
 
+        public async Task<bool> IsGroupMemberAsync(int groupId, int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                return await connection.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(1) FROM GroupMembers WHERE GroupID = @GroupID AND StudentID = @UserID",
+                    new { GroupID = groupId, UserID = userId }) > 0;
+            }
+            catch { return false; }
+        }
+
         public async Task<SubjectResponse> AddGroupTaskAsync(int groupId, int userId, AddGroupTaskRequest request)
         {
             try

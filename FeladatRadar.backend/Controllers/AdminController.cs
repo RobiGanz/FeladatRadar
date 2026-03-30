@@ -50,7 +50,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "ChangeUserRole",
-                $"TargetUserID={request.TargetUserID}, NewRole={request.NewRole}");
+                $"Felhasználó (ID:{request.TargetUserID}) szerepköre módosítva → {request.NewRole}");
 
             return Ok(result);
         }
@@ -64,7 +64,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "RenameUser",
-                $"TargetUserID={request.TargetUserID}, Name={request.FirstName} {request.LastName}");
+                $"Felhasználó (ID:{request.TargetUserID}) neve módosítva → {request.FirstName} {request.LastName}");
 
             return Ok(result);
         }
@@ -75,7 +75,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "ToggleUserActive",
-                $"TargetUserID={request.TargetUserID}, IsActive={request.IsActive}");
+                $"Felhasználó (ID:{request.TargetUserID}) {(request.IsActive ? "aktiválva" : "letiltva")}");
 
             return Ok(result);
         }
@@ -87,7 +87,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "DeleteUser",
-                $"TargetUserID={id}");
+                $"Felhasználó törölve (ID:{id})");
 
             return Ok(result);
         }
@@ -106,7 +106,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "DeleteGroup",
-                $"GroupID={id}");
+                $"Csoport törölve (ID:{id})");
 
             return Ok(result);
         }
@@ -118,7 +118,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "AdminDeletePoll",
-                $"PollID={id}");
+                $"Szavazás törölve (ID:{id})");
 
             return Ok(result);
         }
@@ -130,7 +130,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "AdminDeleteExam",
-                $"ExamID={id}");
+                $"Dolgozat törölve (ID:{id})");
 
             return Ok(result);
         }
@@ -142,7 +142,7 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
 
             await _adminService.WriteAuditLogAsync(GetCurrentUserId(), "AdminDeleteTask",
-                $"TaskID={id}");
+                $"Feladat törölve (ID:{id})");
 
             return Ok(result);
         }

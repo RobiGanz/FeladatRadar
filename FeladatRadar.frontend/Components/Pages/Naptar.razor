@@ -87,9 +87,7 @@ else if (_isAuthenticated)
                         <span>Sötét mód</span>
      }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés
-                </button>
+
             </div>
         </aside>
 
@@ -573,30 +571,15 @@ else if (_isAuthenticated)
                                     <label class="fr-label">Helyszín <span class="fr-optional">— opcionális</span></label>
                                     <input type="text" class="fr-input" placeholder="pl. B203" @bind="_selLocation" />
                                 </div>
-                                @if (!_groupMode)
-                                {
-                                    <div class="fr-field fr-field-sm">
-                                        <label class="fr-label">Ismétlődés</label>
-                                        <select class="fr-input" @bind="_selRecurrence">
-                                            <option value="Weekly">Heti</option>
-                                            <option value="Biweekly">Kéthetente</option>
-                                            <option value="Monthly">Havonta</option>
-                                            <option value="None">Egyszeri</option>
-                                        </select>
-                                    </div>
-                                    @if (_selRecurrence != "None")
-                                    {
-                                        <div class="fr-field fr-field-sm">
-                                            <label class="fr-label">
-                                                <input type="checkbox" @bind="_selHasEndDate" style="margin-right:5px" />Vége
-                                            </label>
-                                            @if (_selHasEndDate)
-                                            {
-                                                <input type="date" class="fr-input" @bind="_selRecurrenceEnd" />
-                                            }
-                                        </div>
-                                    }
-                                }
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Ismétlődés</label>
+                                    <select class="fr-input" @bind="_selRecurrence">
+                                        <option value="Weekly">Heti</option>
+                                        <option value="Biweekly">Kéthetente</option>
+                                        <option value="Monthly">Havonta</option>
+                                        <option value="None">Egyszeri</option>
+                                    </select>
+                                </div>
                             </div>
                             @if (!string.IsNullOrEmpty(_formError))
                             {

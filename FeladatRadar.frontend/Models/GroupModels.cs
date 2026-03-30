@@ -58,6 +58,15 @@
         public bool IsCompleted { get; set; }
     }
 
+    public class AddGroupTaskRequest
+    {
+        public int SubjectID { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime DueDate { get; set; }
+        public string TaskType { get; set; } = "Homework";
+    }
+
     public class GroupInviteDto
     {
         public int InviteID { get; set; }

@@ -91,7 +91,11 @@ namespace FeladatRadar.backend.Controllers
             if (string.IsNullOrWhiteSpace(request.Title))
                 return BadRequest(new SubjectResponse { Status = "ERROR", Message = "A dolgozat neve kötelező." });
 
-            if (!await CanManageGroup(request.GroupID))
+            // Dolgozatot bármely csoporttag tanár létrehozhat (nem csak a tulajdonos)
+            var userId = GetCurrentUserId();
+            var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            var isMember = await _groupService.IsGroupMemberAsync(request.GroupID, userId);
+            if (!isMember || userRole != "Teacher")
                 return StatusCode(403, new SubjectResponse { Status = "ERROR", Message = "Nincs jogosultságod dolgozat létrehozásához." });
 
             var result = await _teacherService.CreateExamAsync(GetCurrentUserId(), request);
