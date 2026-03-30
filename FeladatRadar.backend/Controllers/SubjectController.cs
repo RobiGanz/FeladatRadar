@@ -21,7 +21,9 @@ namespace FeladatRadar.backend.Controllers
         private int GetCurrentUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(claim ?? "0");
+            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
+                throw new UnauthorizedAccessException("Érvénytelen token.");
+            return userId;
         }
 
         [HttpGet("available")]

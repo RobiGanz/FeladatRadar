@@ -112,67 +112,46 @@ namespace FeladatRadar.backend.Services
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
                 parameters.Add("@StudentID", userId);
-                var groups = (await connection.QueryAsync<Group>(
+                // sp_GetMyGroups már tartalmazza az OwnerRole-t – nincs szükség második lekérdezésre
+                return (await connection.QueryAsync<Group>(
                     "sp_GetMyGroups", parameters, commandType: CommandType.StoredProcedure)).ToList();
-
-                // Enrich with OwnerRole from Users table
-                if (groups.Any())
-                {
-                    var ownerIds = groups.Select(g => g.CreatedBy).Distinct().ToList();
-                    var roles = (await connection.QueryAsync<(int UserID, string UserRole)>(
-                        "SELECT UserID, ISNULL(UserRole, 'Student') AS UserRole FROM Users WHERE UserID IN @Ids",
-                        new { Ids = ownerIds })).ToDictionary(r => r.UserID, r => r.UserRole);
-                    foreach (var g in groups)
-                    {
-                        g.OwnerRole = roles.GetValueOrDefault(g.CreatedBy, "Student");
-                    }
-                }
-                return groups;
             }
-            catch { return Enumerable.Empty<Group>(); }
+            catch (Exception ex)
+            {
+                // Nem nyeljük le csendesen – logolható / buborékoltatható
+                throw new InvalidOperationException($"Csoportok lekérése sikertelen: {ex.Message}", ex);
+            }
         }
 
         public async Task<IEnumerable<GroupMember>> GetGroupMembersAsync(int groupId, int userId)
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                var parameters = new DynamicParameters();
-                parameters.Add("@GroupID", groupId);
-                parameters.Add("@StudentID", userId);
-                return await connection.QueryAsync<GroupMember>(
-                    "sp_GetGroupMembers", parameters, commandType: CommandType.StoredProcedure);
-            }
-            catch { return Enumerable.Empty<GroupMember>(); }
+            using var connection = new SqlConnection(_connectionString);
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupID", groupId);
+            parameters.Add("@StudentID", userId);
+            return await connection.QueryAsync<GroupMember>(
+                "sp_GetGroupMembers", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<GroupSubject>> GetGroupSubjectsAsync(int groupId, int userId)
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                var parameters = new DynamicParameters();
-                parameters.Add("@GroupID", groupId);
-                parameters.Add("@StudentID", userId);
-                return await connection.QueryAsync<GroupSubject>(
-                    "sp_GetGroupSubjects", parameters, commandType: CommandType.StoredProcedure);
-            }
-            catch { return Enumerable.Empty<GroupSubject>(); }
+            using var connection = new SqlConnection(_connectionString);
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupID", groupId);
+            parameters.Add("@StudentID", userId);
+            return await connection.QueryAsync<GroupSubject>(
+                "sp_GetGroupSubjects", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<GroupScheduleEntry>> GetGroupScheduleAsync(int groupId, int userId, string userRole = "Student")
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                var parameters = new DynamicParameters();
-                parameters.Add("@GroupID", groupId);
-                parameters.Add("@StudentID", userId);
-                parameters.Add("@UserRole", userRole);
-                return await connection.QueryAsync<GroupScheduleEntry>(
-                    "sp_GetGroupSchedule", parameters, commandType: CommandType.StoredProcedure);
-            }
-            catch { return Enumerable.Empty<GroupScheduleEntry>(); }
+            using var connection = new SqlConnection(_connectionString);
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupID", groupId);
+            parameters.Add("@StudentID", userId);
+            parameters.Add("@UserRole", userRole);
+            return await connection.QueryAsync<GroupScheduleEntry>(
+                "sp_GetGroupSchedule", parameters, commandType: CommandType.StoredProcedure);
         }
         public async Task<SubjectResponse> AddGroupScheduleEntryAsync(int groupId, int userId, AddScheduleRequest request, string userRole = "Teacher")
         {
@@ -195,29 +174,70 @@ namespace FeladatRadar.backend.Services
         }
         public async Task<IEnumerable<GroupTask>> GetGroupTasksAsync(int groupId, int userId)
         {
+            using var connection = new SqlConnection(_connectionString);
+            var parameters = new DynamicParameters();
+            parameters.Add("@GroupID", groupId);
+            parameters.Add("@StudentID", userId);
+            return await connection.QueryAsync<GroupTask>(
+                "sp_GetGroupTasks", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        /// <summary>
+        /// Egyetlen DB lekérdezéssel ellenőrzi, hogy a user kezelheti-e a csoportot.
+        /// Korábban mindkét controllerben az összes csoport lekérésével oldották meg (N+1 jellegű).
+        /// </summary>
+        public async Task<bool> CanManageGroupAsync(int groupId, int userId)
+        {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                var parameters = new DynamicParameters();
-                parameters.Add("@GroupID", groupId);
-                parameters.Add("@StudentID", userId);
-                return await connection.QueryAsync<GroupTask>(
-                    "sp_GetGroupTasks", parameters, commandType: CommandType.StoredProcedure);
+                var row = await connection.QueryFirstOrDefaultAsync<(int CreatedBy, string OwnerRole, bool IsMember)>(
+                    @"SELECT g.CreatedBy,
+                             ISNULL(u.UserRole, 'Student') AS OwnerRole,
+                             CASE WHEN gm.StudentID IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS IsMember
+                      FROM Groups g
+                      INNER JOIN Users u ON u.UserID = g.CreatedBy
+                      LEFT JOIN GroupMembers gm ON gm.GroupID = g.GroupID AND gm.StudentID = @UserID
+                      WHERE g.GroupID = @GroupID",
+                    new { GroupID = groupId, UserID = userId });
+
+                if (!row.IsMember) return false;
+                if (row.OwnerRole == "Student") return true;   // diák-csoport: mindenki kezelhet
+                return row.CreatedBy == userId;                // tanári csoport: csak a tulajdonos
             }
-            catch { return Enumerable.Empty<GroupTask>(); }
+            catch
+            {
+                return false;
+            }
         }
 
-        public async Task<IEnumerable<GroupInvite>> GetMyInvitesAsync(string email)
+        public async Task<SubjectResponse> AddGroupTaskAsync(int groupId, int userId, AddGroupTaskRequest request)
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
-                parameters.Add("@Email", email);
-                return await connection.QueryAsync<GroupInvite>(
-                    "sp_GetMyInvites", parameters, commandType: CommandType.StoredProcedure);
+                parameters.Add("@GroupID", groupId);
+                parameters.Add("@AddedBy", userId);
+                parameters.Add("@SubjectID", request.SubjectID);
+                parameters.Add("@Title", request.Title);
+                parameters.Add("@Description", request.Description);
+                parameters.Add("@DueDate", request.DueDate);
+                parameters.Add("@TaskType", request.TaskType ?? "Exam");
+                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                    "sp_AddGroupTask", parameters, commandType: CommandType.StoredProcedure);
+                return ParseResponse(result);
             }
-            catch { return Enumerable.Empty<GroupInvite>(); }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
+
+        public async Task<IEnumerable<GroupInvite>> GetMyInvitesAsync(string email)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var parameters = new DynamicParameters();
+            parameters.Add("@Email", email);
+            return await connection.QueryAsync<GroupInvite>(
+                "sp_GetMyInvites", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 
