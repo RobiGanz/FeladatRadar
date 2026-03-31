@@ -3,6 +3,7 @@
 @using FeladatRadar.frontend.Models
 @inject AuthService AuthService
 @inject AdminService AdminService
+@inject TeacherService TeacherService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
@@ -390,19 +391,65 @@ else if (_isAuthenticated && _userRole == "Admin")
                                 <tbody>
                                     @foreach (var g in FilteredGroups)
                                     {
-                                        <tr>
+                                        <tr style="cursor:pointer" @onclick="() => ToggleGroupExams(g)">
                                             <td class="admin-td-id">@g.GroupID</td>
-                                            <td class="admin-td-name">@g.GroupName</td>
+                                            <td class="admin-td-name">
+                                                @g.GroupName
+                                                <span style="font-size:.7rem; color:var(--text-muted); font-weight:400; margin-left:4px">
+                                                    @(_expandedGroup?.GroupID == g.GroupID ? "▲" : "▼")
+                                                </span>
+                                            </td>
                                             <td>@g.OwnerName</td>
                                             <td class="admin-col-role"><span class="admin-badge admin-badge-@(g.OwnerRole.ToLower())">@g.OwnerRole</span></td>
                                             <td class="admin-td-center">@g.MemberCount</td>
                                             <td class="admin-td-date admin-col-date">@g.CreatedAt.ToString("yyyy.MM.dd")</td>
                                             <td class="admin-td-actions">
-                                                <button class="admin-act-btn admin-act-danger" title="Csoport törlése" @onclick="() => HandleDeleteGroup(g)">
+                                                <button class="admin-act-btn admin-act-danger" title="Csoport törlése"
+                                                    @onclick:stopPropagation="true"
+                                                    @onclick="() => HandleDeleteGroup(g)">
                                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                                                 </button>
                                             </td>
                                         </tr>
+                                        @if (_expandedGroup?.GroupID == g.GroupID)
+                                        {
+                                            <tr>
+                                                <td colspan="7" style="padding:0; background:var(--surface-2)">
+                                                    <div style="padding:12px 18px; border-top:2px solid rgba(229,57,53,.2)">
+                                                        <div style="font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#e53935; margin-bottom:10px">
+                                                            📄 Dolgozatok — @g.GroupName
+                                                        </div>
+                                                        @if (_loadingExams)
+                                                        {
+                                                            <span style="color:var(--text-muted); font-size:.8rem">Betöltés...</span>
+                                                        }
+                                                        else if (!_groupExams.Any())
+                                                        {
+                                                            <span style="color:var(--text-muted); font-size:.8rem">Nincs dolgozat ebben a csoportban.</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @foreach (var exam in _groupExams)
+                                                            {
+                                                                <div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border)">
+                                                                    <span style="flex:1; font-size:.82rem; font-weight:600; color:var(--text-primary)">@exam.Title</span>
+                                                                    @if (!string.IsNullOrEmpty(exam.SubjectName))
+                                                                    {
+                                                                        <span style="font-size:.72rem; background:var(--warning-subtle); color:var(--warning); padding:2px 7px; border-radius:4px; font-weight:500">@exam.SubjectName</span>
+                                                                    }
+                                                                    <span style="font-size:.75rem; color:var(--text-muted)">@exam.ExamDate.ToString("yyyy.MM.dd")</span>
+                                                                    <span style="font-size:.75rem; color:var(--text-muted)">@exam.CreatedByName</span>
+                                                                    <button class="admin-act-btn admin-act-danger" title="Dolgozat törlése"
+                                                                        @onclick="() => HandleDeleteExamInGroup(exam)">
+                                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                                    </button>
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
                                     }
                                 </tbody>
                             </table>
@@ -542,7 +589,7 @@ else
 
 <style>
     /* ── Admin theme ── */
-    .fr-layout[data-role="Admin"] { --admin-accent:#e53935; --admin-accent-2:#b71c1c; }
+    .fr-layout[data-role="Admin"] { --admin-accent:#e53935; --admin-accent-2:#b71c1c; --accent:#e53935; --accent-subtle:rgba(229,57,53,.12); }
     .fr-layout[data-role="Admin"] .fr-topbar,
     .admin-topbar { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; box-shadow:0 2px 16px rgba(229,57,53,.25) !important; }
     .fr-layout[data-role="Admin"] .fr-brand { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; }
@@ -740,6 +787,9 @@ else
     private string _userSearch = "";
     private string _userFilter = "all";
     private string _groupSearch = "";
+    private AdminGroupDto? _expandedGroup = null;
+    private List<TeacherExamDto> _groupExams = new();
+    private bool _loadingExams = false;
 
     private string _toastMessage = "";
     private bool _toastIsError = false;
@@ -925,7 +975,38 @@ else
             if (result.Status == "OK")
             {
                 _allGroups.RemoveAll(g => g.GroupID == group.GroupID);
+                if (_expandedGroup?.GroupID == group.GroupID) { _expandedGroup = null; _groupExams = new(); }
                 ShowToast(result.Message);
+            }
+            else ShowToast(result.Message, true);
+        });
+    }
+
+    private async Task ToggleGroupExams(AdminGroupDto group)
+    {
+        if (_expandedGroup?.GroupID == group.GroupID)
+        {
+            _expandedGroup = null;
+            _groupExams = new();
+            return;
+        }
+        _expandedGroup = group;
+        _loadingExams = true;
+        StateHasChanged();
+        _groupExams = await TeacherService.GetGroupExamsAsync(group.GroupID);
+        _loadingExams = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleDeleteExamInGroup(TeacherExamDto exam)
+    {
+        ShowConfirm($"Biztosan törlöd a \"{exam.Title}\" dolgozatot?", async () =>
+        {
+            var result = await AdminService.DeleteExamAsync(exam.ExamID);
+            if (result.Status == "OK")
+            {
+                _groupExams.RemoveAll(e => e.ExamID == exam.ExamID);
+                ShowToast("Dolgozat törölve.");
             }
             else ShowToast(result.Message, true);
         });

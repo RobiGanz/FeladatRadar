@@ -155,6 +155,18 @@ namespace FeladatRadar.frontend.Services
             }
         }
 
+        public async Task<List<AdminGroupExamDto>> GetGroupExamsAsync(int groupId)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Admin/groups/{groupId}/exams");
+                if (!response.IsSuccessStatusCode) return new();
+                return await response.Content.ReadFromJsonAsync<List<AdminGroupExamDto>>() ?? new();
+            }
+            catch { return new(); }
+        }
+
         // ──────────────────────────────────────────
         // MODERÁCIÓ
         // ──────────────────────────────────────────

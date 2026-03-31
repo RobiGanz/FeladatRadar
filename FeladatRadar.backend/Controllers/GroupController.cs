@@ -156,6 +156,22 @@ namespace FeladatRadar.backend.Controllers
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);
         }
+
+        [HttpDelete("{groupId}/tasks/{taskId}")]
+        public async Task<IActionResult> DeleteGroupTask(int groupId, int taskId)
+        {
+            var result = await _groupService.DeleteGroupTaskAsync(groupId, taskId, GetCurrentUserId());
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpDelete("{groupId}/schedule/{entryId}")]
+        public async Task<IActionResult> DeleteGroupScheduleEntry(int groupId, int entryId)
+        {
+            var result = await _groupService.DeleteGroupScheduleEntryAsync(groupId, entryId, GetCurrentUserId());
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
     }
 
 }
