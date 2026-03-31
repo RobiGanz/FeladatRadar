@@ -17,6 +17,7 @@ namespace FeladatRadar.backend.Services
         // Összes csoport
         Task<IEnumerable<AdminGroupDto>> GetAllGroupsAsync();
         Task<SubjectResponse> DeleteGroupAsync(int adminUserId, int groupId);
+        Task<IEnumerable<AdminGroupExamDto>> GetGroupExamsAsync(int groupId);
 
         // Audit log
         Task<IEnumerable<AuditLogEntry>> GetAuditLogAsync(int limit = 100);

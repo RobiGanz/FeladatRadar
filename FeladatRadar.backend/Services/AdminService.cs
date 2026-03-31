@@ -184,6 +184,19 @@ namespace FeladatRadar.backend.Services
             }
         }
 
+        public async Task<IEnumerable<AdminGroupExamDto>> GetGroupExamsAsync(int groupId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var p = new DynamicParameters();
+                p.Add("@GroupID", groupId);
+                return await connection.QueryAsync<AdminGroupExamDto>(
+                    "sp_Admin_GetGroupExams", p, commandType: CommandType.StoredProcedure);
+            }
+            catch { return new List<AdminGroupExamDto>(); }
+        }
+
         // ──────────────────────────────────────────
         // AUDIT LOG
         // ──────────────────────────────────────────
