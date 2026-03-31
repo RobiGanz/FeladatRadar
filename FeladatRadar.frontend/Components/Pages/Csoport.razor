@@ -4,6 +4,7 @@
 @inject AuthService AuthService
 @inject GroupService GroupService
 @inject TeacherService TeacherService
+@inject AdminService AdminService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
@@ -382,7 +383,7 @@ else if (_isAuthenticated)
                                                             <td class="fr-td-meta">@ex.ExamDate.ToString("yyyy.MM.dd HH:mm")</td>
                                                             <td class="fr-td-meta">@ex.CreatedByName</td>
                                                             <td>
-                                                                @if (ex.CreatedBy == _currentUserId)
+                                                                @if (ex.CreatedBy == _currentUserId || _userRole == "Admin")
                                                                 {
                                                                     <button class="fr-icon-btn fr-icon-btn-danger" @onclick="() => DeleteExam(ex.ExamID)">🗑</button>
                                                                 }
@@ -954,7 +955,11 @@ else
     {
         try
         {
-            var r = await TeacherService.DeleteExamAsync(examId);
+            SubjectResponse r;
+            if (_userRole == "Admin")
+                r = await AdminService.DeleteExamAsync(examId);
+            else
+                r = await TeacherService.DeleteExamAsync(examId);
             _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
             _message = _messageIsError ? r.Message : "Dolgozat törölve.";
             if (!_messageIsError) _exams = await TeacherService.GetGroupExamsAsync(_selectedGroup!.GroupID);

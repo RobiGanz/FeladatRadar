@@ -51,4 +51,15 @@ namespace FeladatRadar.frontend.Models
         public string? Details { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+    public class AdminGroupExamDto
+    {
+        public int ExamID { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime ExamDate { get; set; }
+        public string CreatedByName { get; set; } = string.Empty;
+        public string? SubjectName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
 }

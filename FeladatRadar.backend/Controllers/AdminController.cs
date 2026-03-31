@@ -111,6 +111,13 @@ namespace FeladatRadar.backend.Controllers
             return Ok(result);
         }
 
+        [HttpGet("groups/{id}/exams")]
+        public async Task<IActionResult> GetGroupExams(int id)
+        {
+            var exams = await _adminService.GetGroupExamsAsync(id);
+            return Ok(exams);
+        }
+
         [HttpDelete("polls/{id}")]
         public async Task<IActionResult> DeletePoll(int id)
         {
