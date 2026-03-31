@@ -251,6 +251,38 @@ namespace FeladatRadar.backend.Services
             return await connection.QueryAsync<GroupInvite>(
                 "sp_GetMyInvites", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<SubjectResponse> DeleteGroupTaskAsync(int groupId, int taskId, int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var parameters = new DynamicParameters();
+                parameters.Add("@GroupID", groupId);
+                parameters.Add("@TaskID", taskId);
+                parameters.Add("@UserID", userId);
+                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                    "sp_DeleteGroupTask", parameters, commandType: CommandType.StoredProcedure);
+                return ParseResponse(result);
+            }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
+
+        public async Task<SubjectResponse> DeleteGroupScheduleEntryAsync(int groupId, int entryId, int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var parameters = new DynamicParameters();
+                parameters.Add("@GroupID", groupId);
+                parameters.Add("@EntryID", entryId);
+                parameters.Add("@UserID", userId);
+                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                    "sp_DeleteGroupScheduleEntry", parameters, commandType: CommandType.StoredProcedure);
+                return ParseResponse(result);
+            }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
     }
 
 

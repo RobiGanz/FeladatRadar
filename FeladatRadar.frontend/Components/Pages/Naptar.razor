@@ -329,6 +329,12 @@ else if (_isAuthenticated)
                                                 }
                                                 <span class="fr-dv-owner">@entry.OwnerName</span>
                                             </div>
+                                            @if (_canManageGroup || entry.OwnerID == _currentUserId)
+                                            {
+                                                <button class="fr-dv-del" @onclick="() => DeleteGroupEntry(entry.EntryID)" title="Törlés">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                                </button>
+                                            }
                                         </div>
                                     }
                                 }
@@ -381,6 +387,12 @@ else if (_isAuthenticated)
                                                 <span class="fr-dv-task-meta">@t.DueDate.ToString("HH:mm") · @t.SubjectName · @t.OwnerName</span>
                                             </div>
                                             <span class="fr-type-badge fr-type-@t.TaskType.ToLower()">@GetTaskTypeLabel(t.TaskType)</span>
+                                            @if (_canManageGroup || t.OwnerID == _currentUserId)
+                                            {
+                                                <button class="fr-dv-del" @onclick="() => DeleteGroupTask(t.TaskID)" title="Törlés">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                                </button>
+                                            }
                                         </div>
                                     }
                                     else
@@ -453,6 +465,12 @@ else if (_isAuthenticated)
                                                     <span class="fr-entry-loc">@ge.Location</span>
                                                 }
                                                 <span class="fr-entry-owner">@ge.OwnerName</span>
+                                                @if (_canManageGroup || ge.OwnerID == _currentUserId)
+                                                {
+                                                    <button class="fr-entry-del" @onclick="() => DeleteGroupEntry(ge.EntryID)" @onclick:stopPropagation="true">
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                         @foreach (var to in dayTasks)
@@ -462,6 +480,12 @@ else if (_isAuthenticated)
                                                 <span class="fr-chip-dot"></span>
                                                 <span class="fr-chip-text">@gt.Title</span>
                                                 <span class="fr-chip-owner">@gt.OwnerName</span>
+                                                @if (_canManageGroup || gt.OwnerID == _currentUserId)
+                                                {
+                                                    <button class="fr-entry-del" @onclick="() => DeleteGroupTask(gt.TaskID)" @onclick:stopPropagation="true">
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                     }
@@ -695,6 +719,7 @@ else
     private bool _isAuthenticated = false;
     private string _userEmail = "";
     private string _userRole = "";
+    private int _currentUserId = 0;
     private string _theme = "light";
     private string _message = "";
     private bool _messageIsError = false;
@@ -908,6 +933,7 @@ else
         _isAuthenticated = AuthService.IsAuthenticated;
         _userEmail = AuthService.CurrentUser?.Email ?? "";
         _userRole = AuthService.CurrentUser?.UserRole ?? "";
+        _currentUserId = AuthService.CurrentUser?.UserID ?? 0;
         if (!_isAuthenticated) { Navigation.NavigateTo("/login"); return; }
         await LoadData();
         StateHasChanged();
@@ -1053,6 +1079,32 @@ else
             var r = await ScheduleService.DeleteEntryAsync(entryId);
             _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
             _message = _messageIsError ? r.Message : "Bejegyzés törölve.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task DeleteGroupEntry(int entryId)
+    {
+        try
+        {
+            var r = await GroupService.DeleteGroupScheduleEntryAsync(_selectedGroupId, entryId);
+            _messageIsError = r.Status != "OK";
+            _message = _messageIsError ? r.Message : "Órarend bejegyzés törölve.";
+            if (!_messageIsError) await LoadData();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task DeleteGroupTask(int taskId)
+    {
+        try
+        {
+            var r = await GroupService.DeleteGroupTaskAsync(_selectedGroupId, taskId);
+            _messageIsError = r.Status != "OK";
+            _message = _messageIsError ? r.Message : "Feladat törölve.";
             if (!_messageIsError) await LoadData();
         }
         catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
@@ -1555,7 +1607,15 @@ else
     .fr-task-chip {
         display: flex; align-items: center; gap: 4px;
         padding: 4px 6px; border-radius: 6px; cursor: default;
+        position: relative;
     }
+
+    .fr-task-chip .fr-entry-del {
+        position: static; opacity: 0; color: var(--text-secondary);
+        width: 14px; height: 14px; flex-shrink: 0; margin-left: auto;
+    }
+
+    .fr-task-chip:hover .fr-entry-del { opacity: 1; }
 
     .fr-chip-accent { background: var(--accent-subtle); border: 1px solid var(--accent-subtle-strong); }
     .fr-chip-danger { background: var(--danger-subtle); border: 1px solid rgba(229,57,53,.18); }

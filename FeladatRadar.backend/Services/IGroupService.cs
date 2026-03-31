@@ -20,7 +20,8 @@ namespace FeladatRadar.backend.Services
         Task<SubjectResponse> AddGroupScheduleEntryAsync(int groupId, int userId, AddScheduleRequest request, string userRole = "Teacher");
         Task<bool> CanManageGroupAsync(int groupId, int userId);
         Task<bool> IsGroupMemberAsync(int groupId, int userId);
-
+        Task<SubjectResponse> DeleteGroupTaskAsync(int groupId, int taskId, int userId);
+        Task<SubjectResponse> DeleteGroupScheduleEntryAsync(int groupId, int entryId, int userId);
     }
 
 
