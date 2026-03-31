@@ -285,6 +285,12 @@ else
     .fr-layout[data-role="Teacher"] .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(217,119,6,.45); }
     .fr-layout[data-role="Teacher"] .fr-topbar { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; box-shadow:0 2px 16px rgba(245,158,11,.25) !important; }
     .fr-layout[data-role="Teacher"] .fr-brand { background:linear-gradient(135deg,#b45309 0%,#f59e0b 100%) !important; }
+    /* Admin piros tema - topbar es brand igen, de fokusz/szunet modgombok NE */
+    .fr-layout[data-role="Admin"] { --accent:#e53935; --accent-2:#b71c1c; --accent-hover:#c62828; --accent-subtle:rgba(229,57,53,.12); --accent-subtle-strong:rgba(229,57,53,.22); }
+    .fr-layout[data-role="Admin"] .fr-topbar { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; box-shadow:0 2px 16px rgba(229,57,53,.25) !important; }
+    .fr-layout[data-role="Admin"] .fr-brand { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; }
+    .fr-layout[data-role="Admin"] .fk-btn-play:not(.fk-btn-pause) { background:linear-gradient(135deg,#b71c1c,#e53935); box-shadow:0 4px 16px rgba(229,57,53,.4); }
+    /* Szunet modban (short/long) a lejatszo gomb maradjon zold/lila - nem pirosodik */
     .fr-layout[data-role="Teacher"] .fk-btn-play { background:linear-gradient(135deg,#b45309,#f59e0b); box-shadow:0 4px 20px rgba(245,158,11,.4); }
     .fr-layout[data-role="Teacher"] .fk-btn-play:hover { box-shadow:0 6px 28px rgba(245,158,11,.5); }
     .fr-layout[data-role="Teacher"] .fk-btn-pause { background:linear-gradient(135deg,#b45309,#f59e0b); box-shadow:0 4px 20px rgba(245,158,11,.35); }
@@ -453,9 +459,36 @@ else
     .fk-log-duration { color:var(--accent); font-weight:600; }
     .fk-log-time { color:var(--text-muted); margin-left:auto; }
 
-@@media (max-width: 700px) {
+/* ── Responsive breakpoints ── */
+    @@media (max-width:900px) {
+        .fk-bottom-row { gap:12px; }
+    }
+    @@media (max-width:768px) {
+        .fk-mode-row { gap:6px; }
+        .fk-type-row { gap:5px; flex-wrap:wrap; }
+        .fk-content { padding:14px 16px; }
+    }
+    @@media (max-width:700px) {
         .fk-bottom-row { flex-direction:column; }
-        .fk-time { font-size:2.4rem; }
-        .fk-ring-wrap, .fk-ring-svg { width:180px; height:180px; }
+        .fk-time { font-size:2.6rem; }
+        .fk-ring-wrap, .fk-ring-svg { width:190px; height:190px; }
+        .fr-content { padding:12px; }
+        .fk-timer-card { padding:18px; }
+    }
+    @@media (max-width:580px) {
+        .fk-mode-btn { font-size:.8rem; padding:8px 10px; min-width:90px; }
+        .fk-type-btn { font-size:.75rem; padding:4px 9px; }
+        .fk-time { font-size:2.2rem; }
+        .fk-ring-wrap, .fk-ring-svg { width:170px; height:170px; }
+        .fk-controls { gap:12px; }
+        .fk-btn-play { width:56px; height:56px; }
+        .fk-card-title { font-size:.82rem; }
+        .fk-settings-row { gap:12px; }
+        .fk-setting-item { width:80px; }
+    }
+    @@media (max-width:380px) {
+        .fk-time { font-size:1.9rem; }
+        .fk-ring-wrap, .fk-ring-svg { width:150px; height:150px; }
+        .fk-mode-btn { min-width:75px; font-size:.76rem; padding:7px 8px; }
     }
 </style>

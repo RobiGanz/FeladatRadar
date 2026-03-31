@@ -21,11 +21,13 @@ namespace FeladatRadar.backend.Controllers
         private int GetCurrentUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(claim ?? "0");
+            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
+                throw new UnauthorizedAccessException("Érvénytelen token.");
+            return userId;
         }
 
         [HttpGet("my-tasks")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> GetMyTasks()
         {
             var tasks = await _taskService.GetMyTasksAsync(GetCurrentUserId());
@@ -33,7 +35,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> AddTask([FromBody] AddTaskRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Title))
@@ -45,7 +47,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpPut("complete/{taskId}")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> CompleteTask(int taskId)
         {
             var result = await _taskService.CompleteTaskAsync(taskId, GetCurrentUserId());
@@ -54,7 +56,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpPut("uncomplete/{taskId}")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> UncompleteTask(int taskId)
         {
             var result = await _taskService.UncompleteTaskAsync(taskId, GetCurrentUserId());
@@ -63,7 +65,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         [HttpDelete("delete/{taskId}")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> DeleteTask(int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(taskId, GetCurrentUserId());
