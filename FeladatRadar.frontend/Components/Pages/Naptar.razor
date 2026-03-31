@@ -87,9 +87,7 @@ else if (_isAuthenticated)
                         <span>Sötét mód</span>
      }
                 </button>
-                <button class="fr-logout" @onclick="HandleLogout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Kijelentkezés
-                </button>
+                
             </div>
         </aside>
 
@@ -528,26 +526,23 @@ else if (_isAuthenticated)
                     </div>
 
                     @* Típus tab sor *@
-                    @if (!_groupMode)
-                    {
-                        <div class="fr-modal-tabs">
-                            <button class="fr-modal-tab @(_panelTab == "ora" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "ora"'>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                                Órarend bejegyzés
-                            </button>
-                            <button class="fr-modal-tab @(_panelTab == "beadando" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "beadando"'>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /></svg>
-                                Feladat / Esemény
-                            </button>
-                        </div>
-                    }
+                    <div class="fr-modal-tabs">
+                        <button class="fr-modal-tab @(_panelTab == "ora" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "ora"'>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                            Órarend bejegyzés
+                        </button>
+                        <button class="fr-modal-tab @(_panelTab == "beadando" ? "fr-modal-tab-active" : "")" @onclick='() => _panelTab = "beadando"'>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4" /></svg>
+                            Feladat / Esemény
+                        </button>
+                    </div>
 
                     <div class="fr-modal-body">
                         @if (_myEnrollments.Count == 0 && !_groupMode && _panelTab == "ora")
                         {
                             <p class="fr-add-notice">Nincs felvett tantárgyad. <a href="/tantargyak" class="fr-link">Tantárgyak felvétele →</a></p>
                         }
-                        else if (_panelTab == "ora" || _groupMode)
+                        else if (_panelTab == "ora")
                         {
                             <div class="fr-modal-section-label">@_days[_addingToDay] · @GetDayDate(_addingToDay).ToString("yyyy. MM. dd.")</div>
                             <div class="fr-form-row">
@@ -573,30 +568,15 @@ else if (_isAuthenticated)
                                     <label class="fr-label">Helyszín <span class="fr-optional">— opcionális</span></label>
                                     <input type="text" class="fr-input" placeholder="pl. B203" @bind="_selLocation" />
                                 </div>
-                                @if (!_groupMode)
-                                {
-                                    <div class="fr-field fr-field-sm">
-                                        <label class="fr-label">Ismétlődés</label>
-                                        <select class="fr-input" @bind="_selRecurrence">
-                                            <option value="Weekly">Heti</option>
-                                            <option value="Biweekly">Kéthetente</option>
-                                            <option value="Monthly">Havonta</option>
-                                            <option value="None">Egyszeri</option>
-                                        </select>
-                                    </div>
-                                    @if (_selRecurrence != "None")
-                                    {
-                                        <div class="fr-field fr-field-sm">
-                                            <label class="fr-label">
-                                                <input type="checkbox" @bind="_selHasEndDate" style="margin-right:5px" />Vége
-                                            </label>
-                                            @if (_selHasEndDate)
-                                            {
-                                                <input type="date" class="fr-input" @bind="_selRecurrenceEnd" />
-                                            }
-                                        </div>
-                                    }
-                                }
+                                <div class="fr-field fr-field-sm">
+                                    <label class="fr-label">Ismétlődés</label>
+                                    <select class="fr-input" @bind="_selRecurrence">
+                                        <option value="Weekly">Heti</option>
+                                        <option value="Biweekly">Kéthetente</option>
+                                        <option value="Monthly">Havonta</option>
+                                        <option value="None">Egyszeri</option>
+                                    </select>
+                                </div>
                             </div>
                             @if (!string.IsNullOrEmpty(_formError))
                             {
@@ -1030,28 +1010,42 @@ else
     private async Task AddTask()
     {
         _formError = "";
-        
         if (string.IsNullOrWhiteSpace(_taskTitle)) { _formError = "Add meg a feladat nevét."; return; }
         _isSaving = true; StateHasChanged();
         try
         {
-            var r = await TaskService.AddTaskAsync(new AddTaskRequest
+            if (_groupMode && _selectedGroupId > 0)
             {
-                SubjectID = _taskSubjectId == 0 ? null : _taskSubjectId,
-                Title = _taskTitle.Trim(),
-                Description = _taskDescription.Trim(),
-                DueDate = _taskDueDate,
-                TaskType = _taskType,
-                RecurrenceType = _taskRecurrence,
-                RecurrenceEndDate = (_taskRecurrence != "None" && _taskHasEndDate) ? _taskRecurrenceEnd : null
-            });
-            if (r.Status == "OK" || r.Status == "SUCCESS") { _message = $"Feladat hozzáadva: {_taskTitle}"; _messageIsError = false; _addingToDay = 0; await LoadData(); }
-            else _formError = r.Message;
+                var r = await GroupService.AddGroupTaskAsync(_selectedGroupId, new AddGroupTaskRequest
+                {
+                    SubjectID = _taskSubjectId > 0 ? _taskSubjectId : 1,
+                    Title = _taskTitle.Trim(),
+                    Description = string.IsNullOrWhiteSpace(_taskDescription) ? null : _taskDescription.Trim(),
+                    DueDate = _taskDueDate,
+                    TaskType = _taskType
+                });
+                if (r.Status == "OK" || r.Status == "SUCCESS") { _message = $"Csoportos feladat hozzáadva: {_taskTitle}"; _messageIsError = false; _addingToDay = 0; await LoadGroupData(); }
+                else _formError = r.Message;
+            }
+            else
+            {
+                var r = await TaskService.AddTaskAsync(new AddTaskRequest
+                {
+                    SubjectID = _taskSubjectId == 0 ? null : _taskSubjectId,
+                    Title = _taskTitle.Trim(),
+                    Description = _taskDescription.Trim(),
+                    DueDate = _taskDueDate,
+                    TaskType = _taskType,
+                    RecurrenceType = _taskRecurrence,
+                    RecurrenceEndDate = (_taskRecurrence != "None" && _taskHasEndDate) ? _taskRecurrenceEnd : null
+                });
+                if (r.Status == "OK" || r.Status == "SUCCESS") { _message = $"Feladat hozzáadva: {_taskTitle}"; _messageIsError = false; _addingToDay = 0; await LoadData(); }
+                else _formError = r.Message;
+            }
         }
         catch (Exception ex) { _formError = ex.Message; }
         finally { _isSaving = false; StateHasChanged(); }
     }
-
     private async Task DeleteEntry(int entryId)
     {
         try
