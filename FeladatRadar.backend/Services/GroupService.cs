@@ -166,6 +166,13 @@ namespace FeladatRadar.backend.Services
                 parameters.Add("@StartTime", TimeSpan.Parse(request.StartTime));
                 parameters.Add("@EndTime", TimeSpan.Parse(request.EndTime));
                 parameters.Add("@Location", request.Location);
+                parameters.Add("@RecurrenceType", request.RecurrenceType ?? "Weekly");
+                parameters.Add("@RecurrenceEndDate", request.RecurrenceEndDate.HasValue
+                    ? (object)request.RecurrenceEndDate.Value.Date
+                    : null);
+                parameters.Add("@StartDate", request.StartDate.HasValue
+                    ? (object)request.StartDate.Value.Date
+                    : null);
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
                     "sp_AddGroupScheduleEntry", parameters, commandType: CommandType.StoredProcedure);
                 return ParseResponse(result);

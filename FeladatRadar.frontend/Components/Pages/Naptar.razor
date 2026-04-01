@@ -199,8 +199,8 @@ else if (_isAuthenticated)
                             var isPast2 = dc.Date < DateTime.Today;
                             var dayKey2 = (int)dc.DayOfWeek == 0 ? 7 : (int)dc.DayOfWeek;
                             var mEntries = _groupMode
-                            ? _groupSchedule.Where(e => e.DayOfWeek == dayKey2).ToList<object>()
-                            : _schedule.Where(e => e.DayOfWeek == dayKey2).ToList<object>();
+                            ? _groupSchedule.Where(e => IsGroupEntryVisibleOnDate(e, dc)).ToList<object>()
+                            : _schedule.Where(e => IsEntryVisibleOnDate(e, dc)).ToList<object>();
                             var mTasks = _groupMode
                             ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dc.Date).ToList<object>()
                             : _tasks.Where(t => !t.IsCompleted && t.DueDate.Date == dc.Date).ToList<object>();
@@ -253,8 +253,8 @@ else if (_isAuthenticated)
                     var dvDate = GetDayViewDate();
                     var dvDayKey = (int)dvDate.DayOfWeek == 0 ? 7 : (int)dvDate.DayOfWeek;
                     var dvEntries = _groupMode
-                    ? _groupSchedule.Where(e => e.DayOfWeek == dvDayKey).OrderBy(e => e.StartTime).ToList<object>()
-                    : _schedule.Where(e => e.DayOfWeek == dvDayKey).OrderBy(e => e.StartTime).ToList<object>();
+                    ? _groupSchedule.Where(e => IsGroupEntryVisibleOnDate(e, dvDate)).OrderBy(e => e.StartTime).ToList<object>()
+                    : _schedule.Where(e => IsEntryVisibleOnDate(e, dvDate)).OrderBy(e => e.StartTime).ToList<object>();
                     var dvTasks = _groupMode
                     ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dvDate.Date).ToList<object>()
                     : _tasks.Where(t => t.DueDate.Date == dvDate.Date).ToList<object>();
@@ -275,7 +275,7 @@ else if (_isAuthenticated)
                                 }
                                 @if (dvCanAdd)
                                 {
-                                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => SelectDay(dvDayKey)">
+                                    <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="() => SelectDayWithDate(dvDayKey, dvDate)">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                         Hozzáadás
                                     </button>
@@ -328,6 +328,10 @@ else if (_isAuthenticated)
                                                     <span class="fr-dv-loc">📍 @entry.Location</span>
                                                 }
                                                 <span class="fr-dv-owner">@entry.OwnerName</span>
+                                                @if (entry.RecurrenceType != "None")
+                                                {
+                                                    <span class="fr-recur-badge">↻ @entry.RecurrenceLabel</span>
+                                                }
                                             </div>
                                             @if (_canManageGroup || entry.OwnerID == _currentUserId)
                                             {
@@ -428,8 +432,8 @@ else if (_isAuthenticated)
                             var dayKey = day.Key;
                             var dayDate = GetDayDate(dayKey);
                             var dayEntries = _groupMode
-                            ? _groupSchedule.Where(e => e.DayOfWeek == dayKey).OrderBy(e => e.StartTime).ToList<object>()
-                            : _schedule.Where(e => e.DayOfWeek == dayKey).OrderBy(e => e.StartTime).ToList<object>();
+                            ? _groupSchedule.Where(e => IsGroupEntryVisibleOnDate(e, dayDate)).OrderBy(e => e.StartTime).ToList<object>()
+                            : _schedule.Where(e => IsEntryVisibleOnDate(e, dayDate)).OrderBy(e => e.StartTime).ToList<object>();
                             var dayTasks = _groupMode
                             ? _groupTasks.Where(t => !t.IsCompleted && t.DueDate.Date == dayDate.Date).ToList<object>()
                             : _tasks.Where(t => !t.IsCompleted && t.DueDate.Date == dayDate.Date).ToList<object>();
@@ -465,6 +469,10 @@ else if (_isAuthenticated)
                                                     <span class="fr-entry-loc">@ge.Location</span>
                                                 }
                                                 <span class="fr-entry-owner">@ge.OwnerName</span>
+                                                @if (ge.RecurrenceType != "None")
+                                                {
+                                                    <span class="fr-recur-badge">↻</span>
+                                                }
                                                 @if (_canManageGroup || ge.OwnerID == _currentUserId)
                                                 {
                                                     <button class="fr-entry-del" @onclick="() => DeleteGroupEntry(ge.EntryID)" @onclick:stopPropagation="true">
@@ -568,7 +576,13 @@ else if (_isAuthenticated)
                         }
                         else if (_panelTab == "ora")
                         {
-                            <div class="fr-modal-section-label">@_days[_addingToDay] · @GetDayDate(_addingToDay).ToString("yyyy. MM. dd.")</div>
+                            <div class="fr-modal-section-label">
+                                @_days[_addingToDay] · @GetDayDate(_addingToDay).ToString("yyyy. MM. dd.")
+                                @if (_selRecurrence == "None")
+                                {
+                                    <span style="font-size:.78rem;color:var(--text-muted);margin-left:6px;">— egyszeri (csak ezen a napon jelenik meg)</span>
+                                }
+                            </div>
                             <div class="fr-form-row">
                                 <div class="fr-field">
                                     <label class="fr-label">Tantárgy</label>
@@ -757,6 +771,7 @@ else
 
     // Add panel
     private int _addingToDay = 0;
+    private DateTime _addingToDate = DateTime.Today; // a tényleges naptári dátum (nem csak hétköznap-kulcs)
     private string _panelTab = "ora";
     private int _selSubjectId = 0;
     private string _selStart = "08:00";
@@ -909,13 +924,21 @@ else
 
     private void SelectDay(int day)
     {
-        if (GetDayDate(day).Date < DateTime.Today) return;
+        // Heti nézetben a GetDayDate pontos dátumot ad
+        SelectDayWithDate(day, GetDayDate(day));
+    }
+
+    private void SelectDayWithDate(int day, DateTime exactDate)
+    {
+        if (exactDate.Date < DateTime.Today) return;
         if (!_canManageGroup) return;
-        if (_addingToDay == day) { _addingToDay = 0; return; }
-        _addingToDay = day; _panelTab = "ora"; _formError = "";
+        if (_addingToDay == day && _addingToDate.Date == exactDate.Date) { _addingToDay = 0; return; }
+        _addingToDay = day;
+        _addingToDate = exactDate.Date; // a pontos naptári dátum mentése
+        _panelTab = "ora"; _formError = "";
         _selSubjectId = 0; _selStart = "08:00"; _selEnd = "09:30"; _selLocation = "";
         _taskSubjectId = 0; _taskTitle = ""; _taskDescription = "";
-        _taskDueDate = GetDayDate(day).Date.AddHours(23).AddMinutes(59);
+        _taskDueDate = exactDate.Date.AddHours(23).AddMinutes(59);
         _taskType = "Assignment";
     }
 
@@ -993,15 +1016,17 @@ else
         _isSaving = true; StateHasChanged();
         try
         {
+            var startDate = _addingToDate.Date; // a pontos kattintott dátum, nem a heti offset-ből számolt
             var r = await ScheduleService.AddEntryAsync(new AddScheduleRequest
             {
-                SubjectID = _selSubjectId,
-                DayOfWeek = _addingToDay,
-                StartTime = _selStart,
-                EndTime = _selEnd,
-                Location = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
+                SubjectID      = _selSubjectId,
+                DayOfWeek      = _addingToDay,
+                StartTime      = _selStart,
+                EndTime        = _selEnd,
+                Location       = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
                 RecurrenceType = _selRecurrence,
-                RecurrenceEndDate = (_selRecurrence != "None" && _selHasEndDate) ? _selRecurrenceEnd : null
+                StartDate      = startDate,
+                RecurrenceEndDate = null
             });
             if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadData(); }
             else _formError = r.Message;
@@ -1017,20 +1042,93 @@ else
         _isSaving = true; StateHasChanged();
         try
         {
+            var startDate = _addingToDate.Date;
             var r = await GroupService.AddGroupScheduleEntryAsync(_selectedGroupId, new AddScheduleRequest
             {
-                SubjectID = _selSubjectId,
-                DayOfWeek = _addingToDay,
-                StartTime = _selStart,
-                EndTime = _selEnd,
-                Location = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
-                RecurrenceType = "None"
+                SubjectID      = _selSubjectId,
+                DayOfWeek      = _addingToDay,
+                StartTime      = _selStart,
+                EndTime        = _selEnd,
+                Location       = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
+                RecurrenceType = _selRecurrence,
+                StartDate      = startDate,
+                RecurrenceEndDate = null
             });
             if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Csoport bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadGroupData(); }
             else _formError = r.Message;
         }
         catch (Exception ex) { _formError = ex.Message; }
         finally { _isSaving = false; StateHasChanged(); }
+    }
+
+    // ── Láthatóság-szűrő metódusok ──────────────────────────────────────────
+
+    /// <summary>Meghatározza, hogy egy egyéni órarend-bejegyzés látható-e a megadott dátumon.</summary>
+    private bool IsEntryVisibleOnDate(ScheduleEntryDto entry, DateTime date)
+    {
+        if (entry.RecurrenceEndDate.HasValue && date.Date > entry.RecurrenceEndDate.Value.Date) return false;
+
+        var refDate = entry.StartDate?.Date ?? entry.CreatedAt.Date;
+
+        // Egyik típusnál sem jelenhet meg a referencia dátum ELŐTT
+        if (date.Date < refDate) return false;
+
+        switch (entry.RecurrenceType)
+        {
+            case "Weekly":
+            case "Biweekly":
+            {
+                // Heti/kéthetente: a hét napja kell hogy egyezzen
+                var dow = (int)date.DayOfWeek == 0 ? 7 : (int)date.DayOfWeek;
+                if (entry.DayOfWeek != dow) return false;
+                if (entry.RecurrenceType == "Weekly") return true;
+                return ((date.Date - refDate).Days / 7) % 2 == 0;
+            }
+
+            case "Monthly":
+                // Minden hónapban ugyanaz a nap (ápr. 1. → máj. 1. → jún. 1.)
+                // DayOfWeek NEM számít – csak a hónap napja
+                var targetDay = Math.Min(refDate.Day, DateTime.DaysInMonth(date.Year, date.Month));
+                return date.Day == targetDay;
+
+            case "None":
+                // Egyszeri: csak a pontos dátum egyezik, DayOfWeek NEM számít
+                return date.Date == refDate;
+
+            default:
+                return true;
+        }
+    }
+
+    private bool IsGroupEntryVisibleOnDate(GroupScheduleEntryDto entry, DateTime date)
+    {
+        if (entry.RecurrenceEndDate.HasValue && date.Date > entry.RecurrenceEndDate.Value.Date) return false;
+
+        var refDate = entry.StartDate?.Date ?? entry.CreatedAt.Date;
+
+        if (date.Date < refDate) return false;
+
+        switch (entry.RecurrenceType)
+        {
+            case "Weekly":
+            case "Biweekly":
+            {
+                var dow = (int)date.DayOfWeek == 0 ? 7 : (int)date.DayOfWeek;
+                if (entry.DayOfWeek != dow) return false;
+                if (entry.RecurrenceType == "Weekly") return true;
+                return ((date.Date - refDate).Days / 7) % 2 == 0;
+            }
+
+            case "Monthly":
+                var targetDay = Math.Min(refDate.Day, DateTime.DaysInMonth(date.Year, date.Month));
+                return date.Day == targetDay;
+
+            case "None":
+                return date.Date == refDate;
+
+            default:
+                return true;
+        }
     }
 
     private async Task AddTask()

@@ -11,14 +11,16 @@ public class ScheduleEntryDto
     public string? Location { get; set; }
     public string RecurrenceType { get; set; } = "Weekly";
     public DateTime? RecurrenceEndDate { get; set; }
+    /// <summary>Az első/pontos előfordulás dátuma.</summary>
+    public DateTime? StartDate { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public string RecurrenceLabel => RecurrenceType switch
     {
-        "Weekly" => "Heti",
-        "Biweekly" => "Kéthetente",
-        "Monthly" => "Havonta",
-        _ => "Egyszeri"
+        "Weekly"    => "Heti",
+        "Biweekly"  => "Kéthetente",
+        "Monthly"   => "Havonta",
+        _           => "Egyszeri"
     };
 }
 
@@ -31,4 +33,6 @@ public class AddScheduleRequest
     public string? Location { get; set; }
     public string RecurrenceType { get; set; } = "Weekly";
     public DateTime? RecurrenceEndDate { get; set; }
+    /// <summary>Az első/pontos előfordulás dátuma (frontend tölti ki).</summary>
+    public DateTime? StartDate { get; set; }
 }
