@@ -20,8 +20,15 @@
         public string StartTime { get; set; } = string.Empty;
         public string EndTime { get; set; } = string.Empty;
         public string? Location { get; set; }
-        public string RecurrenceType { get; set; } = RecurrenceKind.Weekly;  
-        public DateTime? RecurrenceEndDate { get; set; }   
+        public string RecurrenceType { get; set; } = RecurrenceKind.Weekly;
+        public DateTime? RecurrenceEndDate { get; set; }
+        /// <summary>
+        /// Az első (pontos) előfordulás dátuma.
+        /// Egyszeri bejegyzésnél: kizárólag ezen a napon jelenik meg.
+        /// Kéthetente/Havonta: ettől a dátumtól számítja az ismétlődést.
+        /// Heti: nem kötelező (visszafelé kompatibilitás).
+        /// </summary>
+        public DateTime? StartDate { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -29,10 +36,12 @@
     {
         public int SubjectID { get; set; }
         public int DayOfWeek { get; set; }
-        public string StartTime { get; set; } = string.Empty;    
-        public string EndTime { get; set; } = string.Empty;        
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
         public string? Location { get; set; }
         public string RecurrenceType { get; set; } = RecurrenceKind.Weekly;
         public DateTime? RecurrenceEndDate { get; set; }
+        /// <summary>Az első/pontos előfordulás dátuma (frontend küldi).</summary>
+        public DateTime? StartDate { get; set; }
     }
 }

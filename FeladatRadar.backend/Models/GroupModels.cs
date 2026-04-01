@@ -42,6 +42,10 @@
         public string StartTime { get; set; } = string.Empty;
         public string EndTime { get; set; } = string.Empty;
         public string? Location { get; set; }
+        public string RecurrenceType { get; set; } = "Weekly";
+        public DateTime? RecurrenceEndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 
     public class GroupTask
