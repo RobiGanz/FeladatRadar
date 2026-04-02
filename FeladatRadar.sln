@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeladatRadar.backend", "Fel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeladatRadar.frontend", "FeladatRadar.frontend\FeladatRadar.frontend.csproj", "{4BF086AE-2C77-4878-8ED3-E311A65A9A60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeladatRadar.teszt", "FeladatRadar.teszt\FeladatRadar.teszt.csproj", "{78D95198-22D7-4E1E-8DBB-64C711E111D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4BF086AE-2C77-4878-8ED3-E311A65A9A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BF086AE-2C77-4878-8ED3-E311A65A9A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BF086AE-2C77-4878-8ED3-E311A65A9A60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D95198-22D7-4E1E-8DBB-64C711E111D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D95198-22D7-4E1E-8DBB-64C711E111D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D95198-22D7-4E1E-8DBB-64C711E111D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D95198-22D7-4E1E-8DBB-64C711E111D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
