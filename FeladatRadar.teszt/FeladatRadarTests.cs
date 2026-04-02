@@ -8,6 +8,20 @@ namespace FeladatRadar.Tests
 {
 
 
+    public class Subject
+    {
+        public int SubjectID { get; set; }
+        public string SubjectCode { get; set; } = string.Empty;
+        public string SubjectName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int Credits { get; set; }
+        public int MaxStudents { get; set; }
+        public int CurrentEnrollments { get; set; }
+        public string Status { get; set; } = "Active";
+        public int? TeacherID { get; set; }
+        public string? TeacherName { get; set; }
+    }
+
     public class SubjectDto
     {
         public int SubjectID { get; set; }
@@ -34,6 +48,12 @@ namespace FeladatRadar.Tests
         public string EnrollmentStatus { get; set; } = "Active";
     }
 
+    public class EnrollRequest
+    {
+        [Required]
+        public int SubjectID { get; set; }
+    }
+
     public class CustomEnrollRequest
     {
         [Required]
@@ -42,6 +62,65 @@ namespace FeladatRadar.Tests
 
         [StringLength(20)]
         public string SubjectCode { get; set; } = string.Empty;
+    }
+
+    public class SubjectResponse
+    {
+        public string Status { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
+
+    public class TaskItem
+    {
+        public int TaskID { get; set; }
+        public int CreatedBy { get; set; }
+        public int? SubjectID { get; set; }
+        public string SubjectName { get; set; } = string.Empty;
+        public string SubjectCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime DueDate { get; set; }
+        public string TaskType { get; set; } = "Exam";
+        public bool IsCompleted { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string RecurrenceType { get; set; } = "None";
+        public DateTime? RecurrenceEndDate { get; set; }
+        public int? ParentTaskID { get; set; }
+
+        public bool IsOverdue => !IsCompleted && DueDate < DateTime.Now;
+        public bool IsDueSoon => !IsCompleted && !IsOverdue && DueDate <= DateTime.Now.AddDays(3);
+        public bool IsRecurring => RecurrenceType != "None";
+
+        public string RecurrenceLabel => RecurrenceType switch
+        {
+            "Weekly" => "Heti",
+            "Biweekly" => "Kéthetente",
+            "Monthly" => "Havonta",
+            _ => ""
+        };
+
+        public string DaysLeft
+        {
+            get
+            {
+                if (IsCompleted) return "Kész";
+                var diff = (DueDate - DateTime.Now).TotalDays;
+                if (diff < 0) return $"{(int)Math.Abs(diff)} napja lejárt";
+                if (diff < 1) return "Ma jár le!";
+                return $"{(int)diff} nap múlva";
+            }
+        }
+    }
+
+    public static class RecurrenceKind
+    {
+        public const string None = "None";
+        public const string Weekly = "Weekly";
+        public const string Biweekly = "Biweekly";
+        public const string Monthly = "Monthly";
+
+        public static bool IsValid(string value) =>
+            value is None or Weekly or Biweekly or Monthly;
     }
 
     public class ScheduleEntry
@@ -54,16 +133,7 @@ namespace FeladatRadar.Tests
         public string RecurrenceType { get; set; } = "Weekly";
     }
 
-    public static class ValidationHelper
-    {
-        public static IList<ValidationResult> Validate(object obj)
-        {
-            var ctx = new ValidationContext(obj);
-            var results = new List<ValidationResult>();
-            Validator.TryValidateObject(obj, ctx, results, true);
-            return results;
-        }
-    }
+
 
     public static class SubjectEnrollmentHelper
     {
@@ -83,6 +153,33 @@ namespace FeladatRadar.Tests
             subjects.Where(s => s.Credits >= minCredits);
     }
 
+    public static class RecurringTaskHelper
+    {
+        public static List<DateTime> GenerateOccurrences(
+            DateTime start, string recurrenceType, DateTime? endDate)
+        {
+            var dates = new List<DateTime> { start };
+            if (recurrenceType == RecurrenceKind.None || endDate == null) return dates;
+
+            var current = start;
+            int iterations = 0;
+            while (iterations < 52)
+            {
+                current = recurrenceType switch
+                {
+                    RecurrenceKind.Weekly => current.AddDays(7),
+                    RecurrenceKind.Biweekly => current.AddDays(14),
+                    RecurrenceKind.Monthly => current.AddMonths(1),
+                    _ => endDate.Value.AddDays(1)
+                };
+                if (current > endDate.Value) break;
+                dates.Add(current);
+                iterations++;
+            }
+            return dates;
+        }
+    }
+
     public static class ScheduleConflictHelper
     {
         public static bool HasConflict(
@@ -95,12 +192,35 @@ namespace FeladatRadar.Tests
                 e.EndTime > start);
     }
 
+    public static class FocusTimerHelper
+    {
+        private const double CircleRadius = 88.0;
+        private const double Circumference = 2 * Math.PI * CircleRadius;
+
+        public static double CalcDashOffset(int secondsLeft, int totalSeconds)
+        {
+            if (totalSeconds <= 0) return 0;
+            return Circumference * ((double)secondsLeft / totalSeconds);
+        }
+    }
+
+    public static class ValidationHelper
+    {
+        public static IList<ValidationResult> Validate(object obj)
+        {
+            var ctx = new ValidationContext(obj);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(obj, ctx, results, true);
+            return results;
+        }
+    }
 
 
-    //  Tarcsányi Csongor Márk részei
+
+    // Tarcsányi Csongor Márk részei
 
 
-    //  1. TANTÁRGY FELVÉTEL – VALIDÁCIÓ 
+    // 1. TANTÁRGY FELVÉTEL – VALIDÁCIÓ 
 
     public class TantargyFelvetelValidacioTesztek
     {
@@ -162,7 +282,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 2. EMAIL VALIDÁCIÓ TESZTEK (JAVÍTOTT) 
+    //2. EMAIL VALIDÁCIÓ TESZTEK (JAVÍTOTT)
 
     public class EmailValidacioTesztek
     {
@@ -192,7 +312,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 3. CSOPORT MEGHÍVÁS VALIDÁCIÓ TESZTEK 
+    // 3. CSOPORT MEGHÍVÁS VALIDÁCIÓ TESZTEK
 
     public class CsoportMeghivasTesztek
     {
@@ -233,7 +353,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    //  4. ADMIN SZEREPKÖR VÉDELEM TESZTEK 
+    // 4. ADMIN SZEREPKÖR VÉDELEM TESZTEK
 
     public class AdminVedelmTesztek
     {
@@ -258,9 +378,11 @@ namespace FeladatRadar.Tests
     }
 
 
-    //    Le Tuan Anh (Róbert) részei
 
-    // 1. TANTÁRGY FELVÉTEL – SZABAD HELYEK ÉS ELÉRHETŐSÉG 
+    //Le Tuan Anh (Róbert) részei
+
+
+    // 1. TANTÁRGY FELVÉTEL – SZABAD HELYEK ÉS ELÉRHETŐSÉG
 
     public class TantargyElerhsetoségTesztek
     {
@@ -377,7 +499,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    //  3. TANTÁRGY FELVÉTEL – KÓD NORMALIZÁCIÓ 
+    // 3. TANTÁRGY FELVÉTEL – KÓD NORMALIZÁCIÓ 
 
     public class TantargyEgyediKodTesztek
     {
@@ -421,7 +543,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 4. TANTÁRGY LISTA – RENDEZÉS ÉS SZŰRÉS 
+    // 4. TANTÁRGY LISTA – RENDEZÉS ÉS SZŰRÉS
 
     public class TantargyListaSzuresTesztek
     {
@@ -430,7 +552,7 @@ namespace FeladatRadar.Tests
             new SubjectDto { SubjectID = 1, SubjectName = "Matematika",  Credits = 5,
                 MaxStudents = 30, CurrentEnrollments = 10 },
             new SubjectDto { SubjectID = 2, SubjectName = "Fizika",      Credits = 4,
-                MaxStudents = 20, CurrentEnrollments = 20 },  // tele
+                MaxStudents = 20, CurrentEnrollments = 20 },
             new SubjectDto { SubjectID = 3, SubjectName = "Kémia",       Credits = 3,
                 MaxStudents = 15, CurrentEnrollments = 5  },
             new SubjectDto { SubjectID = 4, SubjectName = "Informatika", Credits = 6,
@@ -477,7 +599,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 5. ÓRAREND ÜTKÖZÉS TESZTEK 
+    // 6. ÓRAREND ÜTKÖZÉS TESZTEK
 
     public class OrarendUtkozesTesztek
     {
@@ -533,6 +655,390 @@ namespace FeladatRadar.Tests
         {
             Assert.False(ScheduleConflictHelper.HasConflict(
                 _meglevo, "Monday", TimeSpan.FromHours(10), TimeSpan.FromHours(12)));
+        }
+    }
+
+
+
+    //  ████████  Lőrincz Antal (Anti) részei
+
+
+    //  1. FELADAT – HATÁRIDŐ ÉS ÁLLAPOT TESZTEK
+
+    public class HataridoTesztek
+    {
+        [Fact]
+        public void Lejart_Feladat_IsOverdue_Igaz()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(-1), IsCompleted = false };
+            Assert.True(task.IsOverdue);
+        }
+
+        [Fact]
+        public void Jovobeli_Feladat_IsOverdue_Hamis()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(5), IsCompleted = false };
+            Assert.False(task.IsOverdue);
+        }
+
+        [Fact]
+        public void Teljesitett_Lejart_Feladat_IsOverdue_Hamis()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(-1), IsCompleted = true };
+            Assert.False(task.IsOverdue);
+        }
+
+        [Fact]
+        public void Harom_Napon_Beluli_Feladat_IsDueSoon_Igaz()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(2), IsCompleted = false };
+            Assert.True(task.IsDueSoon);
+        }
+
+        [Fact]
+        public void Negy_Nap_Mulva_Esedékes_IsDueSoon_Hamis()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(4), IsCompleted = false };
+            Assert.False(task.IsDueSoon);
+        }
+
+        [Fact]
+        public void Teljesitett_Feladat_IsDueSoon_Hamis()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(1), IsCompleted = true };
+            Assert.False(task.IsDueSoon);
+        }
+
+        [Fact]
+        public void Pontosan_Ma_Esedékes_Feladat_IsDueSoon_Igaz()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddHours(2), IsCompleted = false };
+            Assert.True(task.IsDueSoon);
+        }
+
+        [Fact]
+        public void Teljesitett_Feladat_DaysLeft_Kesz_Szoveg()
+        {
+            var task = new TaskItem { IsCompleted = true, DueDate = DateTime.Now.AddDays(5) };
+            Assert.Equal("Kész", task.DaysLeft);
+        }
+
+        [Fact]
+        public void Ma_Lejaro_Feladat_DaysLeft_Ma_Jar_Le()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddMinutes(30), IsCompleted = false };
+            Assert.Equal("Ma jár le!", task.DaysLeft);
+        }
+
+        [Fact]
+        public void Lejart_Feladat_DaysLeft_Napo_Lejart_Szoveg()
+        {
+            var task = new TaskItem { DueDate = DateTime.Now.AddDays(-3), IsCompleted = false };
+            Assert.Contains("napja lejárt", task.DaysLeft);
+        }
+    }
+
+    // 2. FELADAT – ISMÉTLŐDÉS ÉS TÍPUS TESZTEK 
+
+    public class FeladatIsmetlodesTosztesTesztek
+    {
+        [Fact]
+        public void IsRecurring_Igaz_Ha_Weekly()
+        {
+            var task = new TaskItem { RecurrenceType = RecurrenceKind.Weekly };
+            Assert.True(task.IsRecurring);
+        }
+
+        [Fact]
+        public void IsRecurring_Hamis_Ha_None()
+        {
+            var task = new TaskItem { RecurrenceType = RecurrenceKind.None };
+            Assert.False(task.IsRecurring);
+        }
+
+        [Theory]
+        [InlineData(RecurrenceKind.Weekly, "Heti")]
+        [InlineData(RecurrenceKind.Biweekly, "Kéthetente")]
+        [InlineData(RecurrenceKind.Monthly, "Havonta")]
+        [InlineData(RecurrenceKind.None, "")]
+        public void RecurrenceLabel_Helyes_Magyar_Szoveg(string tipus, string elvarLabel)
+        {
+            var task = new TaskItem { RecurrenceType = tipus };
+            Assert.Equal(elvarLabel, task.RecurrenceLabel);
+        }
+
+        [Fact]
+        public void None_Tipusnal_Csak_Egy_Datum_Keletkezik()
+        {
+            var start = new DateTime(2025, 9, 1);
+            var result = RecurringTaskHelper.GenerateOccurrences(
+                start, RecurrenceKind.None, new DateTime(2025, 12, 31));
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void Weekly_Hetente_Pontosan_Heten_Napot_Ugrik()
+        {
+            var start = new DateTime(2025, 9, 1);
+            var end = new DateTime(2025, 9, 29);
+            var dates = RecurringTaskHelper.GenerateOccurrences(start, RecurrenceKind.Weekly, end);
+            Assert.Equal(5, dates.Count);
+            for (int i = 1; i < dates.Count; i++)
+                Assert.Equal(7, (dates[i] - dates[i - 1]).Days);
+        }
+
+        [Fact]
+        public void Biweekly_Kethetente_Tizennegy_Napot_Ugrik()
+        {
+            var start = new DateTime(2025, 9, 1);
+            var end = new DateTime(2025, 10, 13);
+            var dates = RecurringTaskHelper.GenerateOccurrences(start, RecurrenceKind.Biweekly, end);
+            for (int i = 1; i < dates.Count; i++)
+                Assert.Equal(14, (dates[i] - dates[i - 1]).Days);
+        }
+
+        [Fact]
+        public void Monthly_Havonta_Egy_Honapot_Ugrik()
+        {
+            var start = new DateTime(2025, 9, 15);
+            var end = new DateTime(2026, 1, 31);
+            var dates = RecurringTaskHelper.GenerateOccurrences(start, RecurrenceKind.Monthly, end);
+            for (int i = 1; i < dates.Count; i++)
+                Assert.Equal(start.AddMonths(i), dates[i]);
+        }
+
+        [Fact]
+        public void Maximum_52_Iteracio_Biztonsagi_Korlat()
+        {
+            var start = new DateTime(2025, 1, 1);
+            var end = new DateTime(2030, 12, 31);
+            var dates = RecurringTaskHelper.GenerateOccurrences(start, RecurrenceKind.Weekly, end);
+            Assert.True(dates.Count <= 53);
+        }
+
+        [Fact]
+        public void Elso_Datum_Mindig_A_Kezdodatum()
+        {
+            var start = new DateTime(2025, 9, 1);
+            var dates = RecurringTaskHelper.GenerateOccurrences(
+                start, RecurrenceKind.Weekly, new DateTime(2025, 12, 31));
+            Assert.Equal(start, dates.First());
+        }
+
+        [Theory]
+        [InlineData(RecurrenceKind.None)]
+        [InlineData(RecurrenceKind.Weekly)]
+        [InlineData(RecurrenceKind.Biweekly)]
+        [InlineData(RecurrenceKind.Monthly)]
+        public void RecurrenceKind_Ervenyes_Ertekek(string tipus)
+        {
+            Assert.True(RecurrenceKind.IsValid(tipus));
+        }
+
+        [Fact]
+        public void RecurrenceKind_Ervenytelen_Ertek_Hamis()
+        {
+            Assert.False(RecurrenceKind.IsValid("Daily"));
+            Assert.False(RecurrenceKind.IsValid(""));
+            Assert.False(RecurrenceKind.IsValid("Yearly"));
+        }
+    }
+
+    // 3. FELADAT – SZŰRÉS ÉS RENDEZÉS TESZTEK 
+
+    public class FeladatSzuresTesztek
+    {
+        private readonly List<TaskItem> _feladatok = new()
+        {
+            new TaskItem { TaskID = 1, Title = "Matek házi",
+                DueDate = DateTime.Now.AddDays(-2), IsCompleted = false, TaskType = "Homework" },
+            new TaskItem { TaskID = 2, Title = "Fizika dolgozat",
+                DueDate = DateTime.Now.AddDays(1),  IsCompleted = false, TaskType = "Exam" },
+            new TaskItem { TaskID = 3, Title = "Történelem esszé",
+                DueDate = DateTime.Now.AddDays(10), IsCompleted = false, TaskType = "Essay" },
+            new TaskItem { TaskID = 4, Title = "Kész feladat",
+                DueDate = DateTime.Now.AddDays(-5), IsCompleted = true,  TaskType = "Homework" },
+            new TaskItem { TaskID = 5, Title = "Kémia labor",
+                DueDate = DateTime.Now.AddDays(2),  IsCompleted = false, TaskType = "Lab" },
+        };
+
+        [Fact]
+        public void Lejart_Feladatok_Szurese_Helyes()
+        {
+            var lejart = _feladatok.Where(t => t.IsOverdue).ToList();
+            Assert.Single(lejart);
+            Assert.Equal("Matek házi", lejart[0].Title);
+        }
+
+        [Fact]
+        public void Hamaros_Feladatok_Szurese_Helyes()
+        {
+            var hamaros = _feladatok.Where(t => t.IsDueSoon).ToList();
+            Assert.Equal(2, hamaros.Count);
+        }
+
+        [Fact]
+        public void Aktiv_Feladatok_Kizarjak_A_Teljesitetteket()
+        {
+            var aktiv = _feladatok.Where(t => !t.IsCompleted).ToList();
+            Assert.Equal(4, aktiv.Count);
+        }
+
+        [Fact]
+        public void Kereses_Cimre_Nagybetu_Erzeketlen()
+        {
+            string kereses = "matek";
+            var talalatok = _feladatok
+                .Where(t => t.Title.Contains(kereses, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            Assert.Single(talalatok);
+            Assert.Equal("Matek házi", talalatok[0].Title);
+        }
+
+        [Fact]
+        public void Rendezes_Hatarido_Szerint_Novekvo()
+        {
+            var rendezett = _feladatok.OrderBy(t => t.DueDate).ToList();
+            for (int i = 1; i < rendezett.Count; i++)
+                Assert.True(rendezett[i].DueDate >= rendezett[i - 1].DueDate);
+        }
+
+        [Fact]
+        public void Szures_Exam_Tipusra()
+        {
+            var vizsgak = _feladatok.Where(t => t.TaskType == "Exam").ToList();
+            Assert.Single(vizsgak);
+            Assert.Equal("Fizika dolgozat", vizsgak[0].Title);
+        }
+
+        [Fact]
+        public void Feladat_Hozzaadas_Noveli_A_Listat()
+        {
+            var lista = new List<TaskItem>(_feladatok);
+            lista.Add(new TaskItem
+            {
+                TaskID = 6,
+                Title = "Új feladat",
+                DueDate = DateTime.Now.AddDays(5),
+                IsCompleted = false
+            });
+            Assert.Equal(6, lista.Count);
+        }
+
+        [Fact]
+        public void Feladat_Torles_Csokkenti_A_Listat()
+        {
+            var lista = new List<TaskItem>(_feladatok);
+            lista.RemoveAll(t => t.TaskID == 1);
+            Assert.Equal(4, lista.Count);
+            Assert.DoesNotContain(lista, t => t.TaskID == 1);
+        }
+
+        [Fact]
+        public void Feladat_Teljesitese_Megvaltoztatja_Az_Allapotot()
+        {
+            var task = new TaskItem { TaskID = 1, IsCompleted = false, DueDate = DateTime.Now.AddDays(5) };
+            task.IsCompleted = true;
+            Assert.True(task.IsCompleted);
+            Assert.False(task.IsOverdue);
+            Assert.False(task.IsDueSoon);
+        }
+    }
+
+    // 4. FELADAT – MODELL INTEGRITÁS TESZTEK
+
+    public class FeladatModelTesztek
+    {
+        [Fact]
+        public void TaskItem_Alapertelmezett_RecurrenceType_None()
+        {
+            Assert.Equal(RecurrenceKind.None, new TaskItem().RecurrenceType);
+        }
+
+        [Fact]
+        public void TaskItem_Alapertelmezett_IsCompleted_Hamis()
+        {
+            Assert.False(new TaskItem().IsCompleted);
+        }
+
+        [Fact]
+        public void TaskItem_Alapertelmezett_TaskType_Exam()
+        {
+            Assert.Equal("Exam", new TaskItem().TaskType);
+        }
+
+        [Fact]
+        public void TaskItem_ParentTaskID_Null_Alapertelmezetten()
+        {
+            Assert.Null(new TaskItem().ParentTaskID);
+        }
+
+        [Fact]
+        public void TaskItem_SubjectID_Null_Ha_Nem_Kotott_Tantargyhoz()
+        {
+            Assert.Null(new TaskItem().SubjectID);
+        }
+
+        [Fact]
+        public void TaskItem_IsRecurring_Hamis_Alapertelmezetten()
+        {
+            Assert.False(new TaskItem().IsRecurring);
+        }
+
+        [Fact]
+        public void TaskItem_RecurrenceLabel_Ures_Alapertelmezetten()
+        {
+            Assert.Equal(string.Empty, new TaskItem().RecurrenceLabel);
+        }
+
+        [Fact]
+        public void TaskItem_Tantargyhoz_Kotott_SubjectID_Helyes()
+        {
+            var task = new TaskItem { SubjectID = 42, SubjectName = "Matek" };
+            Assert.Equal(42, task.SubjectID);
+            Assert.Equal("Matek", task.SubjectName);
+        }
+    }
+
+    // 5. FÓKUSZ IDŐZÍTŐ TESZTEK
+
+    public class FokuszIdozitoTesztek
+    {
+        [Fact]
+        public void Teljes_Ido_DashOffset_A_Kerulet_Erteke()
+        {
+            double offset = FocusTimerHelper.CalcDashOffset(1500, 1500);
+            Assert.Equal(2 * Math.PI * 88, offset, precision: 2);
+        }
+
+        [Fact]
+        public void Nulla_Masodperc_DashOffset_Nulla()
+        {
+            Assert.Equal(0, FocusTimerHelper.CalcDashOffset(0, 1500));
+        }
+
+        [Fact]
+        public void Fele_Idone_DashOffset_A_Felek_Erteke()
+        {
+            double teljes = FocusTimerHelper.CalcDashOffset(1500, 1500);
+            double fele = FocusTimerHelper.CalcDashOffset(750, 1500);
+            Assert.Equal(teljes / 2, fele, precision: 2);
+        }
+
+        [Fact]
+        public void Nulla_TotalSeconds_Nem_Dob_Kivételt()
+        {
+            var ex = Record.Exception(() => FocusTimerHelper.CalcDashOffset(100, 0));
+            Assert.Null(ex);
+        }
+
+        [Theory]
+        [InlineData(1500, 1500)]   // Fókusz 25 perc
+        [InlineData(300, 300)]   // Rövid szünet 5 perc
+        [InlineData(900, 900)]   // Hosszú szünet 15 perc
+        public void Minden_Pomodoro_Mod_Szamolhato(int left, int total)
+        {
+            Assert.True(FocusTimerHelper.CalcDashOffset(left, total) >= 0);
         }
     }
 }
