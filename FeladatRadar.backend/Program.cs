@@ -17,9 +17,12 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            policy.WithOrigins("https://feladatradar.hu")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            policy.WithOrigins(
+                "https://feladatradar.hu",
+                "https://feladatradar-frontend-gabxfeeydwhwatdr.westeurope-01.azurewebsites.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
         }
     });
 });
@@ -89,11 +92,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger mindig elérhetõ
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("DevPolicy");
