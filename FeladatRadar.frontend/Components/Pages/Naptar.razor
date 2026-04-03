@@ -911,7 +911,7 @@ else
     private DateTime GetWeekEnd() => GetWeekStart().AddDays(6);
     private DateTime GetDayDate(int dayKey) => GetWeekStart().AddDays(dayKey - 1);
 
-    // Mini cal
+
 
     private List<DateTime> GetMonthCalDays(DateTime first)
     {
@@ -1062,8 +1062,6 @@ else
     }
 
     // ── Láthatóság-szűrő metódusok ──────────────────────────────────────────
-
-    /// <summary>Meghatározza, hogy egy egyéni órarend-bejegyzés látható-e a megadott dátumon.</summary>
     private bool IsEntryVisibleOnDate(ScheduleEntryDto entry, DateTime date)
     {
         if (entry.RecurrenceEndDate.HasValue && date.Date > entry.RecurrenceEndDate.Value.Date) return false;
@@ -1753,7 +1751,9 @@ else
         background: var(--surface);
         border: 1.5px solid var(--border);
         border-radius: var(--radius);
-        overflow: hidden; flex: 1;
+        overflow: auto;
+        flex: 1;
+        min-height: 0;
     }
 
     .fr-day-view.fr-day-today { border-color: var(--accent); }
@@ -2066,12 +2066,12 @@ else
 
     @@keyframes spin { to { transform: rotate(360deg); } }
 
-    /* 1200px: 4-col week */
+
     @@media (max-width:1200px) {
         .fr-week-grid { grid-template-columns:repeat(4,1fr); }
     }
 
-    /* 900px: 3-col week, topbar wraps */
+
     @@media (max-width:900px) {
         .fr-week-grid { grid-template-columns:repeat(3,1fr); }
         .fr-topbar { height:auto; min-height:56px; flex-wrap:wrap; padding:8px 16px; gap:8px; }
@@ -2079,7 +2079,7 @@ else
         .fr-user-chip span { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     }
 
-    /* 790px: 2-col week, topbar elements smaller */
+
     @@media (max-width:790px) {
         .fr-week-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
         .fr-topbar { padding:8px 14px; gap:6px; }
@@ -2092,7 +2092,6 @@ else
         .fr-slim-stats { overflow-x:auto; }
     }
 
-    /* 600px: topbar even more compact, day cols tighter */
     @@media (max-width:600px) {
         .fr-week-grid { grid-template-columns:repeat(2,1fr); gap:4px; }
         .fr-topbar { padding:8px 10px; }
@@ -2115,7 +2114,7 @@ else
         .fr-slim-val { font-size:.85rem; }
     }
 
-    /* 480px: single col week → switch to day view hint, modal bottom sheet */
+
     @@media (max-width:480px) {
         .fr-week-grid { grid-template-columns:1fr 1fr; gap:3px; }
         .fr-topbar { padding:6px 10px; gap:4px; }
@@ -2143,7 +2142,7 @@ else
         .fr-form-row { flex-direction:column; }
     }
 
-    /* 360px: very small phones */
+
     @@media (max-width:360px) {
         .fr-week-grid { grid-template-columns:1fr; }
         .fr-seg-btn { font-size:.65rem; padding:3px 5px; }

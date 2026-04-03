@@ -22,6 +22,9 @@ namespace FeladatRadar.backend.Services
         Task<bool> IsGroupMemberAsync(int groupId, int userId);
         Task<SubjectResponse> DeleteGroupTaskAsync(int groupId, int taskId, int userId);
         Task<SubjectResponse> DeleteGroupScheduleEntryAsync(int groupId, int entryId, int userId);
+        Task<SubjectResponse> RenameGroupAsync(int groupId, int userId, string newName);
+        Task<SubjectResponse> DeleteGroupAsync(int groupId, int userId);
+        Task<SubjectResponse> RemoveGroupMemberAsync(int groupId, int memberUserId, int requestingUserId);
     }
 
 

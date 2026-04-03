@@ -81,6 +81,11 @@
         public string InvitedEmail { get; set; } = string.Empty;
     }
 
+    public class RenameGroupRequest
+    {
+        public string NewName { get; set; } = string.Empty;
+    }
+
     public class AddGroupTaskRequest
     {
         public int SubjectID { get; set; }

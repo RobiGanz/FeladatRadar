@@ -36,7 +36,6 @@ namespace FeladatRadar.backend.Controllers
             return User.FindFirst(ClaimTypes.Role)?.Value ?? "Student";
         }
 
-        /// <summary>Check if user can manage (add/edit/delete) in a group</summary>
         private async Task<bool> CanManageGroup(int groupId)
         {
             var userId = GetCurrentUserId();
@@ -169,6 +168,32 @@ namespace FeladatRadar.backend.Controllers
         public async Task<IActionResult> DeleteGroupScheduleEntry(int groupId, int entryId)
         {
             var result = await _groupService.DeleteGroupScheduleEntryAsync(groupId, entryId, GetCurrentUserId());
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPut("{groupId}/rename")]
+        public async Task<IActionResult> RenameGroup(int groupId, [FromBody] RenameGroupRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.NewName))
+                return BadRequest(new SubjectResponse { Status = "ERROR", Message = "A név megadása kötelező." });
+            var result = await _groupService.RenameGroupAsync(groupId, GetCurrentUserId(), request.NewName);
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpDelete("{groupId}")]
+        public async Task<IActionResult> DeleteGroup(int groupId)
+        {
+            var result = await _groupService.DeleteGroupAsync(groupId, GetCurrentUserId());
+            if (result.Status == "ERROR") return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpDelete("{groupId}/members/{memberId}")]
+        public async Task<IActionResult> RemoveGroupMember(int groupId, int memberId)
+        {
+            var result = await _groupService.RemoveGroupMemberAsync(groupId, memberId, GetCurrentUserId());
             if (result.Status == "ERROR") return BadRequest(result);
             return Ok(result);
         }

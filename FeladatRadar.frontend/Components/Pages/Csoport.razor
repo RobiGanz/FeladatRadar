@@ -158,7 +158,29 @@ else if (_isAuthenticated)
                     {
                         <div class="fr-group-detail">
                             <div class="fr-group-detail-head">
-                                <h2 class="fr-group-detail-name">@_selectedGroup.GroupName</h2>
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:2px;">
+                                    @if (_showRename && _selectedGroup.IsOwner)
+                                    {
+                                        <input class="fr-input" style="font-size:1rem;font-weight:700;max-width:260px;" @bind="_renameText" maxlength="100" @onkeydown="HandleRenameKey" />
+                                        <button class="fr-btn fr-btn-primary fr-btn-sm" @onclick="ConfirmRename" disabled="@_isRenaming">
+                                            @(_isRenaming ? "..." : "Mentés")
+                                        </button>
+                                        <button class="fr-btn-ghost fr-btn-sm" @onclick="() => { _showRename = false; }">Mégse</button>
+                                    }
+                                    else
+                                    {
+                                        <h2 class="fr-group-detail-name">@_selectedGroup.GroupName</h2>
+                                        @if (_selectedGroup.IsOwner)
+                                        {
+                                            <button class="fr-icon-btn" title="Átnevezés" @onclick="StartRename">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            </button>
+                                            <button class="fr-icon-btn fr-icon-btn-danger" title="Csoport törlése" @onclick="() => ConfirmDeleteGroup(_selectedGroup.GroupID)">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                            </button>
+                                        }
+                                    }
+                                </div>
                                 <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                                     <div class="fr-detail-tabs">
                                         <button class="fr-dtab @(_detailTab == "members" ? "fr-dtab-active" : "")" @onclick='() => SwitchTab("members")'>Tagok</button>
@@ -197,11 +219,20 @@ else if (_isAuthenticated)
                                         <tbody>
                                             @foreach (var m in _members)
                                             {
+                                                var mid = m.UserID;
                                                 <tr>
                                                     <td class="fr-td-name">@m.FirstName @m.LastName</td>
                                                     <td class="fr-td-meta">@m.Email</td>
                                                     <td class="fr-td-meta">@m.JoinedAt.ToString("yyyy.MM.dd")</td>
-                                                    <td>@if (m.IsOwner) { <span class="fr-badge fr-badge-accent">Tulajdonos</span> }</td>
+                                                    <td style="display:flex;align-items:center;gap:6px;">
+                                                        @if (m.IsOwner) { <span class="fr-badge fr-badge-accent">Tulajdonos</span> }
+                                                        else if (_selectedGroup.IsOwner)
+                                                        {
+                                                            <button class="fr-icon-btn fr-icon-btn-danger" title="Tag eltávolítása" @onclick="() => RemoveMember(mid)">
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                                            </button>
+                                                        }
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -380,7 +411,7 @@ else if (_isAuthenticated)
                                                                 @if (!string.IsNullOrEmpty(ex.Description)) { <div class="fr-td-meta" style="margin-top:2px">@ex.Description</div> }
                                                             </td>
                                                             <td class="fr-td-meta">@(ex.SubjectName ?? "—")</td>
-                                                            <td class="fr-td-meta">@ex.ExamDate.ToString("yyyy.MM.dd HH:mm")</td>
+                                                            <td class="fr-td-meta">@ex.ExamDate.ToString("MM.dd HH:mm")</td>
                                                             <td class="fr-td-meta">@ex.CreatedByName</td>
                                                             <td>
                                                                 @if (ex.CreatedBy == _currentUserId || _userRole == "Admin")
@@ -422,7 +453,7 @@ else if (_isAuthenticated)
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" opacity=".5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                             </div>
                             <h2 class="fr-welcome-title">Válassz egy csoportot</h2>
-                            <p class="fr-welcome-desc">A bal oldali listából válassz egy csoportot a részletek megtekintéséhez, vagy hozz létre egy újat.</p>
+                            <p class="fr-welcome-desc">Válassz egy csoportot a részletek megtekintéséhez, vagy hozz létre egy újat.</p>
 
                             <div class="fr-welcome-stats">
                                 <div class="fr-wstat">
@@ -445,7 +476,7 @@ else if (_isAuthenticated)
                             {
                                 <div class="fr-welcome-tip">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                    Legutóbbi csoport: <strong>@_groups.First().GroupName</strong> — kattints rá a bal oldali listában.
+                                    Legutóbbi csoport: <strong>@_groups.First().GroupName</strong> — kattints rá a listában.
                                 </div>
                             }
 
@@ -459,6 +490,31 @@ else if (_isAuthenticated)
             </div>
         </main>
     </div>
+
+@if (_confirmOpen)
+{
+    <div class="fr-confirm-backdrop" @onclick="() => AnswerConfirm(false)">
+        <div class="fr-confirm-modal" @onclick:stopPropagation="true">
+            <div class="fr-confirm-icon">
+                @if (_confirmDanger)
+                {
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                }
+                else
+                {
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                }
+            </div>
+            <p class="fr-confirm-text">@_confirmMessage</p>
+            <div class="fr-confirm-btns">
+                <button class="fr-btn-ghost fr-btn-sm" @onclick="() => AnswerConfirm(false)">Mégse</button>
+                <button class="fr-btn fr-btn-sm @(_confirmDanger ? "fr-btn-danger-solid" : "fr-btn-primary")" @onclick="() => AnswerConfirm(true)">
+                    @(_confirmDanger ? "Törlés" : "Igen")
+                </button>
+            </div>
+        </div>
+    </div>
+}
 }
 else
 {
@@ -558,7 +614,7 @@ else
     .fr-badge-warn { background:var(--warning-subtle); color:var(--warning); }
 
     /* ── Csoportok oldal specifikus CSS ── */
-    .fr-content { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+    .fr-content { flex:1; overflow-y:auto; overflow-x:hidden; padding:20px 24px; display:flex; flex-direction:column; gap:16px; touch-action:pan-y; overscroll-behavior-x:none; }
 
     /* Panel body */
     .fr-panel-body { display:flex; flex-direction:column; }
@@ -571,7 +627,7 @@ else
     .fr-invite-from { font-size:.75rem; color:var(--text-muted); }
 
     /* Groups layout */
-    .fr-groups-layout { display:flex; gap:16px; align-items:flex-start; }
+    .fr-groups-layout { display:flex; gap:16px; align-items:flex-start; touch-action:pan-y; overscroll-behavior-x:none; }
     .fr-group-list { width:260px; flex-shrink:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
     .fr-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px 20px; color:var(--text-muted); font-size:.875rem; text-align:center; }
 
@@ -684,6 +740,7 @@ else
         .fr-detail-tabs { overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; gap:2px; }
         .fr-dtab { white-space:nowrap; font-size:.76rem; padding:5px 9px; flex-shrink:0; }
         .fr-table th:nth-child(2), .fr-table td:nth-child(2) { display:none; }
+        .fr-td-meta { white-space:nowrap; }
         .fr-content { padding:10px 12px; }
         .fr-welcome-stats { gap:10px; padding:12px 14px; flex-wrap:wrap; justify-content:center; }
         .fr-wstat-value { font-size:1.2rem; }
@@ -693,11 +750,80 @@ else
         .fr-form-row-inline { flex-direction:column; }
         .fr-form-row-inline .fr-input { min-width:unset; }
     }
+    /* ── Confirm modal ── */
+    .fr-confirm-backdrop {
+        position:fixed; inset:0; z-index:9999;
+        background:rgba(10,8,30,.55); backdrop-filter:blur(4px);
+        display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .fr-confirm-modal {
+        background:var(--surface); border:1px solid var(--border);
+        border-radius:16px; padding:28px 28px 22px;
+        max-width:360px; width:100%;
+        box-shadow:0 24px 60px rgba(0,0,0,.25);
+        display:flex; flex-direction:column; align-items:center; gap:14px;
+        animation:fr-modal-in .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    @@keyframes fr-modal-in { from { transform:scale(.88); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .fr-confirm-icon {
+        width:52px; height:52px; border-radius:50%;
+        background:var(--danger-subtle); color:var(--danger);
+        display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .fr-confirm-icon.fr-ci-info { background:var(--accent-subtle); color:var(--accent); }
+    .fr-confirm-text {
+        font-size:.9rem; color:var(--text-primary); text-align:center; line-height:1.55;
+        font-weight:500;
+    }
+    .fr-confirm-btns { display:flex; gap:10px; justify-content:center; width:100%; margin-top:4px; }
+    .fr-confirm-btns .fr-btn-ghost { flex:1; justify-content:center; }
+    .fr-confirm-btns .fr-btn { flex:1; justify-content:center; }
+    .fr-btn-danger-solid {
+        background:linear-gradient(135deg,#c62828,#e53935); color:#fff;
+        box-shadow:0 2px 10px rgba(229,57,53,.35);
+    }
+    .fr-btn-danger-solid:hover { box-shadow:0 4px 16px rgba(229,57,53,.5); transform:translateY(-1px); }
+
     @@media (max-width:400px) {
         .fr-group-item { padding:9px 10px; }
         .fr-dtab { font-size:.7rem; padding:4px 8px; }
-    }r-group-detail-name { font-size:.95rem; }
-}
+        /* ── Confirm modal ── */
+    .fr-confirm-backdrop {
+        position:fixed; inset:0; z-index:9999;
+        background:rgba(10,8,30,.55); backdrop-filter:blur(4px);
+        display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .fr-confirm-modal {
+        background:var(--surface); border:1px solid var(--border);
+        border-radius:16px; padding:28px 28px 22px;
+        max-width:360px; width:100%;
+        box-shadow:0 24px 60px rgba(0,0,0,.25);
+        display:flex; flex-direction:column; align-items:center; gap:14px;
+        animation:fr-modal-in .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    @@keyframes fr-modal-in { from { transform:scale(.88); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .fr-confirm-icon {
+        width:52px; height:52px; border-radius:50%;
+        background:var(--danger-subtle); color:var(--danger);
+        display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .fr-confirm-icon.fr-ci-info { background:var(--accent-subtle); color:var(--accent); }
+    .fr-confirm-text {
+        font-size:.9rem; color:var(--text-primary); text-align:center; line-height:1.55;
+        font-weight:500;
+    }
+    .fr-confirm-btns { display:flex; gap:10px; justify-content:center; width:100%; margin-top:4px; }
+    .fr-confirm-btns .fr-btn-ghost { flex:1; justify-content:center; }
+    .fr-confirm-btns .fr-btn { flex:1; justify-content:center; }
+    .fr-btn-danger-solid {
+        background:linear-gradient(135deg,#c62828,#e53935); color:#fff;
+        box-shadow:0 2px 10px rgba(229,57,53,.35);
+    }
+    .fr-btn-danger-solid:hover { box-shadow:0 4px 16px rgba(229,57,53,.5); transform:translateY(-1px); }
+
+    @@media (max-width:400px) {
+        .fr-group-detail-name { font-size:.95rem; }
+    }
 </style>
 
 @code {
@@ -715,6 +841,34 @@ else
     private string _userRole = "";
 
     private static readonly string[] _groupColors = { "#4f46e5","#0891b2","#0e9f6e","#d97706","#db2777","#7c3aed","#ea580c","#65a30d" };
+
+    // Confirm modal state
+    private bool _confirmOpen = false;
+    private bool _confirmDanger = false;
+    private string _confirmMessage = "";
+    private TaskCompletionSource<bool>? _confirmTcs;
+
+    private Task<bool> ShowConfirm(string message, bool danger = false)
+    {
+        _confirmMessage = message;
+        _confirmDanger = danger;
+        _confirmOpen = true;
+        _confirmTcs = new TaskCompletionSource<bool>();
+        StateHasChanged();
+        return _confirmTcs.Task;
+    }
+
+    private void AnswerConfirm(bool result)
+    {
+        _confirmOpen = false;
+        _confirmTcs?.SetResult(result);
+        StateHasChanged();
+    }
+
+    // Átnevezés state
+    private bool _showRename = false;
+    private string _renameText = "";
+    private bool _isRenaming = false;
 
     private List<GroupDto> _groups = new();
     private List<GroupInviteDto> _invites = new();
@@ -1044,6 +1198,71 @@ else
         }
         catch (Exception ex) { _inviteError = ex.Message; }
         finally { _isInviting = false; StateHasChanged(); }
+    }
+
+    private void StartRename()
+    {
+        _renameText = _selectedGroup?.GroupName ?? "";
+        _showRename = true;
+        StateHasChanged();
+    }
+
+    private async Task HandleRenameKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await ConfirmRename();
+        else if (e.Key == "Escape") { _showRename = false; StateHasChanged(); }
+    }
+
+    private async Task ConfirmRename()
+    {
+        if (_selectedGroup == null || string.IsNullOrWhiteSpace(_renameText)) return;
+        _isRenaming = true; StateHasChanged();
+        try
+        {
+            var r = await GroupService.RenameGroupAsync(_selectedGroup.GroupID, _renameText.Trim());
+            if (r.Status == "OK" || r.Status == "SUCCESS")
+            {
+                _message = "Csoport átnevezve."; _messageIsError = false;
+                _showRename = false;
+                await LoadData();
+                // frissítsük a selectedGroup-ot is
+                _selectedGroup = _groups.FirstOrDefault(g => g.GroupID == _selectedGroup.GroupID);
+            }
+            else { _message = r.Message; _messageIsError = true; _showRename = false; }
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        finally { _isRenaming = false; StateHasChanged(); }
+    }
+
+    private async Task ConfirmDeleteGroup(int groupId)
+    {
+        bool ok = await ShowConfirm("Biztosan törölni szeretnéd ezt a csoportot? Az összes adat (tagok, feladatok, szavazások) elvész!", danger: true);
+        if (!ok) return;
+        try
+        {
+            var r = await GroupService.DeleteGroupAsync(groupId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Csoport törölve.";
+            if (!_messageIsError) { _selectedGroup = null; await LoadData(); }
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
+    }
+
+    private async Task RemoveMember(int memberId)
+    {
+        if (_selectedGroup == null) return;
+        bool ok = await ShowConfirm("Biztosan eltávolítod ezt a tagot?", danger: true);
+        if (!ok) return;
+        try
+        {
+            var r = await GroupService.RemoveGroupMemberAsync(_selectedGroup.GroupID, memberId);
+            _messageIsError = r.Status != "OK" && r.Status != "SUCCESS";
+            _message = _messageIsError ? r.Message : "Tag eltávolítva.";
+            if (!_messageIsError) await LoadGroupDetail();
+        }
+        catch (Exception ex) { _message = ex.Message; _messageIsError = true; }
+        StateHasChanged();
     }
 
     private async Task HandleLogout() { await AuthService.Logout(); Navigation.NavigateTo("/login"); }

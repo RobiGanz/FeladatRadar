@@ -189,10 +189,6 @@ namespace FeladatRadar.backend.Services
                 "sp_GetGroupTasks", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        /// <summary>
-        /// Egyetlen DB lekérdezéssel ellenőrzi, hogy a user kezelheti-e a csoportot.
-        /// Korábban mindkét controllerben az összes csoport lekérésével oldották meg (N+1 jellegű).
-        /// </summary>
         public async Task<bool> CanManageGroupAsync(int groupId, int userId)
         {
             try
@@ -287,6 +283,75 @@ namespace FeladatRadar.backend.Services
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
                     "sp_DeleteGroupScheduleEntry", parameters, commandType: CommandType.StoredProcedure);
                 return ParseResponse(result);
+            }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
+
+        public async Task<SubjectResponse> RenameGroupAsync(int groupId, int userId, string newName)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var owner = await connection.ExecuteScalarAsync<int>(
+                    "SELECT CreatedBy FROM Groups WHERE GroupID = @GroupID",
+                    new { GroupID = groupId });
+                if (owner == 0)
+                    return new SubjectResponse { Status = "ERROR", Message = "A csoport nem található." };
+                if (owner != userId)
+                    return new SubjectResponse { Status = "ERROR", Message = "Csak a csoport tulajdonosa nevezheti át." };
+                if (string.IsNullOrWhiteSpace(newName))
+                    return new SubjectResponse { Status = "ERROR", Message = "A név nem lehet üres." };
+                await connection.ExecuteAsync(
+                    "UPDATE Groups SET GroupName = @Name WHERE GroupID = @GroupID",
+                    new { Name = newName.Trim(), GroupID = groupId });
+                return new SubjectResponse { Status = "OK", Message = "Csoport átnevezve." };
+            }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
+
+        public async Task<SubjectResponse> DeleteGroupAsync(int groupId, int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var owner = await connection.ExecuteScalarAsync<int>(
+                    "SELECT CreatedBy FROM Groups WHERE GroupID = @GroupID",
+                    new { GroupID = groupId });
+                if (owner == 0)
+                    return new SubjectResponse { Status = "ERROR", Message = "A csoport nem található." };
+                if (owner != userId)
+                    return new SubjectResponse { Status = "ERROR", Message = "Csak a csoport tulajdonosa törölheti." };
+                await connection.ExecuteAsync(@"
+                    DELETE pv FROM PollVotes pv INNER JOIN Polls p ON p.PollID = pv.PollID WHERE p.GroupID = @GID;
+                    DELETE po FROM PollOptions po INNER JOIN Polls p ON p.PollID = po.PollID WHERE p.GroupID = @GID;
+                    DELETE FROM Polls               WHERE GroupID = @GID;
+                    DELETE FROM GroupInvites        WHERE GroupID = @GID;
+                    DELETE FROM GroupMembers        WHERE GroupID = @GID;
+                    DELETE FROM Groups              WHERE GroupID = @GID;",
+                    new { GID = groupId });
+                return new SubjectResponse { Status = "OK", Message = "Csoport törölve." };
+            }
+            catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
+        }
+
+        public async Task<SubjectResponse> RemoveGroupMemberAsync(int groupId, int memberUserId, int requestingUserId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var owner = await connection.ExecuteScalarAsync<int>(
+                    "SELECT CreatedBy FROM Groups WHERE GroupID = @GroupID",
+                    new { GroupID = groupId });
+                if (owner == 0)
+                    return new SubjectResponse { Status = "ERROR", Message = "A csoport nem található." };
+                if (owner != requestingUserId)
+                    return new SubjectResponse { Status = "ERROR", Message = "Csak a csoport tulajdonosa távolíthat el tagot." };
+                if (memberUserId == requestingUserId)
+                    return new SubjectResponse { Status = "ERROR", Message = "Saját magad nem távolíthatod el." };
+                await connection.ExecuteAsync(
+                    "DELETE FROM GroupMembers WHERE GroupID = @GroupID AND StudentID = @MemberID",
+                    new { GroupID = groupId, MemberID = memberUserId });
+                return new SubjectResponse { Status = "OK", Message = "Tag eltávolítva." };
             }
             catch (Exception ex) { return new SubjectResponse { Status = "ERROR", Message = ex.Message }; }
         }

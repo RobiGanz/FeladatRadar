@@ -223,5 +223,47 @@ namespace FeladatRadar.frontend.Services
                 return new SubjectResponse { Status = "ERROR", Message = ex.Message };
             }
         }
+
+        public async Task<SubjectResponse> RenameGroupAsync(int groupId, string newName)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.PutAsJsonAsync($"api/Group/{groupId}/rename", new { newName });
+                return await ParseResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
+
+        public async Task<SubjectResponse> DeleteGroupAsync(int groupId)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"api/Group/{groupId}");
+                return await ParseResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
+
+        public async Task<SubjectResponse> RemoveGroupMemberAsync(int groupId, int memberId)
+        {
+            await _authService.InitializeAsync();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"api/Group/{groupId}/members/{memberId}");
+                return await ParseResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return new SubjectResponse { Status = "ERROR", Message = ex.Message };
+            }
+        }
     }
 }

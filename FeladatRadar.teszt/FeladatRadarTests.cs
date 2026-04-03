@@ -218,9 +218,107 @@ namespace FeladatRadar.Tests
 
 
     // Tarcsányi Csongor Márk részei
+            
+    //1. EMAIL VALIDÁCIÓ TESZTEK 
+
+    public class EmailValidacioTesztek
+    {
+        private static bool ErvenyesEmail(string email)
+        {
+            try
+            {
+                if (!new EmailAddressAttribute().IsValid(email)) return false;
+                var atIdx = email.IndexOf('@');
+                if (atIdx < 0) return false;
+                return email.Substring(atIdx + 1).Contains('.');
+            }
+            catch { return false; }
+        }
+
+        [Theory]
+        [InlineData("janos@iskola.hu", true)]
+        [InlineData("teszt.user@gmail.com", true)]
+        [InlineData("user+tag@domain.org", true)]
+        [InlineData("nemvalid", false)]
+        [InlineData("@nincsfelhasznalo.hu", false)]
+        [InlineData("nincs@tartomany", false)]
+        [InlineData("", false)]
+        public void Email_Format_Ellenorzes(string email, bool elvart)
+        {
+            Assert.Equal(elvart, ErvenyesEmail(email));
+        }
+    }
+
+    // 2. CSOPORT MEGHÍVÁS VALIDÁCIÓ TESZTEK
+
+    public class CsoportMeghivasTesztek
+    {
+        private readonly List<string> _tagok = new() { "kovacs.janos@iskola.hu" };
+        private readonly List<string> _fuggoMeghivasok = new() { "var.peter@iskola.hu" };
+
+        private string ValidaldMeghivas(string email)
+        {
+            if (_tagok.Contains(email)) return "Ez a felhasználó már tagja a csoportnak.";
+            if (_fuggoMeghivasok.Contains(email)) return "Ez a felhasználó már meg van hívva.";
+            if (!new EmailAddressAttribute().IsValid(email))
+                return "Nem létezik ilyen email-cimű felhasználó.";
+            return "OK";
+        }
+
+        [Fact]
+        public void Meglevo_Tag_Meghivasa_Hibat_Ad()
+        {
+            Assert.Contains("már tagja", ValidaldMeghivas("kovacs.janos@iskola.hu"));
+        }
+
+        [Fact]
+        public void Fuggob_Meghivas_Ujrameghivasa_Hibat_Ad()
+        {
+            Assert.Contains("már meg van hívva", ValidaldMeghivas("var.peter@iskola.hu"));
+        }
+
+        [Fact]
+        public void Uj_Felhasznalo_Meghivasa_Sikeres()
+        {
+            Assert.Equal("OK", ValidaldMeghivas("uj.felhasznalo@iskola.hu"));
+        }
+
+        [Fact]
+        public void Ervenytelen_Email_Hibat_Ad()
+        {
+            Assert.NotEqual("OK", ValidaldMeghivas("nemvalidemail"));
+        }
+    }
+
+    // 3. ADMIN SZEREPKÖR VÉDELEM TESZTEK
+
+    public class AdminVedelmTesztek
+    {
+        [Fact]
+        public void Admin_Nem_Torolheti_Onmagat()
+        {
+            int adminId = 1, targetId = 1;
+            Assert.True(adminId == targetId);
+        }
+
+        [Fact]
+        public void Admin_Nem_Modosithatja_Mas_Admin_Szerepkoret()
+        {
+            Assert.True("Admin" == "Admin");
+        }
+
+        [Fact]
+        public void Admin_Modosithatja_Student_Szerepkoret()
+        {
+            Assert.False("Student" == "Admin");
+        }
+    }
 
 
-    // 1. TANTÁRGY FELVÉTEL – VALIDÁCIÓ 
+
+    //Le Tuan Anh (Róbert) részei
+
+    // 4. TANTÁRGY FELVÉTEL – VALIDÁCIÓ 
 
     public class TantargyFelvetelValidacioTesztek
     {
@@ -282,107 +380,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    //2. EMAIL VALIDÁCIÓ TESZTEK (JAVÍTOTT)
-
-    public class EmailValidacioTesztek
-    {
-        private static bool ErvenyesEmail(string email)
-        {
-            try
-            {
-                if (!new EmailAddressAttribute().IsValid(email)) return false;
-                var atIdx = email.IndexOf('@');
-                if (atIdx < 0) return false;
-                return email.Substring(atIdx + 1).Contains('.');
-            }
-            catch { return false; }
-        }
-
-        [Theory]
-        [InlineData("janos@iskola.hu", true)]
-        [InlineData("teszt.user@gmail.com", true)]
-        [InlineData("user+tag@domain.org", true)]
-        [InlineData("nemvalid", false)]
-        [InlineData("@nincsfelhasznalo.hu", false)]
-        [InlineData("nincs@tartomany", false)]
-        [InlineData("", false)]
-        public void Email_Format_Ellenorzes(string email, bool elvart)
-        {
-            Assert.Equal(elvart, ErvenyesEmail(email));
-        }
-    }
-
-    // 3. CSOPORT MEGHÍVÁS VALIDÁCIÓ TESZTEK
-
-    public class CsoportMeghivasTesztek
-    {
-        private readonly List<string> _tagok = new() { "kovacs.janos@iskola.hu" };
-        private readonly List<string> _fuggoMeghivasok = new() { "var.peter@iskola.hu" };
-
-        private string ValidaldMeghivas(string email)
-        {
-            if (_tagok.Contains(email)) return "Ez a felhasználó már tagja a csoportnak.";
-            if (_fuggoMeghivasok.Contains(email)) return "Ez a felhasználó már meg van hívva.";
-            if (!new EmailAddressAttribute().IsValid(email))
-                return "Nem létezik ilyen email-cimű felhasználó.";
-            return "OK";
-        }
-
-        [Fact]
-        public void Meglevo_Tag_Meghivasa_Hibat_Ad()
-        {
-            Assert.Contains("már tagja", ValidaldMeghivas("kovacs.janos@iskola.hu"));
-        }
-
-        [Fact]
-        public void Fuggob_Meghivas_Ujrameghivasa_Hibat_Ad()
-        {
-            Assert.Contains("már meg van hívva", ValidaldMeghivas("var.peter@iskola.hu"));
-        }
-
-        [Fact]
-        public void Uj_Felhasznalo_Meghivasa_Sikeres()
-        {
-            Assert.Equal("OK", ValidaldMeghivas("uj.felhasznalo@iskola.hu"));
-        }
-
-        [Fact]
-        public void Ervenytelen_Email_Hibat_Ad()
-        {
-            Assert.NotEqual("OK", ValidaldMeghivas("nemvalidemail"));
-        }
-    }
-
-    // 4. ADMIN SZEREPKÖR VÉDELEM TESZTEK
-
-    public class AdminVedelmTesztek
-    {
-        [Fact]
-        public void Admin_Nem_Torolheti_Onmagat()
-        {
-            int adminId = 1, targetId = 1;
-            Assert.True(adminId == targetId);
-        }
-
-        [Fact]
-        public void Admin_Nem_Modosithatja_Mas_Admin_Szerepkoret()
-        {
-            Assert.True("Admin" == "Admin");
-        }
-
-        [Fact]
-        public void Admin_Modosithatja_Student_Szerepkoret()
-        {
-            Assert.False("Student" == "Admin");
-        }
-    }
-
-
-
-    //Le Tuan Anh (Róbert) részei
-
-
-    // 1. TANTÁRGY FELVÉTEL – SZABAD HELYEK ÉS ELÉRHETŐSÉG
+    // 5. TANTÁRGY FELVÉTEL – SZABAD HELYEK ÉS ELÉRHETŐSÉG
 
     public class TantargyElerhsetoségTesztek
     {
@@ -440,7 +438,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 2. TANTÁRGY FELVÉTEL – DUPLIKÁCIÓ ÉS ÁLLAPOT
+    // 6. TANTÁRGY FELVÉTEL – DUPLIKÁCIÓ ÉS ÁLLAPOT
 
     public class TantargyFelvetelDuplikacioTesztek
     {
@@ -499,7 +497,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 3. TANTÁRGY FELVÉTEL – KÓD NORMALIZÁCIÓ 
+    // 7. TANTÁRGY FELVÉTEL – KÓD NORMALIZÁCIÓ 
 
     public class TantargyEgyediKodTesztek
     {
@@ -543,7 +541,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 4. TANTÁRGY LISTA – RENDEZÉS ÉS SZŰRÉS
+    // 8. TANTÁRGY LISTA – RENDEZÉS ÉS SZŰRÉS
 
     public class TantargyListaSzuresTesztek
     {
@@ -599,7 +597,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 6. ÓRAREND ÜTKÖZÉS TESZTEK
+    // 9. ÓRAREND ÜTKÖZÉS TESZTEK
 
     public class OrarendUtkozesTesztek
     {
@@ -660,10 +658,10 @@ namespace FeladatRadar.Tests
 
 
 
-    //  ████████  Lőrincz Antal (Anti) részei
+    //  Lőrincz Antal (Anti) részei
 
 
-    //  1. FELADAT – HATÁRIDŐ ÉS ÁLLAPOT TESZTEK
+    //  10. FELADAT – HATÁRIDŐ ÉS ÁLLAPOT TESZTEK
 
     public class HataridoTesztek
     {
@@ -738,7 +736,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 2. FELADAT – ISMÉTLŐDÉS ÉS TÍPUS TESZTEK 
+    // 11. FELADAT – ISMÉTLŐDÉS ÉS TÍPUS TESZTEK 
 
     public class FeladatIsmetlodesTosztesTesztek
     {
@@ -844,7 +842,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 3. FELADAT – SZŰRÉS ÉS RENDEZÉS TESZTEK 
+    // 12. FELADAT – SZŰRÉS ÉS RENDEZÉS TESZTEK 
 
     public class FeladatSzuresTesztek
     {
@@ -945,7 +943,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 4. FELADAT – MODELL INTEGRITÁS TESZTEK
+    // 13. FELADAT – MODELL INTEGRITÁS TESZTEK
 
     public class FeladatModelTesztek
     {
@@ -1000,7 +998,7 @@ namespace FeladatRadar.Tests
         }
     }
 
-    // 5. FÓKUSZ IDŐZÍTŐ TESZTEK
+    // 14. FÓKUSZ IDŐZÍTŐ TESZTEK
 
     public class FokuszIdozitoTesztek
     {
