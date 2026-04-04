@@ -594,13 +594,15 @@ else if (_isAuthenticated)
                                         }
                                     </select>
                                 </div>
-                                <div class="fr-field fr-field-sm">
+                                <div class="fr-time-row" style="display:flex;gap:10px;">
+                                <div class="fr-field fr-field-sm" style="flex:1;min-width:0;">
                                     <label class="fr-label">Kezdés</label>
                                     <input type="time" class="fr-input" value="@_selStart" @onchange="OnStartChanged" />
                                 </div>
-                                <div class="fr-field fr-field-sm">
+                                <div class="fr-field fr-field-sm" style="flex:1;min-width:0;">
                                     <label class="fr-label">Befejezés</label>
                                     <input type="time" class="fr-input" value="@_selEnd" @onchange="OnEndChanged" />
+                                </div>
                                 </div>
                                 <div class="fr-field">
                                     <label class="fr-label">Helyszín <span class="fr-optional">— opcionális</span></label>
@@ -670,7 +672,7 @@ else if (_isAuthenticated)
                                     <label class="fr-label">Esemény neve <span style="color:var(--danger)">*</span></label>
                                     <input type="text" class="fr-input" placeholder="@GetTaskPlaceholder(_taskType)" @bind="_taskTitle" maxlength="200" />
                                 </div>
-                                <div class="fr-field" style="flex:0 0 200px">
+                                <div class="fr-field fr-field-datetime">
                                     <label class="fr-label">Határidő / Dátum <span style="color:var(--danger)">*</span></label>
                                     <input type="datetime-local" class="fr-input" @bind="_taskDueDate" />
                                 </div>
@@ -1299,6 +1301,7 @@ else
         top: 0; left: 0;
         width: 270px;
         height: 100vh;
+        height: 100dvh;
         z-index: 200;
         display: flex;
         flex-direction: column;
@@ -1416,7 +1419,9 @@ else
     /* Sidebar footer */
     .fr-sidebar-footer {
         flex-shrink: 0;
-        padding: 8px; border-top: 1px solid var(--border);
+        padding: 8px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        border-top: 1px solid var(--border);
         display: flex; flex-direction: column; gap: 2px;
     }
 
@@ -2016,7 +2021,19 @@ else
         padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px;
         background: var(--surface); color: var(--text-primary);
         font-size: .875rem; font-family: inherit; outline: none;
-        transition: border-color .15s, box-shadow .15s; width: 100%;
+        transition: border-color .15s, box-shadow .15s;
+        width: 100%; max-width: 100%; box-sizing: border-box;
+    }
+    input[type="datetime-local"].fr-input,
+    input[type="time"].fr-input {
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden;
     }
 
     .fr-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle); }
@@ -2115,6 +2132,82 @@ else
     }
 
 
+    /* Modal mobilon: bottom sheet 768px alatt */
+    @@media (max-width:768px) {
+        .fr-modal {
+            border-radius: 20px 20px 0 0;
+            position: fixed; bottom: 0; top: auto;
+            max-height: 90dvh; max-height: 90vh;
+            width: 100%; max-width: 100%;
+            overflow-x: hidden;
+        }
+        .fr-modal-body {
+            padding: 16px 16px 20px;
+            gap: 14px;
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+        .fr-modal-head { padding:14px 16px; }
+        .fr-modal-tabs { padding:12px 16px 0; gap:6px; }
+        /* Tab gombok 50/50 szélességű mobilon */
+        .fr-modal-tab {
+            flex: 1;
+            justify-content: center;
+        }
+        /* Form mezők teljes szélességű oszlopban */
+        .fr-form-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        /* Minden field teljes szélességű — inline style felülírása */
+        .fr-form-row .fr-field,
+        .fr-form-row > .fr-field {
+            width: 100% !important;
+            flex: none !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden;
+        }
+        /* Határidő mező fix */
+        .fr-field-datetime {
+            width: 100% !important;
+            flex: none !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden;
+        }
+        /* Kezdés / Befejezés egymás mellett, de nem érnek a széléig */
+        .fr-time-row {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 10px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .fr-time-row .fr-field-sm {
+            flex: 1 !important;
+            min-width: 0 !important;
+            width: 0 !important;
+            max-width: none !important;
+            overflow: hidden;
+        }
+        /* Hozzáadás gomb teljes szélesség */
+        .fr-btn-inline { width: 100% !important; justify-content: center; margin-top: 4px; }
+        /* datetime-local és minden input felülírás */
+        .fr-input, input[type="datetime-local"].fr-input, input[type="time"].fr-input {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            display: block !important;
+            overflow: hidden !important;
+        }
+        .fr-modal-footer { padding-top: 12px; }
+    }
+
     @@media (max-width:480px) {
         .fr-week-grid { grid-template-columns:1fr 1fr; gap:3px; }
         .fr-topbar { padding:6px 10px; gap:4px; }
@@ -2131,21 +2224,27 @@ else
         .fr-day-timeline { padding:12px; }
         .fr-day-view-header { padding:12px 16px; }
         .fr-day-view-name { font-size:1rem; }
-        .fr-modal { border-radius:16px 16px 0 0; position:fixed; bottom:0; top:auto; max-height:88vh; width:100%; max-width:100%; }
-        .fr-modal-body { padding:14px 16px 20px; }
-        .fr-modal-head { padding:12px 16px; }
-        .fr-modal-tabs { padding:12px 16px 0; gap:6px; }
-        .fr-modal-tab { padding:6px 12px; font-size:.8rem; }
+        .fr-modal-body { padding:10px 14px 16px; gap:10px; }
+        .fr-modal-head { padding:11px 14px; }
+        .fr-modal-tabs { padding:10px 14px 0; gap:5px; }
+        .fr-modal-tab { padding:6px 11px; font-size:.79rem; flex:1; justify-content:center; }
+        .fr-modal-section-label { font-size:.7rem; margin-bottom:-2px; }
         .fr-type-picker { gap:4px; }
         .fr-type-pick-btn { font-size:.74rem; padding:5px 9px; }
         .fr-subject-card { padding:6px 10px; min-width:70px; }
-        .fr-form-row { flex-direction:column; }
+        .fr-form-row { gap:9px; }
+        .fr-input { padding:8px 10px; font-size:.85rem; }
+        .fr-label { font-size:.77rem; }
+        .fr-modal-footer { padding-top:9px; gap:6px; }
+        .fr-btn { padding:9px 13px; font-size:.84rem; }
     }
-
 
     @@media (max-width:360px) {
         .fr-week-grid { grid-template-columns:1fr; }
         .fr-seg-btn { font-size:.65rem; padding:3px 5px; }
         .fr-topbar-right { gap:3px; }
+        .fr-modal-body { padding:9px 12px 14px; }
+        .fr-modal-head { padding:10px 12px; }
+        .fr-modal-tabs { padding:8px 12px 0; }
     }
 </style>
