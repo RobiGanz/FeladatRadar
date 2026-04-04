@@ -214,29 +214,36 @@ else if (_isAuthenticated)
                                 }
                                 else if (_detailTab == "members")
                                 {
-                                    <table class="fr-table">
-                                        <thead><tr><th>Név</th><th>Email</th><th>Csatlakozás</th><th></th></tr></thead>
-                                        <tbody>
-                                            @foreach (var m in _members)
-                                            {
-                                                var mid = m.UserID;
-                                                <tr>
-                                                    <td class="fr-td-name">@m.FirstName @m.LastName</td>
-                                                    <td class="fr-td-meta">@m.Email</td>
-                                                    <td class="fr-td-meta">@m.JoinedAt.ToString("yyyy.MM.dd")</td>
-                                                    <td style="display:flex;align-items:center;gap:6px;">
-                                                        @if (m.IsOwner) { <span class="fr-badge fr-badge-accent">Tulajdonos</span> }
-                                                        else if (_selectedGroup.IsOwner)
+                                    <div class="fr-member-list">
+                                        @foreach (var m in _members)
+                                        {
+                                            var mid = m.UserID;
+                                            <div class="fr-member-row">
+                                                <div class="fr-member-avatar">
+                                                    @(m.FirstName?.Length > 0 ? m.FirstName[0].ToString().ToUpper() : "?")
+                                                </div>
+                                                <div class="fr-member-info">
+                                                    <span class="fr-member-name">@m.FirstName @m.LastName</span>
+                                                    <span class="fr-member-email">@m.Email</span>
+                                                    <div class="fr-member-meta">
+                                                        @if (m.IsOwner)
                                                         {
-                                                            <button class="fr-icon-btn fr-icon-btn-danger" title="Tag eltávolítása" @onclick="() => RemoveMember(mid)">
-                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                                            </button>
+                                                            <span class="fr-badge fr-badge-accent">Tulajdonos</span>
                                                         }
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
+                                                        <span class="fr-member-date">@m.JoinedAt.ToString("yyyy.MM.dd")</span>
+                                                    </div>
+                                                </div>
+                                                <div class="fr-member-right">
+                                                    @if (!m.IsOwner && _selectedGroup.IsOwner)
+                                                    {
+                                                        <button class="fr-icon-btn fr-icon-btn-danger" title="Tag eltávolítása" @onclick="() => RemoveMember(mid)">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
                                 }
                                 else if (_detailTab == "tasks")
                                 {
@@ -279,7 +286,8 @@ else if (_isAuthenticated)
                                     }
                                     else
                                     {
-                                        <table class="fr-table">
+                                        <div class="fr-table-wrap">
+                                        <table class="fr-table fr-table-tasks">
                                             <thead><tr><th>Feladat</th><th>Tantárgy</th><th>Határidő</th><th>Tag</th><th></th></tr></thead>
                                             <tbody>
                                                 @foreach (var t in _groupTasks.OrderBy(t => t.DueDate))
@@ -298,6 +306,7 @@ else if (_isAuthenticated)
                                                 }
                                             </tbody>
                                         </table>
+                                        </div>
                                     }
                                     </div>
                                 }
@@ -399,7 +408,8 @@ else if (_isAuthenticated)
                                         }
                                         else
                                         {
-                                            <table class="fr-table">
+                                            <div class="fr-table-wrap">
+                                            <table class="fr-table fr-table-exams">
                                                 <thead><tr><th>Dolgozat</th><th>Tantárgy</th><th>Dátum</th><th>Tanár</th><th></th></tr></thead>
                                                 <tbody>
                                                     @foreach (var ex in _exams.OrderBy(e => e.ExamDate))
@@ -423,6 +433,7 @@ else if (_isAuthenticated)
                                                     }
                                                 </tbody>
                                             </table>
+                                            </div>
                                         }
                                     </div>
                                 }
@@ -554,7 +565,7 @@ else
 .fr-layout[data-role="Admin"] .fr-btn-primary:hover:not(:disabled) { box-shadow:0 4px 16px rgba(229,57,53,.45); }
 .fr-layout[data-role="Admin"] .fr-topbar { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; box-shadow:0 2px 16px rgba(229,57,53,.25) !important; }
 .fr-layout[data-role="Admin"] .fr-brand { background:linear-gradient(135deg,#b71c1c 0%,#e53935 100%) !important; }
-    .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 32px rgba(102,126,234,.15); overflow:hidden; }
+    .fr-sidebar { position:fixed; top:0; left:0; width:270px; height:100vh; height:100dvh; z-index:200; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--border); transform:translateX(-270px); transition:transform .25s cubic-bezier(.4,0,.2,1); box-shadow:4px 0 32px rgba(102,126,234,.15); overflow:hidden; }
     .fr-sidebar.fr-sidebar-open { transform:translateX(0); }
     .fr-sidebar-backdrop { position:fixed; inset:0; z-index:199; background:rgba(26,22,48,.45); backdrop-filter:blur(3px); }
     .fr-brand { flex-shrink:0; display:flex; align-items:center; gap:9px; padding:18px 18px 16px; font-size:.95rem; font-weight:700; color:#fff; text-decoration:none; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
@@ -562,7 +573,7 @@ else
     .fr-nav-item { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; text-decoration:none; font-size:.84rem; font-weight:500; color:var(--text-secondary); transition:all .15s; }
     .fr-nav-item:hover { background:var(--surface-2); color:var(--text-primary); }
     .fr-nav-item.fr-active { background:var(--accent-subtle); color:var(--accent); font-weight:600; }
-    .fr-sidebar-footer { padding:10px 8px; display:flex; flex-direction:column; gap:2px; margin-top:auto; }
+    .fr-sidebar-footer { padding:10px 8px; padding-bottom:max(10px, env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:2px; margin-top:auto; flex-shrink:0; }
     .fr-theme-toggle, .fr-logout { display:flex; align-items:center; gap:9px; width:100%; padding:9px 11px; border:none; border-radius:9px; background:none; color:var(--text-secondary); font-size:.84rem; font-weight:500; cursor:pointer; text-align:left; transition:all .15s; font-family:var(--font); }
     .fr-theme-toggle:hover { background:var(--surface-2); color:var(--text-primary); }
     .fr-logout:hover { background:var(--danger-subtle); color:var(--danger); }
@@ -627,7 +638,7 @@ else
     .fr-invite-from { font-size:.75rem; color:var(--text-muted); }
 
     /* Groups layout */
-    .fr-groups-layout { display:flex; gap:16px; align-items:flex-start; touch-action:pan-y; overscroll-behavior-x:none; }
+    .fr-groups-layout { display:flex; gap:16px; align-items:flex-start; touch-action:pan-y; overscroll-behavior-x:none; max-width:100%; }
     .fr-group-list { width:260px; flex-shrink:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
     .fr-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px 20px; color:var(--text-muted); font-size:.875rem; text-align:center; }
 
@@ -673,6 +684,31 @@ else
     .fr-text-danger { color:var(--danger); font-weight:600; }
     .fr-row-danger { background:var(--danger-subtle) !important; }
     .fr-row-done td { opacity:.55; }
+    /* Table wrapper prevents page horizontal scroll */
+    .fr-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; }
+
+    /* ── Member card list (replaces table) ── */
+    .fr-member-list { display:flex; flex-direction:column; }
+    .fr-member-row {
+        display:flex; align-items:center; gap:12px;
+        padding:12px 16px;
+        border-bottom:1px solid var(--border);
+        transition:background .12s;
+    }
+    .fr-member-row:last-child { border-bottom:none; }
+    .fr-member-row:hover { background:var(--surface-2); }
+    .fr-member-avatar {
+        width:38px; height:38px; border-radius:50%; flex-shrink:0;
+        background:linear-gradient(135deg,var(--accent),var(--accent-2));
+        color:#fff; font-size:.9rem; font-weight:700;
+        display:flex; align-items:center; justify-content:center;
+    }
+    .fr-member-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .fr-member-name { font-size:.875rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fr-member-email { font-size:.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .fr-member-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:1px; }
+    .fr-member-date { font-size:.7rem; color:var(--text-muted); }
+    .fr-member-right { display:flex; align-items:center; gap:6px; flex-shrink:0; }
 
     /* Extra badges */
     .fr-badge-success { background:var(--success-subtle); color:var(--success); }
@@ -710,9 +746,9 @@ else
     .fr-poll-total { font-size:.75rem; color:var(--text-muted); }
 
     /* Invite form */
-    .fr-invite-form { padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
-    .fr-form-row-inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .fr-form-row-inline .fr-input { flex:1; min-width:200px; }
+    .fr-invite-form { padding:16px 20px; display:flex; flex-direction:column; gap:12px; max-width:100%; box-sizing:border-box; }
+    .fr-form-row-inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; max-width:100%; }
+    .fr-form-row-inline .fr-input { flex:1; min-width:160px; max-width:100%; }
 
     /* Welcome state */
     .fr-group-welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:48px 32px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); text-align:center; }
@@ -730,18 +766,28 @@ else
         .fr-group-detail-head > div:last-child { flex-wrap:wrap; gap:8px; }
     }
     @@media (max-width:768px) {
-        .fr-groups-layout { flex-direction:column; }
-        .fr-group-list { width:100%; max-height:260px; overflow-y:auto; }
-        .fr-content { padding:14px 16px; }
+        .fr-groups-layout { flex-direction:column; gap:10px; }
+        .fr-group-list { width:100%; max-height:200px; overflow-y:auto; }
+        .fr-content { padding:10px 12px; gap:10px; }
         .fr-topbar-right { gap:6px; }
+        /* Keep overflow hidden to prevent horizontal bleed */
+        .fr-group-detail { overflow:hidden; height:auto; max-width:100%; }
+        .fr-detail-body { overflow:visible; height:auto; }
+        /* Tabs wrap to 2 rows instead of overflowing */
+        .fr-detail-tabs { flex-wrap:wrap; gap:4px; padding:2px 0; }
+        .fr-dtab { font-size:.78rem; padding:5px 10px; }
+        /* All inner content constrained */
+        .fr-tab-content, .fr-invite-form, .fr-teacher-form { max-width:100%; box-sizing:border-box; }
+        .fr-form-row-inline { flex-wrap:wrap; }
+        .fr-input { max-width:100%; box-sizing:border-box; }
     }
     @@media (max-width:580px) {
         .fr-group-detail-head { padding:10px 12px; gap:8px; }
-        .fr-detail-tabs { overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; gap:2px; }
-        .fr-dtab { white-space:nowrap; font-size:.76rem; padding:5px 9px; flex-shrink:0; }
-        .fr-table th:nth-child(2), .fr-table td:nth-child(2) { display:none; }
+        .fr-dtab { font-size:.73rem; padding:4px 8px; }
+        .fr-table th { padding:8px 10px; font-size:.7rem; }
+        .fr-table td { padding:9px 10px; }
         .fr-td-meta { white-space:nowrap; }
-        .fr-content { padding:10px 12px; }
+        .fr-content { padding:8px 10px; gap:8px; }
         .fr-welcome-stats { gap:10px; padding:12px 14px; flex-wrap:wrap; justify-content:center; }
         .fr-wstat-value { font-size:1.2rem; }
         .fr-teacher-form { padding:10px 12px; }
@@ -749,6 +795,10 @@ else
         .fr-poll-head { flex-direction:column; gap:6px; }
         .fr-form-row-inline { flex-direction:column; }
         .fr-form-row-inline .fr-input { min-width:unset; }
+        .fr-tab-content { padding:12px; gap:12px; }
+        .fr-form-card { padding:14px; gap:12px; }
+        .fr-section-title { font-size:.85rem; }
+        .fr-group-list { max-height:160px; }
     }
     /* ── Confirm modal ── */
     .fr-confirm-backdrop {
@@ -787,41 +837,6 @@ else
     @@media (max-width:400px) {
         .fr-group-item { padding:9px 10px; }
         .fr-dtab { font-size:.7rem; padding:4px 8px; }
-        /* ── Confirm modal ── */
-    .fr-confirm-backdrop {
-        position:fixed; inset:0; z-index:9999;
-        background:rgba(10,8,30,.55); backdrop-filter:blur(4px);
-        display:flex; align-items:center; justify-content:center; padding:20px;
-    }
-    .fr-confirm-modal {
-        background:var(--surface); border:1px solid var(--border);
-        border-radius:16px; padding:28px 28px 22px;
-        max-width:360px; width:100%;
-        box-shadow:0 24px 60px rgba(0,0,0,.25);
-        display:flex; flex-direction:column; align-items:center; gap:14px;
-        animation:fr-modal-in .18s cubic-bezier(.34,1.56,.64,1);
-    }
-    @@keyframes fr-modal-in { from { transform:scale(.88); opacity:0; } to { transform:scale(1); opacity:1; } }
-    .fr-confirm-icon {
-        width:52px; height:52px; border-radius:50%;
-        background:var(--danger-subtle); color:var(--danger);
-        display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    }
-    .fr-confirm-icon.fr-ci-info { background:var(--accent-subtle); color:var(--accent); }
-    .fr-confirm-text {
-        font-size:.9rem; color:var(--text-primary); text-align:center; line-height:1.55;
-        font-weight:500;
-    }
-    .fr-confirm-btns { display:flex; gap:10px; justify-content:center; width:100%; margin-top:4px; }
-    .fr-confirm-btns .fr-btn-ghost { flex:1; justify-content:center; }
-    .fr-confirm-btns .fr-btn { flex:1; justify-content:center; }
-    .fr-btn-danger-solid {
-        background:linear-gradient(135deg,#c62828,#e53935); color:#fff;
-        box-shadow:0 2px 10px rgba(229,57,53,.35);
-    }
-    .fr-btn-danger-solid:hover { box-shadow:0 4px 16px rgba(229,57,53,.5); transform:translateY(-1px); }
-
-    @@media (max-width:400px) {
         .fr-group-detail-name { font-size:.95rem; }
     }
 </style>

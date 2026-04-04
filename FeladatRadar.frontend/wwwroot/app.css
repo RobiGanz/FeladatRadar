@@ -71,6 +71,7 @@ body {
     left: 0;
     width: 270px;
     height: 100vh;
+    height: 100dvh;
     z-index: 200;
     display: flex;
     flex-direction: column;
@@ -153,10 +154,12 @@ body {
 
 .fr-sidebar-footer {
     padding: 10px 8px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .fr-theme-toggle, .fr-logout {
@@ -590,4 +593,42 @@ select option {
     --success-subtle: rgba(14,159,110,.13);
     background: #0d0b18;
     color: #f0eeff;
+}
+
+/* Auth pages (login/register) always stay light regardless of theme */
+[data-theme="dark"] .auth-page {
+    --accent: #6d28d9;
+    --text: #1e1b4b;
+    --text-2: #4a4080;
+    --text-muted: #9284c2;
+    background: transparent;
+    color: #1e1b4b;
+}
+[data-theme="dark"] .auth-left {
+    background: linear-gradient(160deg, #f8f4ff 0%, #fffdf5 100%);
+    color: #1e1b4b;
+}
+[data-theme="dark"] .auth-right {
+    background: linear-gradient(135deg, #f0ebff 0%, #fffbeb 100%);
+}
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .auth-header h1,
+[data-theme="dark"] .auth-header p,
+[data-theme="dark"] .auth-label,
+[data-theme="dark"] .auth-footer {
+    color: inherit;
+}
+[data-theme="dark"] .auth-input {
+    background: #fff;
+    color: #1e1b4b;
+    border-color: rgba(109,40,217,.2);
+}
+[data-theme="dark"] .auth-brand { color: #1e1b4b; }
+[data-theme="dark"] .auth-brand-icon {
+    background: rgba(109,40,217,.12);
+    color: #6d28d9;
+}
+[data-theme="dark"] .auth-submit {
+    background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+    color: #fff;
 }

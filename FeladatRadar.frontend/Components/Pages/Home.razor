@@ -311,6 +311,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :focus { outline: none; }
     :focus-visible { outline: none; }
+    html, body { overflow-x: hidden; max-width: 100%; }
 
     :root {
         --accent: #4f46e5;
@@ -334,6 +335,7 @@
         background: rgba(250,247,255,.82);
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         box-shadow: 0 1px 32px rgba(109,40,217,.06);
+        padding-top: env(safe-area-inset-top);
     }
     .site-nav::after {
         content: '';
@@ -396,6 +398,7 @@
         padding: 11rem 6vw 7rem;
         background: transparent;
         color: #1e1b4b;
+        overflow: hidden;
     }
     .hero::after {
         content: '';
@@ -718,9 +721,13 @@
         .hero-sub { font-size:.9rem; }
         .hero-actions { gap:8px; }
         .hero-btn-primary, .hero-btn-ghost { padding:11px 18px; font-size:.85rem; }
-        .features-section, .how-section, .cta-section { padding:48px 4vw; }
+        .features-section, .how-section, .cta-section { padding:48px 4vw; overflow:hidden; }
         .how-card { padding:18px; }
         .cta-btns { flex-direction:column; align-items:center; }
+        /* Scale blobs down so they don't cause horizontal scroll */
+        .hero-blob-1 { width:280px; height:280px; left:-80px; top:-80px; }
+        .hero-blob-2 { width:220px; height:220px; right:-60px; bottom:40px; }
+        .hero-blob-3 { width:200px; height:200px; }
     }
     @@media (max-width:400px) {
         .hero-title { font-size:1.75rem; }
