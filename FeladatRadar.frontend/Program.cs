@@ -6,7 +6,7 @@ using FeladatRadar.frontend.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://api.feladatradar.hu/")
+    BaseAddress = new Uri("https://localhost:44359/")
 });
 // Add services to the container.
 builder.Services.AddRazorComponents()
