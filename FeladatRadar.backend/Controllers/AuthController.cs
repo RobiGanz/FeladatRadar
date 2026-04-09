@@ -20,9 +20,36 @@ namespace FeladatRadar.backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            // [ApiController] már automatikusan ellenőrzi a ModelState-et,
+            // de itt explicit kezelés az egyedi hibaüzenetekhez:
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .ToList();
+                return BadRequest(new LoginResponse
+                {
+                    Status = "ERROR",
+                    Message = errors.Count > 0
+                        ? string.Join(" | ", errors)
+                        : "Érvénytelen adatok."
+                });
+            }
+
             var response = await _authService.Register(request);
-            if (response.Status == "ERROR") return BadRequest(response);
+
+            if (response.Status == "ERROR")
+            {
+                // Duplikált felhasználónév / email → 409 Conflict
+                // Egyéb backend hiba → 400 Bad Request
+                bool isDuplicate = response.Message.Contains("már létezik", StringComparison.OrdinalIgnoreCase)
+                    || response.Message.Contains("already", StringComparison.OrdinalIgnoreCase)
+                    || response.Message.Contains("foglalt", StringComparison.OrdinalIgnoreCase);
+                return isDuplicate ? Conflict(response) : BadRequest(response);
+            }
+
             return Ok(response);
         }
 

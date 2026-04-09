@@ -2,7 +2,7 @@
 
 > **A FeladatRadar** egy modern feladatkezelő webalkalmazás, amely segít a felhasználónak nyomon követni a feladatokat, órarendet és csoportokat.
 
-🌐 **Webcím:** [https://www.feladatradar.hu/](https://www.feladatradar.hu/)
+🌐 **Webcím:** [https://feladatradar.hu/](https://feladatradar.hu/)
 
 ---
 

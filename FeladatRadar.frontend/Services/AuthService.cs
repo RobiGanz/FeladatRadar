@@ -1,6 +1,8 @@
 ﻿using Blazored.LocalStorage;
 using FeladatRadar.frontend.Models;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace FeladatRadar.frontend.Services
 {
@@ -17,6 +19,9 @@ namespace FeladatRadar.frontend.Services
             _httpClient = httpClient;
             _localStorage = localStorage;
         }
+
+        // Ennyi másodperc után "A szerver nem válaszol" üzenet jelenik meg
+        private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(15);
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(_token);
         public UserDto? CurrentUser => _currentUser;
@@ -38,41 +43,64 @@ namespace FeladatRadar.frontend.Services
 
         public async Task<LoginResponse?> Register(RegisterRequest request)
         {
+            using var cts = new CancellationTokenSource(RequestTimeout);
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/Auth/register", request);
-                if (!response.IsSuccessStatusCode)
-                    return new LoginResponse { Status = "ERROR", Message = $"Hiba: {response.StatusCode}" };
+                var response = await _httpClient.PostAsJsonAsync("api/Auth/register", request, cts.Token);
 
-                var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                if (!response.IsSuccessStatusCode)
+                    return await ReadErrorResponse(response);
+
+                var result = await response.Content.ReadFromJsonAsync<LoginResponse>(cts.Token);
                 if (result?.Status == "SUCCESS" && !string.IsNullOrEmpty(result.Token))
                     await ApplyLoginResult(result);
 
                 return result;
             }
+            catch (OperationCanceledException)
+            {
+                return new LoginResponse { Status = "ERROR", Message = "A szerver nem válaszol. Kérjük, próbáld újra később!" };
+            }
+            catch (HttpRequestException)
+            {
+                return new LoginResponse { Status = "ERROR", Message = "Nem sikerült kapcsolódni a szerverhez. Ellenőrizd az internetkapcsolatod!" };
+            }
             catch (Exception ex)
             {
-                return new LoginResponse { Status = "ERROR", Message = $"Kapcsolódási hiba: {ex.Message}" };
+                return new LoginResponse { Status = "ERROR", Message = $"Váratlan hiba: {ex.Message}" };
             }
         }
 
         public async Task<LoginResponse?> Login(LoginRequest request)
         {
+            using var cts = new CancellationTokenSource(RequestTimeout);
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/Auth/login", request);
-                if (!response.IsSuccessStatusCode)
-                    return new LoginResponse { Status = "ERROR", Message = "Hibás felhasználónév vagy jelszó!" };
+                var response = await _httpClient.PostAsJsonAsync("api/Auth/login", request, cts.Token);
 
-                var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return await ReadErrorResponse(response)
+                        ?? new LoginResponse { Status = "ERROR", Message = "Hibás felhasználónév vagy jelszó!" };
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<LoginResponse>(cts.Token);
                 if (result?.Status == "SUCCESS" && !string.IsNullOrEmpty(result.Token))
                     await ApplyLoginResult(result);
 
                 return result;
             }
+            catch (OperationCanceledException)
+            {
+                return new LoginResponse { Status = "ERROR", Message = "A szerver nem válaszol. Kérjük, próbáld újra később!" };
+            }
+            catch (HttpRequestException)
+            {
+                return new LoginResponse { Status = "ERROR", Message = "Nem sikerült kapcsolódni a szerverhez. Ellenőrizd az internetkapcsolatod!" };
+            }
             catch (Exception ex)
             {
-                return new LoginResponse { Status = "ERROR", Message = $"Kapcsolódási hiba: {ex.Message}" };
+                return new LoginResponse { Status = "ERROR", Message = $"Váratlan hiba: {ex.Message}" };
             }
         }
 
@@ -162,6 +190,51 @@ namespace FeladatRadar.frontend.Services
                 await _localStorage.SetItemAsync("currentUser", _currentUser);
             }
             catch { }
+        }
+
+        /// <summary>
+        /// Kiolvas a sikertelen HTTP válasz törzséből egy LoginResponse-t.
+        /// Kezeli mind a LoginResponse, mind a ASP.NET ValidationProblemDetails formátumot.
+        /// </summary>
+        private static async Task<LoginResponse> ReadErrorResponse(HttpResponseMessage response)
+        {
+            try
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(body))
+                    return new LoginResponse { Status = "ERROR", Message = $"Szerverhiba ({(int)response.StatusCode})" };
+
+                using var doc = JsonDocument.Parse(body);
+                var root = doc.RootElement;
+
+               
+                if (root.TryGetProperty("message", out var msgProp) &&
+                    !string.IsNullOrWhiteSpace(msgProp.GetString()))
+                {
+                    return new LoginResponse { Status = "ERROR", Message = msgProp.GetString()! };
+                }
+
+                
+                if (root.TryGetProperty("errors", out var errors))
+                {
+                    var messages = new List<string>();
+                    foreach (var field in errors.EnumerateObject())
+                        foreach (var err in field.Value.EnumerateArray())
+                            messages.Add(err.GetString() ?? "");
+                    if (messages.Count > 0)
+                        return new LoginResponse { Status = "ERROR", Message = string.Join(" | ", messages) };
+                }
+
+               
+                if (root.TryGetProperty("title", out var title))
+                    return new LoginResponse { Status = "ERROR", Message = title.GetString() ?? "Ismeretlen hiba" };
+
+                return new LoginResponse { Status = "ERROR", Message = $"Szerverhiba ({(int)response.StatusCode})" };
+            }
+            catch
+            {
+                return new LoginResponse { Status = "ERROR", Message = $"Szerverhiba ({(int)response.StatusCode})" };
+            }
         }
     }
 }
