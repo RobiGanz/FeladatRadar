@@ -1,6 +1,6 @@
 # FeladatRadar
 
-> **A FeladatRadar** egy modern feladatkezelő webalkalmazás, amely segít a felhasználónak nyomon követni a feladatokat, órarendet és csoportokat.
+> **A FeladatRadar** A FeladatRadar egy modern, webalapú feladatkezelő alkalmazás, amely bármilyen csoport számára hasznos eszközt nyújt feladatok, határidők, órarendek és közös tevékenységek szervezéséhez. A rendszer két szerepkört különböztet meg – diák és tanár –, eltérő jogosultságokkal, és egyaránt alkalmas tanulmányi munkára, versenyfelkészülésre vagy más csoportos feladatok kezelésére. A rendszer Microsoft Azure felhőszolgáltatáson fut, ASP.NET Core 8 backenddel, Blazor frontenddel és Microsoft SQL Server adatbázissal.
 
 🌐 **Webcím:** [https://feladatradar.hu/](https://feladatradar.hu/)
 
@@ -50,9 +50,11 @@ FeladatRadar/
 │   └── wwwroot/                # Statikus fájlok
 ├── FeladatRadar.teszt/         # Egységtesztek
 ├── database/
-│   ├── dump/                   # Adatbázis szkriptek
+│   ├── dump/                   # Adatbázis szkriptek és .bacpac
 │   └── er_diagram/             # ER diagram
-└── Vizsgaremek_Dokumentacio/   # Dokumentációk
+├── Dokumentumok/               # Dokumentációk, nyilatkozatok, prezentáció
+├── Published/                  # Telepítési útmutató (INSTRUCTIONS.md)
+└── README.md
 ```
 
 ---
