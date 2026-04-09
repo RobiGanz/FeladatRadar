@@ -18,8 +18,8 @@ builder.Services.AddCors(options =>
         else
         {
             policy.WithOrigins(
-                "https://feladatradar.hu",
-                "https://feladatradar-frontend-gabxfeeydwhwatdr.westeurope-01.azurewebsites.net"
+                "https://feladatradar.hu"
+               
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
