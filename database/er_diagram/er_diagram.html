@@ -3,51 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>FeladatRadar – ER Diagram</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #0d1117; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-#vp { width: 100%; height: 100%; overflow: hidden; cursor: grab; user-select: none; }
-#vp.g { cursor: grabbing; }
-#canvas { position: relative; transform-origin: 0 0; }
-
-svg#lines { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
-
-.tbl { position: absolute; width: 242px; background: #161b22; border-radius: 7px; overflow: hidden; border: 1px solid #30363d; }
-.tbl.dep { opacity: 0.4; border-style: dashed; }
-.th { height: 32px; display: flex; align-items: center; padding: 0 11px; font-size: 11.5px; font-weight: 700; color: #fff; letter-spacing: .3px; gap: 6px; }
-.th em { margin-left: auto; font-style: normal; font-size: 8.5px; background: rgba(255,255,255,.15); padding: 2px 6px; border-radius: 10px; font-weight: 400; }
-.cr { height: 21px; display: flex; align-items: center; padding: 0 11px; border-top: 1px solid #0d1117; gap: 5px; }
-.cn { font: 10.5px/1 'JetBrains Mono','Consolas',monospace; color: #c9d1d9; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cn.pk { color: #fbbf24; font-weight: 700; }
-.cn.fk { color: #60a5fa; }
-.cn.uk { color: #6ee7b7; }
-.ct { font: 9px/1 'JetBrains Mono',monospace; color: #3d4451; white-space: nowrap; }
-.bpk { font: 700 7.5px/1 sans-serif; padding: 1px 4px; border-radius: 2px; background: #3d2f00; color: #fbbf24; }
-.buk { font: 700 7.5px/1 sans-serif; padding: 1px 4px; border-radius: 2px; background: #052e16; color: #6ee7b7; }
-
-.d-core .th  { background: #1d4ed8; } .d-core  { border-top: 2px solid #3b82f6; }
-.d-grp  .th  { background: #065f46; } .d-grp   { border-top: 2px solid #10b981; }
-.d-poll .th  { background: #5b21b6; } .d-poll  { border-top: 2px solid #8b5cf6; }
-.d-subj .th  { background: #7c2d12; } .d-subj  { border-top: 2px solid #f59e0b; }
-.d-sys  .th  { background: #374151; } .d-sys   { border-top: 2px solid #6b7280; }
-
-#ui { position: fixed; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 7px; z-index: 99; }
-.btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 13px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-.btn:hover { background: #30363d; }
-
-#legend { position: fixed; top: 12px; left: 12px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px 18px; z-index: 99; font-size: 13px; color: #8b949e; line-height: 2.1; }
-#legend b { color: #c9d1d9; font-size: 14px; }
-#legend-toggle { position: fixed; top: 12px; left: 12px; z-index: 100; background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; display: none; }
-#legend-toggle:hover { background: #30363d; color: #c9d1d9; }
-.ld { display: flex; align-items: center; gap: 10px; }
-.dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
-.lline { width: 26px; height: 2px; flex-shrink: 0; }
-
-#zd { position: fixed; bottom: 14px; left: 14px; font: 11px/1 'JetBrains Mono',monospace; color: #3d4451; z-index: 99; }
-
-#tip { position: fixed; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; font: 10px/1.5 'JetBrains Mono',monospace; padding: 6px 10px; border-radius: 5px; pointer-events: none; display: none; z-index: 999; white-space: nowrap; }
-</style>
+<link rel="stylesheet" href="er_diagram.css">
 </head>
 <body>
 <div id="vp"><div id="canvas"><svg id="lines"></svg></div></div>
@@ -84,9 +40,9 @@ svg#lines { position: absolute; top: 0; left: 0; pointer-events: none; overflow:
 const TW=242, HH=32, RH=21, GAP=20;
 const h=n=>HH+n*RH+6;
 
-// ── Table definitions ─────────────────────────────────────────
+// ── Tábladefiníciók ─────────────────────────────────────────
 const T = [
-  // Col 0  x=30
+  // 0. oszlop  x=30
   {id:'Users',     dm:'core', x:30,  y:20,
    cols:[{n:'UserID',t:'int',pk:1},{n:'Username',t:'nvarchar(50)',uk:1},{n:'PasswordHash',t:'nvarchar(255)'},
          {n:'Email',t:'nvarchar(100)'},{n:'FirstName',t:'nvarchar(50)'},{n:'LastName',t:'nvarchar(50)'},
@@ -95,7 +51,7 @@ const T = [
    cols:[{n:'LogID',t:'int',pk:1},{n:'UserID',t:'int',fk:1},{n:'Username',t:'nvarchar(50)'},
          {n:'Action',t:'nvarchar(200)'},{n:'Details',t:'nvarchar(max)'},{n:'CreatedAt',t:'datetime'}]},
 
-  // Col 1  x=450
+  // 1. oszlop  x=450
   {id:'Groups',    dm:'grp',  x:450, y:20,
    cols:[{n:'GroupID',t:'int',pk:1},{n:'GroupName',t:'nvarchar(100)'},{n:'CreatedBy',t:'int',fk:1},{n:'CreatedAt',t:'datetime'}]},
   {id:'GroupMembers',dm:'grp',x:450, y:20+h(4)+GAP,
@@ -116,7 +72,7 @@ const T = [
          {n:'Title',t:'nvarchar(200)'},{n:'Description',t:'nvarchar(1000)'},{n:'ExamDate',t:'datetime2'},
          {n:'SubjectName',t:'nvarchar(100)'},{n:'CreatedAt',t:'datetime2'}]},
 
-  // Col 2  x=870
+  // 2. oszlop  x=870
   {id:'Subjects',  dm:'subj', x:870, y:20,
    cols:[{n:'SubjectID',t:'int',pk:1},{n:'SubjectName',t:'nvarchar(100)'},{n:'SubjectCode',t:'nvarchar(20)'},
          {n:'TeacherID',t:'int',fk:1},{n:'IsActive',t:'bit'},{n:'CurrentEnrollment',t:'int'},
@@ -131,7 +87,7 @@ const T = [
   {id:'PollOptions',dm:'poll',x:870,y:20+h(8)+GAP+h(3)+GAP+h(4)+GAP+h(7)+GAP,
    cols:[{n:'OptionID',t:'int',pk:1},{n:'PollID',t:'int',fk:1},{n:'OptionText',t:'nvarchar(200)'},{n:'SortOrder',t:'int'}]},
 
-  // Col 3  x=1290
+  // 3. oszlop  x=1290
   {id:'Tasks',     dm:'subj', x:1290, y:20,
    cols:[{n:'TaskID',t:'int',pk:1},{n:'CreatedBy',t:'int',fk:1},{n:'SubjectID',t:'int',fk:1},
          {n:'Title',t:'nvarchar(200)'},{n:'Description',t:'nvarchar(max)'},{n:'DueDate',t:'datetime'},
@@ -151,7 +107,7 @@ const T = [
          {n:'Notes',t:'nvarchar(max)'},{n:'CreatedAt',t:'datetime'}]},
 ];
 
-// ── FK connections [from, fromCol, to, toCol, cascade, label] ──
+// ── FK kapcsolatok [forrás, forrásoszlop, cél, céloszlop, kaszkád, felirat] ──
 const C = [
   ['AuditLog','UserID','Users','UserID',0,'AuditLog → Users'],
   ['Groups','CreatedBy','Users','UserID',0,'Groups.CreatedBy → Users'],
@@ -185,7 +141,7 @@ const C = [
   ['Exams','SubjectID','Subjects','SubjectID',0,'Exams → Subjects'],
 ];
 
-// ── Build map ─────────────────────────────────────────────────
+// ── Táblák térképének felépítése ────────────────────────────────────
 const TM={};
 T.forEach(t=>TM[t.id]=t);
 
@@ -194,7 +150,7 @@ function ry(tbl,col){
   return tbl.y+HH+i*RH+RH/2;
 }
 
-// ── Render tables ─────────────────────────────────────────────
+// ── Táblák megjelenítése ────────────────────────────────────────
 const canvas=document.getElementById('canvas');
 T.forEach(tbl=>{
   const el=document.createElement('div');
@@ -210,14 +166,14 @@ T.forEach(tbl=>{
   canvas.appendChild(el);
 });
 
-// Compute canvas size
+// Vászon méretének kiszámítása
 let cw=0,ch=0;
 T.forEach(t=>{cw=Math.max(cw,t.x+TW+30);ch=Math.max(ch,t.y+h(t.cols.length)+30);});
 canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
 const svg=document.getElementById('lines');
 svg.style.width=cw+'px'; svg.style.height=ch+'px';
 
-// ── Draw connections ──────────────────────────────────────────
+// ── Kapcsolatok rajzolása ───────────────────────────────────────
 svg.innerHTML=`<defs>
   <marker id="ma" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M1,1 L6,3.5 L1,6" stroke-width="1.2" fill="none" stroke="#60a5fa"/></marker>
   <marker id="mc" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M1,1 L6,3.5 L1,6" stroke-width="1.2" fill="none" stroke="#f87171"/></marker>
@@ -226,8 +182,8 @@ svg.innerHTML=`<defs>
 
 const tip=document.getElementById('tip');
 
-// Pre-compute how many connections share the same target/source column
-// so we can fan them out and prevent perfect overlap
+// Előre kiszámítja az azonos cél/forrás oszlopú kapcsolatok számát,
+// hogy szét lehessen választani őket és elkerülni az átfedést
 const tgtCount={}, srcCount={};
 C.forEach(([fid,fc,tid,tc])=>{
   const tk=`${tid}|${tc}`, sk=`${fid}|${fc}`;
@@ -242,7 +198,7 @@ C.forEach(([fid,fc,tid,tc,casc,label])=>{
   const ft=TM[fid], tt=TM[tid];
   if(!ft||!tt) return;
 
-  // Fan out lines that share the same endpoint column
+  // Azonos végpontú vonalak szétterítése
   const tk=`${tid}|${tc}`, sk=`${fid}|${fc}`;
   const tSpread=(tgtCur[tk]-(tgtCount[tk]-1)/2)*6; tgtCur[tk]++;
   const sSpread=(srcCur[sk]-(srcCount[sk]-1)/2)*6; srcCur[sk]++;
@@ -270,7 +226,7 @@ C.forEach(([fid,fc,tid,tc,casc,label])=>{
     d=`M${sx} ${fy} C${sx+dx} ${fy} ${tx2-dx} ${ty2} ${tx2} ${ty2}`;
   }
 
-  // Invisible thick hitbox
+  // Láthatatlan vastag kattintható terület
   const hit=document.createElementNS('http://www.w3.org/2000/svg','path');
   hit.setAttribute('d',d); hit.setAttribute('stroke','transparent');
   hit.setAttribute('stroke-width','12'); hit.setAttribute('fill','none');
@@ -282,7 +238,7 @@ C.forEach(([fid,fc,tid,tc,casc,label])=>{
   hit.addEventListener('mousemove',e=>{ tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-28)+'px'; });
   hit.addEventListener('mouseleave',()=>{ tip.style.display='none'; vis.setAttribute('stroke-width','2'); vis.setAttribute('opacity','0.72'); });
 
-  // Visible path – thicker + more opaque than before
+  // Látható vonal – vastagabb és átlátszatlanabb
   const vis=document.createElementNS('http://www.w3.org/2000/svg','path');
   vis.setAttribute('d',d); vis.setAttribute('stroke',color);
   vis.setAttribute('stroke-width','2'); vis.setAttribute('fill','none');
@@ -294,7 +250,7 @@ C.forEach(([fid,fc,tid,tc,casc,label])=>{
   svg.appendChild(hit);
 });
 
-// ── Zoom & Pan ────────────────────────────────────────────────
+// ── Nagyítás és mozgatás ────────────────────────────────────────
 let sc=1, tx=0, ty=0, drag=false, sx=0, sy=0, stx=0, sty=0;
 
 function apply(){
@@ -326,7 +282,7 @@ vp.addEventListener('mousedown',e=>{
 document.addEventListener('mousemove',e=>{ if(!drag) return; tx=stx+e.clientX-sx; ty=sty+e.clientY-sy; apply(); });
 document.addEventListener('mouseup',()=>{ drag=false; vp.classList.remove('g'); });
 
-// Touch support
+// Érintőképernyő-támogatás
 let touches={}, ptDist=null;
 vp.addEventListener('touchstart',e=>{
   e.preventDefault();

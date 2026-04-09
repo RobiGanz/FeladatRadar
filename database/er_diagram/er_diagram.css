@@ -1,0 +1,44 @@
+/* FeladatRadar – ER Diagram stíluslap */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0d1117; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+#vp { width: 100%; height: 100%; overflow: hidden; cursor: grab; user-select: none; }
+#vp.g { cursor: grabbing; }
+#canvas { position: relative; transform-origin: 0 0; }
+
+svg#lines { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
+
+.tbl { position: absolute; width: 242px; background: #161b22; border-radius: 7px; overflow: hidden; border: 1px solid #30363d; }
+.tbl.dep { opacity: 0.4; border-style: dashed; }
+.th { height: 32px; display: flex; align-items: center; padding: 0 11px; font-size: 11.5px; font-weight: 700; color: #fff; letter-spacing: .3px; gap: 6px; }
+.th em { margin-left: auto; font-style: normal; font-size: 8.5px; background: rgba(255,255,255,.15); padding: 2px 6px; border-radius: 10px; font-weight: 400; }
+.cr { height: 21px; display: flex; align-items: center; padding: 0 11px; border-top: 1px solid #0d1117; gap: 5px; }
+.cn { font: 10.5px/1 'JetBrains Mono','Consolas',monospace; color: #c9d1d9; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cn.pk { color: #fbbf24; font-weight: 700; }
+.cn.fk { color: #60a5fa; }
+.cn.uk { color: #6ee7b7; }
+.ct { font: 9px/1 'JetBrains Mono',monospace; color: #3d4451; white-space: nowrap; }
+.bpk { font: 700 7.5px/1 sans-serif; padding: 1px 4px; border-radius: 2px; background: #3d2f00; color: #fbbf24; }
+.buk { font: 700 7.5px/1 sans-serif; padding: 1px 4px; border-radius: 2px; background: #052e16; color: #6ee7b7; }
+
+.d-core .th  { background: #1d4ed8; } .d-core  { border-top: 2px solid #3b82f6; }
+.d-grp  .th  { background: #065f46; } .d-grp   { border-top: 2px solid #10b981; }
+.d-poll .th  { background: #5b21b6; } .d-poll  { border-top: 2px solid #8b5cf6; }
+.d-subj .th  { background: #7c2d12; } .d-subj  { border-top: 2px solid #f59e0b; }
+.d-sys  .th  { background: #374151; } .d-sys   { border-top: 2px solid #6b7280; }
+
+#ui { position: fixed; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 7px; z-index: 99; }
+.btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 13px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.btn:hover { background: #30363d; }
+
+#legend { position: fixed; top: 12px; left: 12px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px 18px; z-index: 99; font-size: 13px; color: #8b949e; line-height: 2.1; }
+#legend b { color: #c9d1d9; font-size: 14px; }
+#legend-toggle { position: fixed; top: 12px; left: 12px; z-index: 100; background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; display: none; }
+#legend-toggle:hover { background: #30363d; color: #c9d1d9; }
+.ld { display: flex; align-items: center; gap: 10px; }
+.dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+.lline { width: 26px; height: 2px; flex-shrink: 0; }
+
+#zd { position: fixed; bottom: 14px; left: 14px; font: 11px/1 'JetBrains Mono',monospace; color: #3d4451; z-index: 99; }
+
+#tip { position: fixed; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; font: 10px/1.5 'JetBrains Mono',monospace; padding: 6px 10px; border-radius: 5px; pointer-events: none; display: none; z-index: 999; white-space: nowrap; }
