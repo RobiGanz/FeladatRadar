@@ -4,7 +4,7 @@
 
 Az alkalmazás elérhető az alábbi címen:
 
-**[https://www.feladatradar.hu](https://www.feladatradar.hu)**
+**[https://feladatradar.hu/](https://feladatradar.hu/)**
 
 ---
 
@@ -23,11 +23,13 @@ Az alkalmazás elérhető az alábbi címen:
 
 ### 1. Repository klónozása
 
-Nyisson egy terminált (PowerShell vagy Git Bash), navigáljon a kívánt mappába, majd futtassa:
+Nyisson egy terminált (pl. PowerShell vagy Git Bash), navigáljon a kívánt mappába, majd futtassa:
 
 ```bash
 git clone https://github.com/RobiGanz/FeladatRadar.git
 ```
+
+A parancs létrehozza a `FeladatRadar` nevű mappát a gépén, és letölti a teljes forráskódot. Ha nincs Git telepítve, előbb töltse le a [git-scm.com](https://git-scm.com/downloads) oldalról.
 
 ### 2. Megoldás megnyitása Visual Studio-ban
 
@@ -35,12 +37,15 @@ Nyissa meg a `FeladatRadar.sln` fájlt Visual Studio 2022-ben. Ha a NuGet-csomag
 
 > Jobb klikk a Solution-ön → **Restore NuGet Packages**
 
-### 3. Adatbázis létrehozása SSMS-ben
+### 3. Adatbázis inicializálása
 
-1. Nyissa meg az SQL Server Management Studio-t, csatlakozzon a helyi SQL Server példányhoz
+1. Nyissa meg az SQL Server Management Studio-t, és csatlakozzon a helyi SQL Server példányhoz
 2. **File → Open → File** menüponttal nyissa meg az `ures.sql` fájlt (`FeladatRadar\database\dump\ures.sql`)
-3. Futtassa **F5**-tel – ez egyszerre hozza létre az adatbázist, az összes táblát és a tárolt eljárásokat
-4. Sikeres futás után az Object Explorerben megjelenik a `FeladatRadar` adatbázis
+3. Futtassa **F5**-tel – ez létrehozza az adatbázist, az összes táblát és a tárolt eljárásokat
+4. Amennyiben tesztadatokra is szükség van, futtassa a `tablafeltoltes.sql` szkriptet is, amely feltölti az adatbázist adatokkal
+5. Ellenőrzés: a `Users` táblában meg kell jelennie a tesztfelhasználóknak
+
+> **Alternatíva:** A `FeladatRadar.bacpac` fájl visszaállítható SSMS-ben: jobb klikk a **Databases**-en → **Import Data-tier Application...** → válassza ki a `.bacpac` fájlt
 
 ### 4. appsettings.json beállítása (backend)
 
@@ -48,7 +53,7 @@ A `FeladatRadar.backend/appsettings.json` fájlban cserélje le a `ConnectionStr
 
 **SQL Server Authentication:**
 ```json
-"Default": "Server=SAJAT-GEPNEV\\SQLEXPRESS;Database=FeladatRadar;user=sa;password=JELSZO;TrustServerCertificate=true"
+"Default": "Server=GEPNEV\\SQLEXPRESS;Database=FeladatRadar;user=sa;password=JELSZO;TrustServerCertificate=true"
 ```
 
 **Windows Authentication:**
@@ -58,15 +63,7 @@ A `FeladatRadar.backend/appsettings.json` fájlban cserélje le a `ConnectionStr
 
 > A gépnevet az SSMS kapcsolódási ablakában a **Server name** mezőben láthatja.
 
-### 5. Program.cs beállítása (frontend)
-
-A `FeladatRadar.frontend/Program.cs` fájlban cserélje ki a `BaseAddress` értékét a lokális backend URL-re:
-
-```csharp
-BaseAddress = new Uri("https://localhost:44359/")
-```
-
-### 6. Multiple Startup Projects beállítása
+### 5. Multiple Startup Projects beállítása
 
 Hogy egyszerre induljon el a backend és a frontend:
 
@@ -74,7 +71,7 @@ Hogy egyszerre induljon el a backend és a frontend:
 
 Ezt csak egyszer kell beállítani, a Visual Studio elmenti.
 
-### 7. Futtatás
+### 6. Futtatás
 
 Nyomjon **F5**-öt, vagy kattintson a zöld **Start** gombra.
 
@@ -84,18 +81,6 @@ Nyomjon **F5**-öt, vagy kattintson a zöld **Start** gombra.
 | Frontend | https://localhost:7189/ |
 
 > Ha a böngésző SSL-figyelmeztetést jelez, fogadja el a fejlesztői tanúsítványt: **Advanced → Proceed**
-
----
-
-## Adatbázis előkészítése
-
-A `database\dump\` mappában lévő fájlokat az alábbi sorrendben kell futtatni:
-
-1. `ures.sql` – létrehozza az üres adatbázis sémát és a tárolt eljárásokat
-2. `tablafeltoltes.sql` – feltölti a tesztfelhasználókat és a mintaadatokat
-
-**Alternatíva:** A `FeladatRadar.bacpac` fájl visszaállítható SSMS-ben:
-> Jobb klikk a **Databases**-en → **Import Data-tier Application...** → válassza ki a `.bacpac` fájlt
 
 ---
 
