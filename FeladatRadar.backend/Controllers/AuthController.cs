@@ -2,13 +2,12 @@
 using FeladatRadar.backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FeladatRadar.backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController
     {
         private readonly IAuthService _authService;
 
@@ -17,11 +16,10 @@ namespace FeladatRadar.backend.Controllers
             _authService = authService;
         }
 
+        /// <summary>Új felhasználó regisztrálása.</summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // [ApiController] már automatikusan ellenőrzi a ModelState-et,
-            // de itt explicit kezelés az egyedi hibaüzenetekhez:
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -32,27 +30,21 @@ namespace FeladatRadar.backend.Controllers
                 return BadRequest(new LoginResponse
                 {
                     Status = "ERROR",
-                    Message = errors.Count > 0
-                        ? string.Join(" | ", errors)
-                        : "Érvénytelen adatok."
+                    Message = errors.Count > 0 ? string.Join(" | ", errors) : "Érvénytelen adatok."
                 });
             }
-
             var response = await _authService.Register(request);
-
             if (response.Status == "ERROR")
             {
-                // Duplikált felhasználónév / email → 409 Conflict
-                // Egyéb backend hiba → 400 Bad Request
                 bool isDuplicate = response.Message.Contains("már létezik", StringComparison.OrdinalIgnoreCase)
                     || response.Message.Contains("already", StringComparison.OrdinalIgnoreCase)
                     || response.Message.Contains("foglalt", StringComparison.OrdinalIgnoreCase);
                 return isDuplicate ? Conflict(response) : BadRequest(response);
             }
-
             return Ok(response);
         }
 
+        /// <summary>Bejelentkezés, JWT token visszaadása.</summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -62,18 +54,14 @@ namespace FeladatRadar.backend.Controllers
             return Ok(response);
         }
 
+        /// <summary>A bejelentkezett felhasználó adatainak lekérdezése.</summary>
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                return Unauthorized(new { message = "Érvénytelen token." });
-
-            var user = await _authService.GetUserById(userId);
+            var user = await _authService.GetUserById(GetCurrentUserId());
             if (user == null)
                 return NotFound(new { message = "A felhasználó nem található." });
-
             return Ok(new UserDto
             {
                 UserID = user.UserID,
@@ -85,26 +73,22 @@ namespace FeladatRadar.backend.Controllers
             });
         }
 
+        /// <summary>Felhasználónév módosítása.</summary>
         [Authorize]
         [HttpPut("update-username")]
         public async Task<IActionResult> UpdateUsername([FromBody] UpdateUsernameRequest request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                return Unauthorized();
-            var response = await _authService.UpdateUsername(userId, request.NewUsername);
+            var response = await _authService.UpdateUsername(GetCurrentUserId(), request.NewUsername);
             if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
 
+        /// <summary>Jelszó módosítása.</summary>
         [Authorize]
         [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-                return Unauthorized();
-            var response = await _authService.ChangePassword(userId, request.CurrentPassword, request.NewPassword);
+            var response = await _authService.ChangePassword(GetCurrentUserId(), request.CurrentPassword, request.NewPassword);
             if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
