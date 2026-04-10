@@ -1,4 +1,4 @@
-﻿@page "/naptar"
+@page "/naptar"
 @using FeladatRadar.frontend.Services;
 @using FeladatRadar.frontend.Models
 @inject AuthService AuthService
@@ -14,14 +14,7 @@
 
 @if (!_hasCheckedAuth)
 {
-    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f7f5f0;">
-        <div style="width:32px;height:32px;border:3px solid #ddd8ce;border-top-color:#4f46e5;border-radius:50%;animation:spin .7s linear infinite;"></div>
-    </div>
-    <style>    @@keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }</style>
+    <div class="fr-loading"><div class="fr-spinner"></div></div>
 }
 else if (_isAuthenticated)
 {
@@ -617,6 +610,19 @@ else if (_isAuthenticated)
                                         <option value="None">Egyszeri</option>
                                     </select>
                                 </div>
+                                @if (_selRecurrence != "None")
+                                {
+                                    <div class="fr-field">
+                                        <label class="fr-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                            <input type="checkbox" @bind="_selHasEndDate" style="margin-right:4px" />
+                                            Ismétlődés vége
+                                        </label>
+                                        @if (_selHasEndDate)
+                                        {
+                                            <input type="date" class="fr-input" @bind="_selRecurrenceEnd" />
+                                        }
+                                    </div>
+                                }
                             </div>
                             @if (!string.IsNullOrEmpty(_formError))
                             {
@@ -1028,7 +1034,7 @@ else
                 Location       = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
                 RecurrenceType = _selRecurrence,
                 StartDate      = startDate,
-                RecurrenceEndDate = null
+                RecurrenceEndDate = (_selRecurrence != "None" && _selHasEndDate) ? _selRecurrenceEnd : null
             });
             if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadData(); }
             else _formError = r.Message;
@@ -1054,7 +1060,7 @@ else
                 Location       = string.IsNullOrWhiteSpace(_selLocation) ? null : _selLocation,
                 RecurrenceType = _selRecurrence,
                 StartDate      = startDate,
-                RecurrenceEndDate = null
+                RecurrenceEndDate = (_selRecurrence != "None" && _selHasEndDate) ? _selRecurrenceEnd : null
             });
             if (r.Status == "OK" || r.Status == "SUCCESS") { _message = "Csoport bejegyzés hozzáadva."; _messageIsError = false; _addingToDay = 0; await LoadGroupData(); }
             else _formError = r.Message;

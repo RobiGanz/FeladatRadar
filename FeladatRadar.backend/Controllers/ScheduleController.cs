@@ -1,15 +1,14 @@
-﻿using FeladatRadar.backend.Models;
+using FeladatRadar.backend.Models;
 using FeladatRadar.backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FeladatRadar.backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
-    public class ScheduleController : ControllerBase
+    [Authorize(Roles = "Student,Teacher")]
+    public class ScheduleController : BaseController
     {
         private readonly IScheduleService _scheduleService;
 
@@ -18,24 +17,16 @@ namespace FeladatRadar.backend.Controllers
             _scheduleService = scheduleService;
         }
 
-        private int GetCurrentUserId()
-        {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
-                throw new UnauthorizedAccessException("Érvénytelen token.");
-            return userId;
-        }
-
+        /// <summary>A bejelentkezett felhasználó órarendjének lekérdezése.</summary>
         [HttpGet("my-schedule")]
-        [Authorize(Roles = "Student,Teacher")]
         public async Task<IActionResult> GetMySchedule()
         {
             var entries = await _scheduleService.GetMyScheduleAsync(GetCurrentUserId());
             return Ok(entries);
         }
 
-        [HttpPost("add")]
-        [Authorize(Roles = "Student,Teacher")]
+        /// <summary>Új órarend bejegyzés hozzáadása.</summary>
+        [HttpPost]
         public async Task<IActionResult> AddEntry([FromBody] AddScheduleRequest request)
         {
             var result = await _scheduleService.AddScheduleEntryAsync(GetCurrentUserId(), request);
@@ -43,8 +34,8 @@ namespace FeladatRadar.backend.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete/{entryId}")]
-        [Authorize(Roles = "Student,Teacher")]
+        /// <summary>Órarend bejegyzés törlése.</summary>
+        [HttpDelete("{entryId}")]
         public async Task<IActionResult> DeleteEntry(int entryId)
         {
             var result = await _scheduleService.DeleteScheduleEntryAsync(entryId, GetCurrentUserId());

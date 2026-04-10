@@ -1,4 +1,4 @@
-﻿@page "/tantargyak"
+@page "/tantargyak"
 @using FeladatRadar.frontend.Services
 @using FeladatRadar.frontend.Models
 @inject AuthService AuthService
@@ -15,7 +15,7 @@
 {
     <div class="fr-loading"><div class="fr-spinner"></div></div>
 }
-else if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
+else if (_isAuthenticated)
 {
     <div class="@LayoutClass" data-theme="@_theme" data-role="@_userRole">
         @if (_menuOpen)
@@ -282,7 +282,7 @@ else
     private void ToggleMenu() { _menuOpen = !_menuOpen; StateHasChanged(); }
     private void CloseMenu() { _menuOpen = false; StateHasChanged(); }
 
-    private bool _hasCheckedAuth, _isLoading, _messageIsError, _showCustomForm, _showTemplates, _customIsLoading;
+    private bool _hasCheckedAuth, _isAuthenticated, _isLoading, _messageIsError, _showCustomForm, _showTemplates, _customIsLoading;
     private string _message = "", _customSubjectName = "", _customSubjectCode = "", _customError = "", _theme = "light", _userRole = "";
     private List<SubjectDto> _availableSubjects = new();
     private List<EnrollmentDto> _myEnrollments = new();
@@ -299,6 +299,7 @@ else
         if (!firstRender) return;
         try { _theme = await JS.InvokeAsync<string>("themeHelper.getTheme"); } catch { _theme = "light"; }
         await AuthService.InitializeAsync();
+        _isAuthenticated = AuthService.IsAuthenticated;
         _hasCheckedAuth = true;
         _userRole = AuthService.CurrentUser?.UserRole ?? "";
         if (!AuthService.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }

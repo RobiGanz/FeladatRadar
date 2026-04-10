@@ -2,14 +2,13 @@
 using FeladatRadar.backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace FeladatRadar.backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SubjectController : ControllerBase
+    public class SubjectController : BaseController
     {
         private readonly ISubjectService _subjectService;
 
@@ -18,72 +17,54 @@ namespace FeladatRadar.backend.Controllers
             _subjectService = subjectService;
         }
 
-        private int GetCurrentUserId()
-        {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out int userId))
-                throw new UnauthorizedAccessException("Érvénytelen token.");
-            return userId;
-        }
-
+        /// <summary>Az összes felvehető (aktív, szabad helyes) tantárgy listázása.</summary>
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailableSubjects()
         {
-            int studentId = GetCurrentUserId();
-            var subjects = await _subjectService.GetAvailableSubjectsAsync(studentId);
+            var subjects = await _subjectService.GetAvailableSubjectsAsync(GetCurrentUserId());
             return Ok(subjects);
         }
 
+        /// <summary>A bejelentkezett hallgató által már felvett tantárgyak listázása.</summary>
         [HttpGet("my-enrollments")]
         public async Task<IActionResult> GetMyEnrollments()
         {
-            int studentId = GetCurrentUserId();
-            var enrollments = await _subjectService.GetMyEnrollmentsAsync(studentId);
+            var enrollments = await _subjectService.GetMyEnrollmentsAsync(GetCurrentUserId());
             return Ok(enrollments);
         }
 
+        /// <summary>Tantárgy felvétele a listából.</summary>
         [HttpPost("enroll")]
         public async Task<IActionResult> Enroll([FromBody] EnrollRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            int studentId = GetCurrentUserId();
-            var response = await _subjectService.EnrollAsync(studentId, request.SubjectID);
-
-            if (response.Status == "ERROR")
-                return BadRequest(response);
-
+            var response = await _subjectService.EnrollAsync(GetCurrentUserId(), request.SubjectID);
+            if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
 
+        /// <summary>Tantárgy leadása.</summary>
         [HttpDelete("drop/{subjectId}")]
         public async Task<IActionResult> Drop(int subjectId)
         {
-            int studentId = GetCurrentUserId();
-            var response = await _subjectService.DropAsync(studentId, subjectId);
-
-            if (response.Status == "ERROR")
-                return BadRequest(response);
-
+            var response = await _subjectService.DropAsync(GetCurrentUserId(), subjectId);
+            if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
 
+        /// <summary>Egyedi (listán nem szereplő) tantárgy felvétele.</summary>
         [HttpPost("enroll-custom")]
         public async Task<IActionResult> EnrollCustom([FromBody] CustomEnrollRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            int studentId = GetCurrentUserId();
-            var response = await _subjectService.EnrollCustomAsync(studentId, request);
-
-            if (response.Status == "ERROR")
-                return BadRequest(response);
-
+            var response = await _subjectService.EnrollCustomAsync(GetCurrentUserId(), request);
+            if (response.Status == "ERROR") return BadRequest(response);
             return Ok(response);
         }
 
+        /// <summary>Az összes tantárgy listázása (tanároknak / adminnak).</summary>
         [HttpGet("all")]
         public async Task<IActionResult> GetAllSubjects()
         {
@@ -91,5 +72,4 @@ namespace FeladatRadar.backend.Controllers
             return Ok(subjects);
         }
     }
-
 }
