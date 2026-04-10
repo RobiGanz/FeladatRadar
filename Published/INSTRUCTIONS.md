@@ -8,14 +8,17 @@ Az alkalmazás elérhető az alábbi címen:
 
 ---
 
-## Előfeltételek
+## Felhasznált szoftverek
 
-| Szoftver | Verzió | Letöltés |
+A projekt fejlesztése során az alábbi szoftvereket és eszközöket alkalmaztuk. Minden eszközt a szerepének megfelelően választottunk ki, hogy a fejlesztési folyamat hatékony és áttekinthető legyen.
+
+| Szoftver | Verzió | Szerep a projektben |
 |---|---|---|
-| SQL Server (Developer/Express) | 2019+ | https://www.microsoft.com/sql-server/sql-server-downloads |
-| SQL Server Management Studio | 20+ | https://aka.ms/ssmsfullsetup |
-| Visual Studio | 2022 (17.8+) | https://visualstudio.microsoft.com/vs/ |
-| Git Bash | 2.51+ | https://git-scm.com/downloads |
+| Microsoft Visual Studio 2022 | 17.x | Fő IDE, backend és frontend fejlesztés |
+| SQL Server 2022 (Developer) | 16.x | Adatbázis-szerver |
+| SQL Server Management Studio 21 | 21.x | Adatbázis-kezelés, tárolt eljárás írás és tesztelés |
+| GitHub | 2.51.0 | Közös kódtároló, branch-alapú munka |
+| .NET SDK | net8.0 | Build és futtatókörnyezet |
 
 ---
 

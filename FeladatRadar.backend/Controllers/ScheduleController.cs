@@ -26,7 +26,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         /// <summary>Új órarend bejegyzés hozzáadása.</summary>
-        [HttpPost]
+        [HttpPost("add")]
         public async Task<IActionResult> AddEntry([FromBody] AddScheduleRequest request)
         {
             var result = await _scheduleService.AddScheduleEntryAsync(GetCurrentUserId(), request);
@@ -35,7 +35,7 @@ namespace FeladatRadar.backend.Controllers
         }
 
         /// <summary>Órarend bejegyzés törlése.</summary>
-        [HttpDelete("{entryId}")]
+        [HttpDelete("delete/{entryId}")]
         public async Task<IActionResult> DeleteEntry(int entryId)
         {
             var result = await _scheduleService.DeleteScheduleEntryAsync(entryId, GetCurrentUserId());
